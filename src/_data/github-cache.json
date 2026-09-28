@@ -1,12 +1,108 @@
 {
+  "languages": [
+    {
+      "name": "Python",
+      "label": "Python      ",
+      "bytes": 12332300,
+      "pct": "74.9",
+      "bar": "██████████████████████████████",
+      "repos": 5
+    },
+    {
+      "name": "HTML",
+      "label": "HTML        ",
+      "bytes": 1396728,
+      "pct": "8.5",
+      "bar": "███░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+      "repos": 7
+    },
+    {
+      "name": "JavaScript",
+      "label": "JavaScript  ",
+      "bytes": 1198133,
+      "pct": "7.3",
+      "bar": "███░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+      "repos": 9
+    },
+    {
+      "name": "TeX",
+      "label": "TeX         ",
+      "bytes": 724494,
+      "pct": "4.4",
+      "bar": "██░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+      "repos": 1
+    },
+    {
+      "name": "CSS",
+      "label": "CSS         ",
+      "bytes": 297565,
+      "pct": "1.8",
+      "bar": "█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+      "repos": 5
+    },
+    {
+      "name": "TypeScript",
+      "label": "TypeScript  ",
+      "bytes": 291813,
+      "pct": "1.8",
+      "bar": "█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+      "repos": 2
+    },
+    {
+      "name": "PHP",
+      "label": "PHP         ",
+      "bytes": 81459,
+      "pct": "0.5",
+      "bar": "█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+      "repos": 1
+    },
+    {
+      "name": "PowerShell",
+      "label": "PowerShell  ",
+      "bytes": 60427,
+      "pct": "0.4",
+      "bar": "█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+      "repos": 3
+    },
+    {
+      "name": "Jupyter Notebook",
+      "label": "Jupyter Note",
+      "bytes": 55993,
+      "pct": "0.3",
+      "bar": "█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+      "repos": 1
+    },
+    {
+      "name": "Nunjucks",
+      "label": "Nunjucks    ",
+      "bytes": 11543,
+      "pct": "0.1",
+      "bar": "█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
+      "repos": 1
+    }
+  ],
+  "totalBytes": 16469514,
+  "stars": 0,
+  "firstYear": 2023,
+  "lastPush": "2026-09-28T19:49:27Z",
   "name": "Yashank Kothari",
   "bio": "i love computers and making art",
   "location": "Mumbai, India",
   "avatar": "https://avatars.githubusercontent.com/u/68740369?v=4",
   "url": "https://github.com/yashankkothari",
-  "publicRepos": 15,
+  "publicRepos": 16,
   "followers": 13,
   "repos": [
+    {
+      "name": "the lodge",
+      "description": "my portfolio",
+      "language": "JavaScript",
+      "stars": 0,
+      "url": "https://github.com/yashankkothari/the-lodge",
+      "homepage": "https://the-lodge-lac.vercel.app",
+      "year": 2026,
+      "pushed": "2026-09-28T19:49:27Z"
+    },
     {
       "name": "yashankportfoliolinux",
       "description": "fun",

@@ -808,3 +808,21 @@ main:focus { outline: none; }
 .stats-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
 .stats-table th, .stats-table td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--rule); }
 .stats-table th { color: var(--crimson-text); font-weight: normal; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.8rem; }
+
+/* ---------- touch devices: keep the mood, drop the GPU-heavy layers ---------- */
+@media (pointer: coarse), (max-width: 640px) {
+  /* the grain and the masked floor repaint full-screen layers every frame */
+  body::after, body::before { display: none; }
+  :root[data-redroom] body { background-attachment: scroll; }
+  /* static overlays get their own layer so scrolling never repaints them */
+  .scanlines { transform: translateZ(0); }
+  .vhs { display: none; }
+  /* glow flicker repaints text shadows; keep the flicker, lose the blur */
+  .site-title, .site-title:hover { text-shadow: none; }
+  /* opacity-only page swaps: blur filters are expensive on phone GPUs */
+  ::view-transition-old(page) { animation: fade-out-lite 0.14s ease-in both; }
+  ::view-transition-new(page) { animation: fade-in-lite 0.22s ease-out both; }
+  .portrait img { transition: none; }
+}
+@keyframes fade-out-lite { to { opacity: 0; } }
+@keyframes fade-in-lite { from { opacity: 0; } }
