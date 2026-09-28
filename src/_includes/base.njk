@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if title %}{{ title }} · {% endif %}THE LODGE</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="speculationrules">
+    { "prefetch": [{ "where": { "href_matches": "/*" }, "eagerness": "moderate" }] }
+  </script>
+  <script>
+    (function () {
+      var t;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (!t) t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", t);
+      var fx;
+      try { fx = localStorage.getItem("effects"); } catch (e) {}
+      if (!fx) fx = matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on";
+      document.documentElement.setAttribute("data-effects", fx);
+      // one clock for every looping animation, so they carry on across pages instead of restarting
+      document.documentElement.style.setProperty("--clock", -(Date.now() % 3600000) + "ms");
+      // page transitions: none when the hum is stilled
+      function skipIfStill(e) {
+        if (e.viewTransition && document.documentElement.dataset.effects === "off") e.viewTransition.skipTransition();
+      }
+      addEventListener("pageswap", skipIfStill);
+      addEventListener("pagereveal", skipIfStill);
+      // CRT power-on: once per visit
+      if (fx === "on") {
+        try {
+          if (!sessionStorage.getItem("crt")) {
+            document.documentElement.classList.add("crt-on");
+            sessionStorage.setItem("crt", "1");
+          }
+        } catch (e) {}
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="vhs" aria-hidden="true"></div>
+  <header class="site-header">
+    <a href="/" class="site-title">The Lodge<span class="blink" aria-hidden="true">_</span></a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/portfolio/">The Work</a>
+      <a href="/blog/">Transmissions</a>
+      <a href="/now/">Now</a>
+      <a href="/resume/">Résumé</a>
+      <button class="theme-toggle" type="button" aria-label="Toggle light and dark mode"></button>
+      <button class="theme-toggle effects-toggle" type="button" aria-label="Toggle flicker and grain effects"></button>
+    </nav>
+  </header>
+
+  <main>
+    {{ content | safe }}
+  </main>
+
+  <footer>
+    {%- set latest = collections.post | last %}
+    <div class="radio-row">
+      <button type="button" class="radio" data-radio aria-pressed="false"
+        data-src="{{ nowplaying.src }}" data-title="{{ nowplaying.title }}" data-artist="{{ nowplaying.artist }}"
+        aria-label="Play or pause {{ nowplaying.title }} by {{ nowplaying.artist }}">
+        <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="radio-label">Play</span>
+      </button>
+    <div class="marquee" aria-hidden="true"><span>
+      ✦ NOW PLAYING: {{ nowplaying.title }} — {{ nowplaying.artist }}
+      ✦ LATEST TRANSMISSION: {{ latest.data.title | upper }}
+      ✦ THE COFFEE IS HOT
+      ✦ BEST VIEWED AT 800×600 WITH THE LIGHTS OFF
+      ✦ CURRENTLY: DATA ENGINEER @ ICICI LOMBARD
+      ✦ PRESS ~ FOR A TERMINAL
+      ✦ THIS SITE IS UNDER CONSTRUCTION. IT ALWAYS WILL BE.
+    </span></div>
+    </div>
+    <p>The owls are not what they seem.</p>
+    <p><a href="/stats/">stats</a> · <a href="/uses/">uses</a> · <a href="https://github.com/yashankkothari">github</a> · <a href="https://www.linkedin.com/in/yashankkothari/">linkedin</a></p>
+    <p>It is <span data-clock>--:--:--</span> in Mumbai. <span data-visits></span></p>
+    <p class="faint">&copy; 2026 &middot; this page was here before you arrived.</p>
+    <p class="faint"><a href="#" data-terminal-open>open a terminal</a> (or press ~)</p>
+    <p class="faint konami-hint" title="↑ ↑ ↓ ↓ ← → ← → B A">there is a room behind this one.</p>
+  </footer>
+  <script>
+    (function () {
+      var root = document.documentElement;
+      function toggle(selector, attr, a, b, labels) {
+        var btn = document.querySelector(selector);
+        function label() { btn.textContent = root.dataset[attr] === a ? labels[0] : labels[1]; }
+        label();
+        btn.addEventListener("click", function () {
+          root.dataset[attr] = root.dataset[attr] === a ? b : a;
+          try { localStorage.setItem(attr === "theme" ? "theme" : "effects", root.dataset[attr]); } catch (e) {}
+          label();
+        });
+      }
+      toggle(".theme-toggle:not(.effects-toggle)", "theme", "light", "dark", ["Lights Out", "Lights On"]);
+      toggle(".effects-toggle", "effects", "on", "off", ["Still the Hum", "Wake the Hum"]);
+    })();
+  </script>
+  <script src="/js/gimmicks.js"></script>
+  <script src="/js/terminal.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/radio.js"></script>
+  <script src="/js/router.js"></script>
+</body>
+</html>

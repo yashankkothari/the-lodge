@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "eleventy",
+  "buildCommand": "npm run build",
+  "outputDirectory": "_site",
+  "trailingSlash": true,
+  "headers": [
+    {
+      "source": "/(css|js|img|audio|files)/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+    }
+  ]
+}

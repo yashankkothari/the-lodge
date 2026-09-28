@@ -1,0 +1,39 @@
+---
+layout: base.njk
+title: Stats
+permalink: /stats/
+---
+<h1>Readings</h1>
+
+<p>What the instruments picked up from <a href="{{ github.url }}">my GitHub</a> the last time this site was built. Measured in bytes of code, which is to say: imprecisely.</p>
+
+{% if not github.languages or github.languages.length == 0 %}
+<p class="faint-note">The signal is weak right now. The readings will return on the next build.</p>
+{% else %}
+<pre class="ascii-stats" aria-label="Languages by bytes of code">
+{%- for l in github.languages %}
+{{ l.label }} {{ l.bar }} {{ l.pct }}%
+{%- endfor %}
+</pre>
+
+<table class="stats-table">
+  <thead><tr><th>Language</th><th>Share</th><th>Repos</th></tr></thead>
+  <tbody>
+  {%- for l in github.languages %}
+    <tr><td>{{ l.name }}</td><td>{{ l.pct }}%</td><td>{{ l.repos }}</td></tr>
+  {%- endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<h2>The log</h2>
+<pre class="ascii-stats">
+public repos ....... {{ github.publicRepos }}
+followers .......... {{ github.followers }}
+stars collected .... {{ github.stars }}
+first repo ......... {{ github.firstYear }}
+last signal ........ {{ github.lastPush | readableDate if github.lastPush else "unknown" }}
+code on record ..... {{ (github.totalBytes / 1024) | round | int }} KB
+</pre>
+
+<p class="faint-note">Forks and the profile repo are left out. Rebuilt whenever the site is.</p>

@@ -1,0 +1,2 @@
+{%- set shown = tags | topicTags -%}
+{%- if shown.length %}<span class="tag-list">{% for t in shown %}<a href="/blog/tags/{{ t | slugify }}/">#{{ t }}</a>{% endfor %}</span>{% endif -%}

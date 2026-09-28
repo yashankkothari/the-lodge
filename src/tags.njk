@@ -1,0 +1,20 @@
+---
+layout: base.njk
+pagination:
+  data: collections.topics
+  size: 1
+  alias: tag
+permalink: /blog/tags/{{ tag | slugify }}/
+eleventyComputed:
+  title: "Transmissions: {{ tag }}"
+---
+<h1>{{ tag | replace("-", " ") }}</h1>
+<p>Transmissions filed under this frequency.</p>
+
+<ul class="post-list">
+{%- for post in collections[tag] | reverse %}
+  <li><time>{{ post.date | readableDate }}</time><a href="{{ post.url }}">{{ post.data.title }}</a></li>
+{%- endfor %}
+</ul>
+
+<p class="post-back"><a href="/blog/">&larr; all transmissions</a></p>

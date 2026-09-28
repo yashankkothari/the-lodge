@@ -1,0 +1,60 @@
+{
+  "url": "https://www.linkedin.com/in/yashankkothari/",
+  "headline": "Data Engineer at ICICI Lombard. Computer engineering graduate (2026) with Honours in Data Science.",
+  "experience": [
+    {
+      "role": "Data Engineer",
+      "org": "ICICI Lombard",
+      "location": "Mumbai, India",
+      "period": "Jul 2026 – Present",
+      "points": [
+        "Built scalable ETL pipelines with 100+ PL/SQL stored procedures and triggers, raising data integrity and processing accuracy by 18%.",
+        "Replaced manual extraction and refresh cycles with automated, schedule-driven Oracle workflows, cutting daily load times by 25%.",
+        "Encoded BI logic (dynamic KPIs, aggregated metrics, derived columns) into ETL workflows using PL/SQL analytical functions for enterprise dashboards.",
+        "Wrote automated reconciliation scripts to resolve sync anomalies between OLTP systems and the OLAP warehouse."
+      ]
+    },
+    {
+      "role": "Data Engineering Intern",
+      "org": "Colgate Palmolive",
+      "location": "Mumbai, India",
+      "period": "Jan 2026 – Jun 2026",
+      "points": [
+        "Designed a Medallion data model (Staging, Curated, Consumption) in dbt and Jinja-templated SQL for BI reporting in Domo and Sigma.",
+        "Built idempotent Apache Airflow pipelines moving high-volume data from Google Cloud Storage to Snowflake.",
+        "Supported the SAP ECC to SAP S/4HANA migration: remediated legacy tables, updated transformations, validated for zero-defect production data.",
+        "Built a natural-language query interface in Retool AI so business teams could query databases without writing SQL."
+      ]
+    },
+    {
+      "role": "AI/ML Intern",
+      "org": "Card91",
+      "location": "Bangalore, India",
+      "period": "Jun 2025 – Jul 2025",
+      "points": [
+        "Integrated the Tazama open-source fraud detection engine, porting core rule logic from TypeScript to Python.",
+        "Implemented 30+ transaction rules across P2P and P2B flows, reducing false positives and reaching 98.5% detection accuracy.",
+        "Added Google Maps API geolocation checks for real-time verification of transaction locations."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "school": "K.J. Somaiya College of Engineering, Mumbai",
+      "degree": "B.Tech, Computer Engineering, Honours in Data Science",
+      "period": "Oct 2022 – May 2026"
+    }
+  ],
+  "certifications": [
+    { "name": "AI Receptive Software Development", "issuer": "Clemson University", "year": "2025" },
+    { "name": "Neural Networks and Deep Learning", "issuer": "DeepLearning.AI", "year": "2024" },
+    { "name": "AWS Cloud Technical Essentials", "issuer": "Amazon Web Services", "year": "2024" }
+  ],
+  "skills": [
+    { "group": "Languages", "items": "Python, SQL, PL/SQL, NoSQL, JavaScript, HTML/CSS, C++" },
+    { "group": "Data", "items": "Apache Airflow, Snowflake, dbt, Oracle, PostgreSQL, Domo, Sigma Analytics, Grafana" },
+    { "group": "Frameworks", "items": "React, React Native, Node.js, FastAPI, REST APIs" },
+    { "group": "Tools", "items": "AWS (RDS), Git, Jira, Docker, Linux, VS Code" },
+    { "group": "Libraries", "items": "pandas, NumPy, Matplotlib" }
+  ]
+}

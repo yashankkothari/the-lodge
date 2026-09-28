@@ -1,0 +1,62 @@
+---
+layout: base.njk
+title: Résumé
+permalink: /resume/
+pdf: /files/yashank-kothari-resume.pdf
+---
+<div class="resume">
+  <div class="resume-actions">
+    <a href="{{ pdf }}" download>Download the file (PDF)</a>
+    <button type="button" class="theme-toggle" onclick="window.print()">Print this page</button>
+  </div>
+
+  <h1>{{ github.name }}</h1>
+  <p class="resume-contact">
+    {{ github.location }} ·
+    <a href="mailto:kothariyashank@gmail.com">kothariyashank@gmail.com</a> ·
+    <a href="{{ linkedin.url }}">linkedin.com/in/yashankkothari</a> ·
+    <a href="{{ github.url }}">github.com/yashankkothari</a>
+  </p>
+
+  <h2>Experience</h2>
+  {%- for job in linkedin.experience %}
+  <section class="job">
+    <p class="job-period">{{ job.period }} · {{ job.location }}</p>
+    <h3>{{ job.role }}</h3>
+    <p class="job-org">{{ job.org }}</p>
+    <ul>{% for pt in job.points %}<li>{{ pt }}</li>{% endfor %}</ul>
+  </section>
+  {%- endfor %}
+
+  <h2>Education</h2>
+  {%- for ed in linkedin.education %}
+  <section class="job">
+    <p class="job-period">{{ ed.period }}</p>
+    <h3>{{ ed.degree }}</h3>
+    <p class="job-org">{{ ed.school }}</p>
+  </section>
+  {%- endfor %}
+
+  <h2>Projects</h2>
+  {%- for p in collections.project | sort(false, false, "data.order") %}
+  <section class="job">
+    <p class="job-period">{{ p.data.year }} · {{ p.data.tech | join(", ") }}</p>
+    <h3><a href="{{ p.url }}">{{ p.data.title }}</a></h3>
+    <p>{{ p.data.summary }}</p>
+  </section>
+  {%- endfor %}
+
+  <h2>Certifications</h2>
+  <ul class="plain-list">
+  {%- for c in linkedin.certifications %}
+    <li>{{ c.name }} <span class="faint">— {{ c.issuer }}, {{ c.year }}</span></li>
+  {%- endfor %}
+  </ul>
+
+  <h2>Skills</h2>
+  <ul class="plain-list">
+  {%- for s in linkedin.skills %}
+    <li><strong>{{ s.group }}:</strong> {{ s.items }}</li>
+  {%- endfor %}
+  </ul>
+</div>

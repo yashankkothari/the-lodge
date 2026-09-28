@@ -1,0 +1,29 @@
+---
+layout: base.njk
+---
+<article class="post case-file">
+  <p class="post-date">Case file {{ order }} · {{ year }}</p>
+  <h1>{{ title }}</h1>
+  <p class="case-summary">{{ summary }}</p>
+
+  {%- if stats %}
+  <dl class="case-stats">
+    {%- for s in stats %}
+    <div><dt>{{ s.value }}</dt><dd>{{ s.label }}</dd></div>
+    {%- endfor %}
+  </dl>
+  {%- endif %}
+
+  <p class="case-meta">
+    {{ tech | join(" · ") }}<br>
+    {%- if source %}<a href="{{ source }}">source</a>{% endif %}
+    {%- if source and live %} &nbsp;/&nbsp; {% endif %}
+    {%- if live %}<a href="{{ live }}">visit it</a>{% endif %}
+  </p>
+
+  <div class="post-body">
+    {{ content | safe }}
+  </div>
+
+  <p class="post-back"><a href="/portfolio/#projects">&larr; back to the work</a></p>
+</article>

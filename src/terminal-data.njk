@@ -1,0 +1,13 @@
+---
+permalink: /terminal.json
+eleventyExcludeFromCollections: true
+---
+{%- set projects = [] -%}
+{%- for p in collections.project | sort(false, false, "data.order") -%}
+{%- set projects = (projects.push({ slug: p.fileSlug, title: p.data.title, year: p.data.year, tech: p.data.tech, summary: p.data.summary, url: p.url, source: p.data.source }), projects) -%}
+{%- endfor -%}
+{%- set posts = [] -%}
+{%- for p in collections.post | reverse -%}
+{%- set posts = (posts.push({ title: p.data.title, date: p.date | readableDate, url: p.url, tags: p.data.tags | topicTags }), posts) -%}
+{%- endfor -%}
+{{ { name: github.name, location: github.location, bio: github.bio, github: github.url, linkedin: linkedin.url, email: "kothariyashank@gmail.com", headline: linkedin.headline, jobs: linkedin.experience, education: linkedin.education, skills: linkedin.skills, certifications: linkedin.certifications, projects: projects, posts: posts } | dump | safe }}

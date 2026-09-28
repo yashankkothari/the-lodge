@@ -1,0 +1,11 @@
+---
+layout: base.njk
+---
+<article class="post">
+  <h1>{{ title }}</h1>
+  <p class="post-date">{{ page.date | readableDate }} {% include "tag-list.njk" %}</p>
+  <div class="post-body">
+    {{ content | safe }}
+  </div>
+  <p class="post-back"><a href="/blog/">&larr; return to the transmissions</a></p>
+</article>
