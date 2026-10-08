@@ -1,4 +1,5 @@
 ---
+permalink: "{{ '/classic/' if site.design == 'minimal' else '/' }}"
 layout: base.njk
 title: Home
 ---

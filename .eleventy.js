@@ -19,6 +19,15 @@ module.exports = function (eleventyConfig) {
     return [...set].filter((t) => !HIDDEN_TAGS.includes(t)).sort();
   });
 
+  // minimal design helpers
+  const topic = (tags) => { tags = tags || []; return tags.includes("agents") ? "agents" : (tags.includes("linux") && !tags.includes("genai")) ? "linux" : tags.includes("data-engineering") ? "data" : "genai"; };
+  eleventyConfig.addFilter("topic", topic);
+  eleventyConfig.addFilter("byTopic", (posts, t) => posts.filter((p) => topic(p.data.tags) === t));
+  const M = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+  eleventyConfig.addFilter("monthYear", (d) => { d = new Date(d); return M[d.getUTCMonth()] + " " + d.getUTCFullYear(); });
+  eleventyConfig.addFilter("dayNum", (d) => String(new Date(d).getUTCDate()).padStart(2, "0"));
+  eleventyConfig.addFilter("shortDate", (d) => { d = new Date(d); return M[d.getUTCMonth()] + " " + String(d.getUTCDate()).padStart(2, "0"); });
+
   return {
     dir: { input: "src", output: "_site", includes: "_includes" },
     markdownTemplateEngine: "njk",

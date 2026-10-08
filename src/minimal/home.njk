@@ -1,0 +1,57 @@
+---
+layout: minimal.njk
+title: yashank kothari
+description: "yashank kothari, data engineer in mumbai. pipelines, local llms and small tools."
+navHome: true
+permalink: "{{ '/' if site.design == 'minimal' else '/minimal/' }}"
+eleventyExcludeFromCollections: true
+---
+  <section class="hero">
+    <div class="tape">
+      <canvas id="owl" width="96" height="96" aria-label="a small pixel owl"></canvas>
+      <div class="deck">
+        <p class="now"><span class="dim">now playing</span><br><b id="track">night shift</b> <span class="dim">· chiptune, made in-browser</span></p>
+        <div class="bar"><i id="fill"></i></div>
+        <div class="ctl"><button data-a="prev">prev</button><button data-a="play" id="play">play</button><button data-a="next">skip</button><span class="dim" id="time">0:00</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>about</h2>
+    <ul>
+      <li>data engineer at <span class="hl c-blue">icici lombard</span>, mumbai</li>
+      <li>b.tech computer engineering, honours in data science · kj somaiya, 2026</li>
+      <li>i build pipelines that don't break when you run them twice</li>
+      <li>now: running local llms on an <span class="hl c-green">omarchy</span> laptop, talking to them over telegram</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>things i've done</h2>
+    <ul>
+      <li>interned at <span class="hl c-gold">colgate global business services</span> and <span class="hl c-pink">card91</span></li>
+      <li>built <a href="/work/malnotware/">malnotware</a>, <a href="/work/notesaid/">notesaid</a> and <a href="/work/oncolytix/">oncolytix</a></li>
+      <li>wrote {{ collections.post | length }} practical guides on data engineering and genai · <a href="/blog/">read them</a></li>
+      <li>cs2 on weekends · michael jackson, elvis and rock on repeat</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>latest writing</h2>
+    <ul class="posts">
+    {%- for post in collections.post | reverse | limit(3) %}
+      <li class="post"><span class="date dim">{{ post.date | shortDate }}</span><a href="{{ post.url }}">{{ post.data.title | lower }}</a><span></span></li>
+    {%- endfor %}
+    </ul>
+  </section>
+{%- if contributions.days.length %}
+
+  <section>
+    <h2>commits</h2>
+    <div class="graph" aria-label="github contributions over the last year">
+    {%- for d in contributions.days %}<i data-l="{{ d.level }}" title="{{ d.date }}"></i>{% endfor -%}
+    </div>
+    {% if contributions.total %}<p class="dim small">{{ contributions.total }} contributions in the last year</p>{% endif %}
+  </section>
+{%- endif %}

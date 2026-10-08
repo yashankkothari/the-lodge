@@ -1,0 +1,4 @@
+{
+  "_comment": "Switch the homepage and blog index between designs. \"minimal\" = new look (classic stays at /classic/). \"classic\" = original Lodge look (minimal moves to /minimal/).",
+  "design": "minimal"
+}
