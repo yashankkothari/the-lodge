@@ -2,7 +2,7 @@
 layout: base.njk
 title: Now
 permalink: /now/
-updated: 2026-09-28
+updated: 2026-10-08
 ---
 
 # Now
@@ -28,8 +28,11 @@ Going deeper into ML engineering: getting models out of notebooks and into pipel
 
 *Placeholder.* Angelo Badalamenti, probably. On repeat.
 
-## Making
+## Building
 
-This website. It keeps growing rooms.
+- **[Savory](https://twitter-bookmark-organizer.vercel.app)**: a browser extension that turns your X bookmarks into an organized, searchable library, with tags, folders, notes and on-device search by meaning. No account, no server.
+- **[Pixopoly](https://pixopoly-website.vercel.app)**: a pixel-art property trading game for 2 to 6 players, built in Godot. Play online, on your network or on one PC. Coming soon to Steam.
+- **phonetocam**: turns an Android phone into a low-latency webcam for Windows, written in Rust.
+- This website. It keeps growing rooms.
 
 <p class="faint-note">This is a <a href="https://nownownow.com/about">/now page</a>.</p>
