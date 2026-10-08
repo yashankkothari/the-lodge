@@ -19,6 +19,9 @@ module.exports = function (eleventyConfig) {
     return [...set].filter((t) => !HIDDEN_TAGS.includes(t)).sort();
   });
 
+  // cache-busting token so phones never keep a stale stylesheet
+  eleventyConfig.addGlobalData("assetV", Date.now().toString(36));
+
   // minimal design helpers
   const topic = (tags) => { tags = tags || []; return tags.includes("agents") ? "agents" : (tags.includes("linux") && !tags.includes("genai")) ? "linux" : tags.includes("data-engineering") ? "data" : "genai"; };
   eleventyConfig.addFilter("topic", topic);
