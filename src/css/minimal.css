@@ -212,3 +212,16 @@ figure.shot.phone{max-width:260px}
 .job .logo{width:40px;height:40px;border-radius:9px;border:1px solid var(--line);display:block;margin-top:2px}
 @media (max-width:600px){.job.has-logo{grid-template-columns:34px 1fr;gap:12px}.job .logo{width:34px;height:34px;border-radius:8px}}
 .c-purple{--c:#9b7cf0}.c-orange{--c:#e8893a}
+
+.shelf{display:grid;gap:14px;margin:12px 0 4px}
+.shelf figure{margin:0;min-width:0}
+.shelf img{display:block;width:100%;height:auto;border-radius:6px;border:1px solid var(--line);background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.shelf figcaption{display:flex;flex-direction:column;margin-top:6px;font-size:12px;line-height:1.4}
+.shelf figcaption .dim{color:var(--dim)}
+.shelf-books{grid-template-columns:repeat(3,1fr)}
+.shelf-books img{aspect-ratio:2/3;object-fit:cover}
+.shelf-albums{grid-template-columns:repeat(4,1fr)}
+.shelf-albums img{aspect-ratio:1;object-fit:cover}
+.shelf-games{grid-template-columns:repeat(2,1fr)}
+.shelf-games img{aspect-ratio:460/215;object-fit:cover}
+@media (max-width:600px){.shelf{gap:10px}.shelf-albums{grid-template-columns:repeat(2,1fr)}.shelf figcaption{font-size:11px}}

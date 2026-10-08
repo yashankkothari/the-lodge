@@ -22,11 +22,29 @@ Going deeper into ML engineering: getting models out of notebooks and into pipel
 
 ## Reading
 
-*Placeholder.* A book title goes here.
+<div class="shelf shelf-books">
+  <figure><img src="/img/now/ddia.jpg" alt="Designing Data-Intensive Applications cover" loading="lazy" width="300"><figcaption><span>Designing Data-Intensive Applications</span><span class="dim">Martin Kleppmann</span></figcaption></figure>
+  <figure><img src="/img/now/industrial-society.jpg" alt="Industrial Society and Its Future cover" loading="lazy" width="300"><figcaption><span>Industrial Society and Its Future</span><span class="dim">Theodore Kaczynski</span></figcaption></figure>
+  <figure><img src="/img/now/sun-and-steel.jpg" alt="Sun and Steel cover" loading="lazy" width="300"><figcaption><span>Sun and Steel</span><span class="dim">Yukio Mishima</span></figcaption></figure>
+</div>
 
 ## Listening
 
-*Placeholder.* Angelo Badalamenti, probably. On repeat.
+<div class="shelf shelf-albums">
+  <figure><img src="/img/now/bad.jpg" alt="Bad album art" loading="lazy" width="300"><figcaption><span>Bad</span><span class="dim">Michael Jackson</span></figcaption></figure>
+  <figure><img src="/img/now/reality-awaits.jpg" alt="Reality Awaits album art" loading="lazy" width="300"><figcaption><span>Reality Awaits</span><span class="dim">The Strokes</span></figcaption></figure>
+  <figure><img src="/img/now/rebel.jpg" alt="Rebel album art" loading="lazy" width="300"><figcaption><span>Rebel</span><span class="dim">EsDeeKid</span></figcaption></figure>
+  <figure><img src="/img/now/discovery.jpg" alt="Discovery album art" loading="lazy" width="300"><figcaption><span>Discovery</span><span class="dim">Daft Punk</span></figcaption></figure>
+</div>
+
+## Playing
+
+<div class="shelf shelf-games">
+  <figure><img src="/img/now/cs2.jpg" alt="Counter-Strike 2" loading="lazy" width="300"><figcaption><span>Counter-Strike 2</span><span class="dim">Valve</span></figcaption></figure>
+  <figure><img src="/img/now/mh-rise.jpg" alt="Monster Hunter Rise" loading="lazy" width="300"><figcaption><span>Monster Hunter Rise</span><span class="dim">Capcom</span></figcaption></figure>
+  <figure><img src="/img/now/balatro.jpg" alt="Balatro" loading="lazy" width="300"><figcaption><span>Balatro</span><span class="dim">LocalThunk</span></figcaption></figure>
+  <figure><img src="/img/now/black-flag.jpg" alt="Assassin's Creed Black Flag Resynced" loading="lazy" width="300"><figcaption><span>Black Flag Resynced</span><span class="dim">Ubisoft</span></figcaption></figure>
+</div>
 
 ## Building
 
