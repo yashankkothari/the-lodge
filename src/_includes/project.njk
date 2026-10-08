@@ -25,5 +25,5 @@ layout: base.njk
     {{ content | safe }}
   </div>
 
-  <p class="post-back"><a href="/portfolio/#projects">&larr; back to the work</a></p>
+  <p class="post-back"><a href="/portfolio/#projects">{% if site.design == "minimal" %}&larr; all projects{% else %}&larr; back to the work{% endif %}</a></p>
 </article>

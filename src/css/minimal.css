@@ -58,3 +58,61 @@ footer span a{color:var(--dim)}
 .posts .post{grid-template-columns:60px 1fr auto}
 .posts .date{white-space:nowrap}
 @media (max-width:520px){.posts .post:has(.date:not(:empty)){grid-template-columns:56px 1fr}}
+
+/* ---------- inner pages (shared classic markup, minimal styling) ---------- */
+ol li::before{content:none}
+ol{padding-left:22px}ol li{padding-left:4px}
+main > h1:not(:first-child), article h1, main > p + h1{font-size:24px;margin:44px 0 8px;letter-spacing:-.02em}
+main h1 + p{margin-top:0}
+main h2:not(section > h2){font-size:18px;color:var(--ink);text-transform:none;letter-spacing:-.01em;margin:40px 0 12px}
+main h2:not(section > h2)::before{content:"## ";color:var(--acc)}
+main h3{font-size:15px;margin:28px 0 8px}
+main p{margin:0 0 14px}
+main a{color:var(--ink);text-decoration-color:var(--dim);text-underline-offset:3px}
+main a:hover{color:var(--acc);text-decoration-color:var(--acc)}
+.post{margin-top:44px}
+.post h1{margin-top:0 !important}
+.post-date,.job-period{color:var(--dim);font-size:12px;margin:0 0 6px}
+.tag-list a{font-size:11px;margin-left:8px;color:var(--acc);text-decoration:none}
+.post-body ul li::before{content:"–"}
+.post-body img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);display:block}
+figure{margin:22px 0}
+figcaption{font-size:12px;color:var(--dim);margin-top:8px}
+code{font-family:inherit;font-size:13px;background:color-mix(in srgb,var(--ink) 8%,transparent);padding:1px 5px;border-radius:4px}
+pre{background:color-mix(in srgb,var(--ink) 5%,var(--bg));border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;font-size:13px;line-height:1.55}
+pre code{background:none;padding:0}
+blockquote{margin:18px 0;padding:2px 0 2px 16px;border-left:2px solid var(--acc);color:var(--dim)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0 20px}
+th,td{text-align:left;padding:7px 10px 7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim);font-weight:500}
+.table-wrap{overflow-x:auto}
+hr{border:0;border-top:1px solid var(--line);margin:32px 0}
+.post-back{margin-top:44px;font-size:13px}
+.post-back a{text-decoration:none;border-bottom:1px dashed var(--dim)}
+.post-list li{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;padding:7px 0}
+.post-list li::before{content:none}
+.post-list time{color:var(--dim);font-size:12px;padding-top:2px}
+.post-list .tag-list{grid-column:2}
+.post-list .tag-list a{margin:0 8px 0 0}
+.new-badge{font-size:10px;color:var(--pink);margin-left:6px}
+.tag-filter{font-size:13px;color:var(--dim)}
+.tag-filter a{margin-right:6px;color:var(--acc);text-decoration:none}
+.job{padding:14px 0;border-bottom:1px solid var(--line)}
+.job:last-of-type{border-bottom:0}
+.job h3{margin:0 0 2px}
+.job-org{color:var(--dim);margin:0 0 8px !important}
+.faint,.faint-note{color:var(--dim);font-size:13px}
+.plain-list li{padding-left:0}.plain-list li::before{content:none}
+.case-summary{font-size:16px;color:var(--ink)}
+.case-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:18px 0}
+.case-stats div{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.case-stats dt{font-size:18px;color:var(--acc)}.case-stats dd{margin:0;font-size:12px;color:var(--dim)}
+.case-meta{font-size:13px;color:var(--dim)}
+.resume{margin-top:40px}
+.resume-actions{display:flex;gap:12px;align-items:center;margin-bottom:24px;font-size:13px}
+.resume-actions .theme-toggle{font-size:13px}
+.resume-contact{color:var(--dim);font-size:13px}
+.ascii-stats{font-size:12px;overflow-x:auto}
+footer span{line-height:1.9}
+@media print{nav,footer,.resume-actions,#theme{display:none!important}html{background:#fff;color:#000}}
+@media (max-width:520px){.post-list li{grid-template-columns:1fr}.post-list .tag-list{grid-column:1}}

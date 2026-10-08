@@ -7,5 +7,5 @@ layout: base.njk
   <div class="post-body">
     {{ content | safe }}
   </div>
-  <p class="post-back"><a href="/blog/">&larr; return to the transmissions</a></p>
+  <p class="post-back"><a href="/blog/">{% if site.design == "minimal" %}&larr; all posts{% else %}&larr; return to the transmissions{% endif %}</a></p>
 </article>
