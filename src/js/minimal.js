@@ -42,3 +42,27 @@ const btns=document.querySelectorAll('.filters button');
 btns.forEach(b=>b.onclick=()=>{btns.forEach(x=>x.classList.toggle('on',x===b));const f=b.dataset.f;
  document.querySelectorAll('.posts .post').forEach(p=>p.classList.toggle('hide',f!=='all'&&p.dataset.tag!==f));
  document.querySelectorAll('.posts .month').forEach(m=>{let n=m.nextElementSibling,vis=false;while(n&&!n.classList.contains('month')){if(!n.classList.contains('hide'))vis=true;n=n.nextElementSibling}m.classList.toggle('hide',!vis)})});
+
+// commit graph: start scrolled to the most recent weeks on narrow screens
+document.querySelectorAll('.graph').forEach(g => { g.scrollLeft = g.scrollWidth; });
+
+// tap a diagram or screenshot to see it full size (pinch/pan on phones)
+(function () {
+  const imgs = document.querySelectorAll('.post-body img');
+  if (!imgs.length) return;
+  const box = document.createElement('div');
+  box.className = 'zoom'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'image, tap to close');
+  box.innerHTML = '<button type="button" aria-label="close">×</button><div class="zoom-scroll"><img alt=""></div>';
+  document.body.appendChild(box);
+  const big = box.querySelector('img');
+  const close = () => { box.classList.remove('open'); document.documentElement.classList.remove('noscroll'); };
+  box.querySelector('button').onclick = close;
+  box.addEventListener('click', e => { if (e.target === box || e.target.classList.contains('zoom-scroll')) close(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  imgs.forEach(img => {
+    img.classList.add('zoomable'); img.tabIndex = 0;
+    const open = () => { big.src = img.currentSrc || img.src; big.alt = img.alt; box.classList.add('open'); document.documentElement.classList.add('noscroll'); box.querySelector('.zoom-scroll').scrollLeft = 0; };
+    img.addEventListener('click', open);
+    img.addEventListener('keydown', e => { if (e.key === 'Enter') open(); });
+  });
+})();

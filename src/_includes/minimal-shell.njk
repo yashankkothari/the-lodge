@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0c0e" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)">
+<link rel="apple-touch-icon" href="/img/owl.svg">
 <title>{% if title and title != "yashank kothari" %}{{ title | lower }} · {% endif %}yashank kothari</title>
 <meta name="description" content="{{ description or 'yashank kothari, data engineer in mumbai. pipelines, local llms and small tools.' }}">
 <meta property="og:title" content="{{ title or 'yashank kothari' }}">
@@ -15,20 +18,23 @@
 <body id="top">
 <main class="m-{{ page.fileSlug or 'home' }}">
   <header>
-    {% if navHome %}<h1>yashank kothari</h1>{% else %}<h1><a class="home" href="/">yashank kothari</a></h1>{% endif %}
+    <div class="top">
+      {% if navHome %}<h1>yashank kothari</h1>{% else %}<h1><a class="home" href="/">yashank kothari</a></h1>{% endif %}
+      <button id="theme" aria-label="toggle light and dark mode">◐</button>
+    </div>
     <nav>
       <a href="/blog/"{% if section == 'blog' or page.url.startsWith('/blog') %} aria-current="page"{% endif %}>blog</a>
       <a href="/portfolio/"{% if page.url.startsWith('/portfolio') or page.url.startsWith('/work') %} aria-current="page"{% endif %}>projects</a>
       <a href="/resume/"{% if page.url == '/resume/' %} aria-current="page"{% endif %}>résumé</a>
-      <a href="mailto:kothariyashank@gmail.com">email</a>
-      <a href="https://github.com/yashankkothari">github</a>
-      <a href="https://www.linkedin.com/in/yashankkothari/">linkedin</a>
-      <button id="theme" aria-label="toggle light and dark mode">◐</button>
+      <a class="ext" href="mailto:kothariyashank@gmail.com">email</a>
+      <a class="ext" href="https://github.com/yashankkothari">github</a>
+      <a class="ext" href="https://www.linkedin.com/in/yashankkothari/">linkedin</a>
     </nav>
   </header>
 {{ content | safe }}
   <footer>
-    <span>© 2026 yashank kothari · plain html, css and js · <a href="/now/">now</a> · <a href="/uses/">uses</a> · <a href="/stats/">stats</a></span>
+    <span class="flinks"><a href="/now/">now</a><a href="/uses/">uses</a><a href="/stats/">stats</a><a class="m-only" href="mailto:kothariyashank@gmail.com">email</a><a class="m-only" href="https://github.com/yashankkothari">github</a><a class="m-only" href="https://www.linkedin.com/in/yashankkothari/">linkedin</a></span>
+    <span>© 2026 yashank kothari · plain html, css and js</span>
     <a href="#top">back to top</a>
   </footer>
 </main>
