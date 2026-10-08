@@ -185,3 +185,6 @@ html.noscroll{overflow:hidden}
 @media (hover:none){nav a:hover,footer a:hover{color:inherit}}
 .zoom-scroll img{width:min(100%,1400px)}
 @media (max-width:900px){.zoom-scroll{align-items:center}.zoom-scroll img{width:900px;max-width:none}}
+/* project screenshots */
+figure.shot img{width:100%;border:1px solid var(--line);border-radius:8px}
+figure.shot.phone{max-width:260px}

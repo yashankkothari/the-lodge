@@ -33,6 +33,8 @@ I then made it open source. Other students started contributing, and the project
 
 ## Screenshots
 
-<!-- Put images in src/img/projects/ and reference them like:
-![NotesAid home screen](/img/projects/notesaid-home.png) -->
-<p class="faint-note">Screenshots pending. The camera is still developing.</p>
+<figure class="shot">
+  <img src="/img/projects/notesaid-home.jpg" alt="NotesAid landing page with the Start Learning Now button" loading="lazy">
+  <figcaption>The NotesAid landing page: every subject for your course, semester and branch in one place.</figcaption>
+</figure>
+

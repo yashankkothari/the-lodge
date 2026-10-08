@@ -29,5 +29,13 @@ The result is a working hybrid detector. It flags known malware immediately and 
 
 ## Screenshots
 
-<!-- ![MalNotWare extension popup](/img/projects/malnotware-popup.png) -->
-<p class="faint-note">Screenshots pending. Nothing was harmed in the sandbox.</p>
+<figure class="shot">
+  <img src="/img/projects/malnotware-home.jpg" alt="MalNotWare landing page: Detect Threats with Hybrid AI" loading="lazy">
+  <figcaption>The landing page, built for GajShield Hack 8.</figcaption>
+</figure>
+
+<figure class="shot">
+  <img src="/img/projects/malnotware-scan.jpg" alt="MalNotWare scan page with a drag and drop upload box" loading="lazy">
+  <figcaption>The scan page: drop a file in and the hybrid model checks it without running it.</figcaption>
+</figure>
+

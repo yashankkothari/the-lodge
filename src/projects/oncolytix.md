@@ -27,5 +27,8 @@ The classifier reached 87% accuracy on held-out CT scans, and the full loop runs
 
 ## Screenshots
 
-<!-- ![OncoLytix upload screen](/img/projects/oncolytix-upload.png) -->
-<p class="faint-note">Screenshots pending.</p>
+<figure class="shot phone">
+  <img src="/img/projects/oncolytix-home.jpg" alt="OncoLytix app home screen on a phone: Lung Cancer Detection" loading="lazy">
+  <figcaption>The app home screen: start a scan or pull up patient records.</figcaption>
+</figure>
+
