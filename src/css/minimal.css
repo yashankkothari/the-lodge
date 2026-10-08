@@ -211,3 +211,4 @@ figure.shot.phone{max-width:260px}
 .job.has-logo{display:grid;grid-template-columns:40px 1fr;gap:14px;align-items:start}
 .job .logo{width:40px;height:40px;border-radius:9px;border:1px solid var(--line);display:block;margin-top:2px}
 @media (max-width:600px){.job.has-logo{grid-template-columns:34px 1fr;gap:12px}.job .logo{width:34px;height:34px;border-radius:8px}}
+.c-purple{--c:#9b7cf0}.c-orange{--c:#e8893a}

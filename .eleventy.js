@@ -23,7 +23,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addGlobalData("assetV", Date.now().toString(36));
 
   // minimal design helpers
-  const topic = (tags) => { tags = tags || []; return tags.includes("agents") ? "agents" : (tags.includes("linux") && !tags.includes("genai")) ? "linux" : tags.includes("data-engineering") ? "data" : "genai"; };
+  const topic = (tags) => { tags = tags || []; return tags.includes("essays") ? "essays" : tags.includes("backend") ? "backend" : tags.includes("agents") ? "agents" : (tags.includes("linux") && !tags.includes("genai")) ? "linux" : tags.includes("data-engineering") ? "data" : "genai"; };
   eleventyConfig.addFilter("topic", topic);
   eleventyConfig.addFilter("byTopic", (posts, t) => posts.filter((p) => topic(p.data.tags) === t));
   const M = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];

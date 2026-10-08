@@ -9,10 +9,10 @@ eleventyExcludeFromCollections: true
 {%- set posts = collections.post | reverse -%}
   <section>
     <h2>blog</h2>
-    <p class="intro">practical notes on data pipelines, local llms and my setup. every post has diagrams and code you can run.</p>
+    <p class="intro">notes on data pipelines, backends, llms and my setup, plus the occasional essay on what all this ai means.</p>
     <div class="filters">
       <button class="on" data-f="all">all <span class="dim">{{ posts | length }}</span></button>
-      {%- for f in ["data", "genai", "agents", "linux"] %}
+      {%- for f in ["data", "backend", "genai", "agents", "essays", "linux"] %}
       <button data-f="{{ f }}">{{ f }} <span class="dim">{{ posts | byTopic(f) | length }}</span></button>
       {%- endfor %}
     </div>
@@ -22,7 +22,7 @@ eleventyExcludeFromCollections: true
       {%- set m = post.date | monthYear %}
       {%- if m != last %}<li class="month">{{ m }}</li>{% set last = m %}{% endif %}
       {%- set t = post.data.tags | topic %}
-      <li class="post" data-tag="{{ t }}"><span class="date dim">{{ post.date | dayNum }}</span><a href="{{ post.url }}">{{ post.data.title | lower }}</a><span class="hl {{ {'genai':'c-blue','agents':'c-pink','data':'c-green','linux':'c-gold'}[t] }} tag">{{ t }}</span></li>
+      <li class="post" data-tag="{{ t }}"><span class="date dim">{{ post.date | dayNum }}</span><a href="{{ post.url }}">{{ post.data.title | lower }}</a><span class="hl {{ {'genai':'c-blue','agents':'c-pink','data':'c-green','linux':'c-gold','backend':'c-purple','essays':'c-orange'}[t] }} tag">{{ t }}</span></li>
     {%- endfor %}
     </ul>
   </section>
