@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 title: Résumé
-permalink: /resume/
+permalink: "{{ '/classic/resume/' if site.design == 'minimal' else '/resume/' }}"
 pdf: /files/yashank-kothari-resume.pdf
 ---
 <div class="resume">

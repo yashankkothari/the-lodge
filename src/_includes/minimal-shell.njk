@@ -24,8 +24,9 @@
     </div>
     <nav>
       <a href="/blog/"{% if section == 'blog' or page.url.startsWith('/blog') %} aria-current="page"{% endif %}>blog</a>
+      <a href="/#work">work</a>
       <a href="/portfolio/"{% if page.url.startsWith('/portfolio') or page.url.startsWith('/work') %} aria-current="page"{% endif %}>projects</a>
-      <a href="/resume/"{% if page.url == '/resume/' %} aria-current="page"{% endif %}>résumé</a>
+      <a href="/files/yashank-kothari-resume.pdf" download>résumé ↓</a>
       <a class="ext" href="mailto:kothariyashank@gmail.com">email</a>
       <a class="ext" href="https://github.com/yashankkothari">github</a>
       <a class="ext" href="https://www.linkedin.com/in/yashankkothari/">linkedin</a>

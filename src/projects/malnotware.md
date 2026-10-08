@@ -3,6 +3,7 @@ title: MalNotWare
 order: 2
 year: 2025
 tech: [Docker, VirusTotal API, Browser Extension, JavaScript]
+thumb: /img/projects/malnotware-home.jpg
 summary: A browser extension that watches what you download, then watches what it does.
 source: https://github.com/yashankkothari/Malnotware-Malware-Detection-with-AI-ML
 live: ""

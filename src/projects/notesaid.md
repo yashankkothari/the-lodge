@@ -3,6 +3,7 @@ title: NotesAid
 order: 1
 year: 2025
 tech: [Next.js, React, TypeScript, PWA]
+thumb: /img/projects/notesaid-home.jpg
 summary: An open-source study companion that 2,700+ students found on their own.
 source: https://github.com/yashankkothari/Notes-Aid
 live: ""

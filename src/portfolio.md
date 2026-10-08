@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 title: The Work
-permalink: /portfolio/
+permalink: "{{ '/classic/portfolio/' if site.design == 'minimal' else '/portfolio/' }}"
 ---
 
 # The Work

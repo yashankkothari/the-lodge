@@ -1,0 +1,28 @@
+---
+layout: minimal.njk
+title: projects
+description: "things yashank kothari has built: notesaid, malnotware, oncolytix."
+permalink: "{{ '/portfolio/' if site.design == 'minimal' else '/minimal/portfolio/' }}"
+eleventyExcludeFromCollections: true
+---
+  <section>
+    <h2>projects</h2>
+    <p class="intro">things i've built outside of work. tap one for the full story and screenshots.</p>
+    <div class="cards">
+    {%- for p in collections.project | sort(false, false, "data.order") %}
+      <article class="card">
+        <a class="card-img{% if 'oncolytix' in p.data.thumb %} tall{% endif %}" href="{{ p.url }}" aria-hidden="true" tabindex="-1">{% if p.data.thumb %}<img src="{{ p.data.thumb }}" alt="" loading="lazy">{% endif %}</a>
+        <div class="card-body">
+          <p class="job-period">{{ p.data.year }} · {{ p.data.tech | join(", ") | lower }}</p>
+          <h3><a href="{{ p.url }}">{{ p.data.title | lower }}</a></h3>
+          <p>{{ p.data.summary }}</p>
+          {%- if p.data.stats and p.data.stats.length %}
+          <p class="dim small">{% for s in p.data.stats | limit(2) %}{{ s.value }} {{ s.label }}{% if not loop.last %} · {% endif %}{% endfor %}</p>
+          {%- endif %}
+          <p class="card-links"><a href="{{ p.url }}">case study</a>{% if p.data.source %}<a href="{{ p.data.source }}">source</a>{% endif %}{% if p.data.live %}<a href="{{ p.data.live }}">live</a>{% endif %}</p>
+        </div>
+      </article>
+    {%- endfor %}
+    </div>
+    <p class="dim small">more on <a href="https://github.com/yashankkothari">github</a>.</p>
+  </section>

@@ -3,6 +3,7 @@ title: OncoLytix
 order: 3
 year: 2025
 tech: [MobileNetV2, MediaPipe Model Maker, React Native, Expo, Flask]
+thumb: /img/projects/oncolytix-home.jpg
 summary: A phone app that reads lung CT scans and returns a prediction in seconds.
 source: https://github.com/yashankkothari/Lung-Cancer-Detection-Using-ML
 live: ""
