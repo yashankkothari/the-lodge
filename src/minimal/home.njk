@@ -33,14 +33,17 @@ eleventyExcludeFromCollections: true
     <h2>work</h2>
     {%- set hl = ['c-blue','c-gold','c-pink'] %}
     {%- for job in linkedin.experience %}
-    <div class="job">
-      <p class="job-period">{{ job.period | lower }} · {{ job.location | lower }}</p>
-      <h3>{{ job.role | lower }} · <span class="hl {{ hl[loop.index0 % 3] }}">{{ job.org | lower }}</span></h3>
-      <ul>
-      {%- for pt in job.points | limit(2) %}
-        <li>{{ pt }}</li>
-      {%- endfor %}
-      </ul>
+    <div class="job has-logo">
+      {% if job.logo %}<img class="logo" src="{{ job.logo }}" alt="{{ job.org }} logo" width="40" height="40" loading="lazy">{% endif %}
+      <div>
+        <p class="job-period">{{ job.period | lower }} · {{ job.location | lower }}</p>
+        <h3>{{ job.role | lower }} · <span class="hl {{ hl[loop.index0 % 3] }}">{{ job.org | lower }}</span></h3>
+        <ul>
+        {%- for pt in job.points | limit(2) %}
+          <li>{{ pt }}</li>
+        {%- endfor %}
+        </ul>
+      </div>
     </div>
     {%- endfor %}
     <p class="dim small">full details, education, skills and certifications in the <a href="/files/yashank-kothari-resume.pdf" download>résumé</a>.</p>

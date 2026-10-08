@@ -4,7 +4,7 @@
       "name": "Python",
       "label": "Python      ",
       "bytes": 12377482,
-      "pct": "74.7",
+      "pct": "74.6",
       "bar": "██████████████████████████████",
       "repos": 7
     },
@@ -19,7 +19,7 @@
     {
       "name": "JavaScript",
       "label": "JavaScript  ",
-      "bytes": 1210903,
+      "bytes": 1212501,
       "pct": "7.3",
       "bar": "███░░░░░░░░░░░░░░░░░░░░░░░░░░░",
       "repos": 10
@@ -35,15 +35,15 @@
     {
       "name": "CSS",
       "label": "CSS         ",
-      "bytes": 320293,
-      "pct": "1.9",
+      "bytes": 329039,
+      "pct": "2.0",
       "bar": "█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
       "repos": 6
     },
     {
       "name": "TypeScript",
       "label": "TypeScript  ",
-      "bytes": 291813,
+      "bytes": 291811,
       "pct": "1.8",
       "bar": "█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
       "repos": 2
@@ -75,16 +75,16 @@
     {
       "name": "Nunjucks",
       "label": "Nunjucks    ",
-      "bytes": 17051,
+      "bytes": 21145,
       "pct": "0.1",
       "bar": "█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
       "repos": 1
     }
   ],
-  "totalBytes": 16577930,
+  "totalBytes": 16592366,
   "stars": 0,
   "firstYear": 2023,
-  "lastPush": "2026-10-08T10:33:26Z",
+  "lastPush": "2026-10-08T11:15:05Z",
   "name": "Yashank Kothari",
   "bio": "i love computers and making art",
   "location": "Mumbai, India",
@@ -96,12 +96,22 @@
     {
       "name": "the lodge",
       "description": "my portfolio",
-      "language": "JavaScript",
+      "language": "CSS",
       "stars": 0,
       "url": "https://github.com/yashankkothari/the-lodge",
       "homepage": "https://the-lodge-lac.vercel.app",
       "year": 2026,
-      "pushed": "2026-10-08T10:33:26Z"
+      "pushed": "2026-10-08T11:15:05Z"
+    },
+    {
+      "name": "Lung Cancer Detection Using ML",
+      "description": null,
+      "language": "Python",
+      "stars": 0,
+      "url": "https://github.com/yashankkothari/Lung-Cancer-Detection-Using-ML",
+      "homepage": "https://oncolytix.vercel.app",
+      "year": 2025,
+      "pushed": "2026-10-08T11:10:27Z"
     },
     {
       "name": "pixopoly website",
@@ -172,16 +182,6 @@
       "homepage": null,
       "year": 2025,
       "pushed": "2025-07-02T16:18:00Z"
-    },
-    {
-      "name": "Lung Cancer Detection Using ML",
-      "description": null,
-      "language": "Python",
-      "stars": 0,
-      "url": "https://github.com/yashankkothari/Lung-Cancer-Detection-Using-ML",
-      "homepage": "https://oncolytix.vercel.app",
-      "year": 2025,
-      "pushed": "2025-04-25T13:33:56Z"
     },
     {
       "name": "Malnotware Malware Detection with AI ML",
