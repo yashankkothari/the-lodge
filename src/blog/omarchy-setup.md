@@ -27,7 +27,7 @@ The installer asks a handful of questions: keyboard layout, username, password, 
 
 <figure><img src="/img/blog/omarchy-installed.png" alt="Omarchy installation complete screen" loading="lazy"><figcaption>Done. Reboot, type your disk password, and you're in. Screenshot: The Omarchy Manual.</figcaption></figure>
 
-## 2. Learn ten shortcuts on day one
+## 2. Learn these shortcuts on day one
 
 Everything in Omarchy is a keystroke. You don't need all of them; you need these, and `Super + K` shows the rest whenever you forget.
 
