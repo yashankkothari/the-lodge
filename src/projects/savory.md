@@ -3,7 +3,7 @@ title: Savory
 order: 1
 year: 2026
 tech: [Chrome Extension]
-thumb: /img/projects/savory-library.jpg
+thumb: /img/projects/savory-promo.jpg
 summary: A free browser extension that turns your X bookmarks into an organized, searchable library, live on the Chrome Web Store.
 source: ""
 live: https://getsavory.xyz
@@ -32,6 +32,11 @@ X is where you find great ideas, and its bookmarks are where they disappear: one
 Live and free on the Chrome Web Store, working in Chrome, Edge, Brave and Arc. A Pro plan with AI summaries, Q&A over your bookmarks and sync is on the way.
 
 ## Screenshots
+
+<figure class="shot">
+  <img src="/img/projects/savory-promo.jpg" alt="Savory: organize everything you save on X" loading="lazy">
+  <figcaption>Organize everything you save on X.</figcaption>
+</figure>
 
 <figure class="shot">
   <img src="/img/projects/savory-library.jpg" alt="Savory library with folders, tags and notes" loading="lazy">
