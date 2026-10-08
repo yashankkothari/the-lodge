@@ -6,6 +6,9 @@ tags: ["post", "data-engineering", "dbt", "guides"]
 
 A `table` model rebuilds everything on every run. That's simple and correct, and it's the right default until the table gets big. An **incremental** model processes only new or changed rows and merges them into what's already there. It's faster and cheaper, and it's also where most dbt bugs live.
 
+
+<figure><img src="/img/blog/diagram-dbt-incr.png" alt="dbt incremental flow on Snowflake" loading="lazy"><figcaption>What <code>dbt run</code> does on every run after the first.</figcaption></figure>
+
 ## The minimal correct version
 
 {% raw %}
@@ -64,3 +67,19 @@ A `unique` test on the `unique_key` is the cheapest insurance you can buy for an
 ## When to go incremental
 
 Stay on `table` until a full rebuild is noticeably slow or expensive. Incremental models trade simplicity for speed, so make the trade only when you need to.
+
+## Try it locally with DuckDB
+
+You don't need a Snowflake account to see the behaviour. `dbt-duckdb` runs the same Jinja and the same `merge` strategy on your laptop.
+
+```bash
+pip install dbt-duckdb
+mkdir -p dbt_demo/models && cd dbt_demo
+curl -o models/fct_events.sql https://www.yashank.site/files/demos/fct_events.sql
+```
+
+Add a two-line `dbt_project.yml` (name and profile) and a `profiles.yml` with `type: duckdb` and `path: demo.duckdb`. Create a `raw_events` table, run `dbt run`, then update 10 rows and insert 200 new ones upstream and run again:
+
+<figure><img src="/img/blog/term-dbt.png" alt="Two dbt runs: 1,000 rows, then 1,200 rows with 10 refunded" loading="lazy"><figcaption>Real output from the two runs. Changed rows were merged in place and new rows appended, with no duplicates.</figcaption></figure>
+
+Open `target/compiled/.../fct_events.sql` after the second run and you'll see the `where updated_at > (select max(updated_at) - interval 3 day ...)` filter that `is_incremental()` switched on. When you move to Snowflake, only the profile changes.

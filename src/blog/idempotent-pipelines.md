@@ -8,6 +8,9 @@ A pipeline is **idempotent** when running it once or five times for the same inp
 
 If a rerun doubles your revenue numbers, the pipeline is broken even when every task is green.
 
+
+<figure><img src="/img/blog/diagram-idempotent.png" alt="Append vs delete-insert on a retry" loading="lazy"><figcaption>A retry is only safe when the write replaces the partition instead of adding to it.</figcaption></figure>
+
 ## The three patterns that get you there
 
 ### 1. Process a window, not "whatever is new"
@@ -69,3 +72,17 @@ QUALIFY ROW_NUMBER() OVER (
 - You've actually tested it: run the same day twice and compare row counts.
 
 Make this the default and backfills stop being scary.
+
+## Try it: break it, then fix it
+
+Here's the whole idea in 25 lines of Python and SQLite. The script loads the same 1,000 orders twice, once with a blind append and once with delete-then-insert inside a single transaction.
+
+```bash
+curl -O https://www.yashank.site/files/demos/idempotent_demo.py
+python idempotent_demo.py append
+python idempotent_demo.py idempotent
+```
+
+<figure><img src="/img/blog/term-idem.png" alt="Terminal output: append doubles rows, idempotent load keeps 1,000" loading="lazy"><figcaption>Real output. The append run doubles to 2,000 rows on the retry; the idempotent run stays at 1,000.</figcaption></figure>
+
+Swap SQLite for Snowflake and the pattern is the same: `DELETE ... WHERE order_date = :ds` and `INSERT` inside one transaction, or a `MERGE` on the business key.

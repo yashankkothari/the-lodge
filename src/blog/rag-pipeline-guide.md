@@ -8,6 +8,9 @@ Retrieval-augmented generation (RAG) means: find the passages that answer a ques
 
 When a RAG system gives a bad answer, the generation step usually isn't the culprit. Retrieval handed the model the wrong text. So treat RAG as a data pipeline first.
 
+
+<figure><img src="/img/blog/diagram-rag.png" alt="RAG indexing and query pipelines" loading="lazy"><figcaption>Two pipelines: one offline, one per question.</figcaption></figure>
+
 ## The two halves
 
 **Indexing (offline, like any ETL job)**
@@ -63,3 +66,18 @@ If recall@k is low, fix chunking, hybrid search or reranking. Tweaking the promp
 ## Keep the index fresh
 
 Treat the index like a warehouse table: load incrementally, re-embed changed documents, delete removed ones, and re-embed everything when you change the embedding model, because vectors from different models aren't comparable.
+
+## Try it: a 30-line RAG on your laptop
+
+No vector database needed to learn the moving parts. This uses Ollama's `nomic-embed-text` for embeddings, plain cosine similarity, and `qwen3:1.7b` to answer:
+
+```bash
+ollama pull nomic-embed-text && ollama pull qwen3:1.7b
+curl -O https://www.yashank.site/files/demos/ollama_client.py
+curl -O https://www.yashank.site/files/demos/rag_demo.py
+python rag_demo.py
+```
+
+<figure><img src="/img/blog/term-rag.png" alt="RAG demo output: two retrieved chunks with scores, then a cited answer" loading="lazy"><figcaption>Real output. Retrieval picked the right chunk first (0.679), but the second chunk (0.530) was irrelevant and the model used it anyway.</figcaption></figure>
+
+That last part is the lesson. The answer is correct and cited, but it also rambles about warehouse auto-suspend because a weak second chunk made the cut. Two fixes: drop chunks below a score threshold, and tell the model to ignore sources that don't answer the question. Then measure retrieval on its own, as described above.

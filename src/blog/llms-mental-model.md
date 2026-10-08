@@ -6,6 +6,9 @@ tags: ["post", "genai", "llms", "guides"]
 
 You don't need to train a large language model to build good things with one. You do need an accurate picture of what it does, because most bad LLM features come from expecting it to behave like a database or a search engine.
 
+
+<figure><img src="/img/blog/diagram-llm.png" alt="Tokenizer, transformer, probabilities, sampling" loading="lazy"><figcaption>Generation is this loop, one token at a time.</figcaption></figure>
+
 ## It predicts the next token
 
 An LLM reads a sequence of **tokens** (chunks of text, often parts of words) and predicts a probability for every possible next token. It picks one, appends it, and repeats. Everything else (answering, summarising, writing SQL) emerges from doing that very well.
@@ -53,3 +56,19 @@ Most providers now offer a structured-output or JSON mode. Use it, and still val
 ## Where LLMs fit in a data stack
 
 They're good at messy-text-to-structure jobs: classifying free-text claim notes, extracting fields from PDFs, writing a first draft of a SQL query, summarising incident logs. They're bad at arithmetic over large tables and at being the source of truth. Let the warehouse compute; let the model read and write language.
+
+## Try it with a local model
+
+Everything above is easy to see on a laptop with [Ollama](/blog/ollama-local-llms/). This script asks `qwen3:1.7b` for a product name four times at two temperatures, then asks for a log classification that has to match a JSON schema:
+
+```bash
+ollama pull qwen3:1.7b
+curl -O https://www.yashank.site/files/demos/ollama_client.py
+curl -O https://www.yashank.site/files/demos/sampling_demo.py
+curl -O https://www.yashank.site/files/demos/structured_demo.py
+python sampling_demo.py && python structured_demo.py
+```
+
+<figure><img src="/img/blog/term-llm.png" alt="Temperature 0 gives the same answer four times; 1.2 varies. JSON output matches the schema." loading="lazy"><figcaption>Real output. At temperature 0 all four answers are identical; at 1.2 they wander. The <code>format</code> schema forces valid JSON.</figcaption></figure>
+
+The token counts are worth a look too: a 20-word prompt came to 32 tokens once the chat template was added. That's the number you pay for and the number that fills the context window.

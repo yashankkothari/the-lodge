@@ -6,6 +6,9 @@ tags: ["post", "data-engineering", "airflow", "guides"]
 
 Airflow is a scheduler and orchestrator, not a processing engine. The DAGs that cause the fewest incidents keep the heavy lifting in the warehouse and use Airflow to decide **what runs, when, and in what order**.
 
+
+<figure><img src="/img/blog/diagram-airflow.png" alt="Airflow DAG: sensor, extract, load, transform, checks" loading="lazy"><figcaption>The shape I aim for: each task owns one step and one data interval.</figcaption></figure>
+
 ## 1. Keep top-level code cheap
 
 The scheduler re-parses every DAG file every few seconds. Anything at module level runs on every parse:
@@ -81,3 +84,17 @@ Pulling a million rows into a Python task to transform them is slower and more f
 - Every task uses the data interval, not wall-clock time.
 - Only small values in XCom.
 - Alerts (`on_failure_callback` or email) wired to someone who will read them.
+
+## Try it: lint your DAGs before they hit the scheduler
+
+Two commands catch most of the problems above before they reach production:
+
+```bash
+# Fails fast on import errors and slow top-level code
+time python dags/load_orders.py
+
+# Runs one logical date end to end, no scheduler needed
+airflow dags test load_orders 2026-09-21
+```
+
+If the first command takes more than a second or two, something at the top of the file is calling a database or an API. Move it inside a task.

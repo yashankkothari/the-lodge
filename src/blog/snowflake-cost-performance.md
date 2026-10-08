@@ -6,6 +6,9 @@ tags: ["post", "data-engineering", "snowflake", "guides"]
 
 In Snowflake you pay for storage and for compute, and compute is almost always the bigger bill. Compute is billed per second while a virtual warehouse is running, with a 60-second minimum each time it starts. Most savings come from keeping warehouses the right size and off when idle.
 
+
+<figure><img src="/img/blog/diagram-snowflake.png" alt="Snowflake query path: result cache, warehouse, disk cache, micro-partitions" loading="lazy"><figcaption>Each layer to the right costs more. Most savings come from staying left.</figcaption></figure>
+
 ## Warehouses
 
 **Auto-suspend and auto-resume.** Set a short auto-suspend for most workloads:
@@ -50,3 +53,27 @@ ORDER BY 2 DESC;
 ```
 
 Pair it with a **resource monitor** on each warehouse, so a runaway query hits a credit limit instead of the monthly bill.
+
+## Try it: three queries to run this week
+
+```sql
+-- 1. Which warehouses burned the most credits in the last 7 days?
+select warehouse_name, sum(credits_used) as credits
+from snowflake.account_usage.warehouse_metering_history
+where start_time >= dateadd(day, -7, current_timestamp())
+group by 1 order by 2 desc;
+
+-- 2. The 10 slowest queries, and how much of each table they scanned
+select query_id, warehouse_name, total_elapsed_time / 1000 as seconds,
+       partitions_scanned, partitions_total
+from snowflake.account_usage.query_history
+where start_time >= dateadd(day, -7, current_timestamp())
+order by total_elapsed_time desc limit 10;
+
+-- 3. A guardrail: suspend at the monthly budget
+create resource monitor monthly_budget with credit_quota = 400
+  triggers on 90 percent do notify on 100 percent do suspend;
+alter warehouse etl_wh set resource_monitor = monthly_budget;
+```
+
+When `partitions_scanned` is close to `partitions_total` on a big table, the filter isn't pruning. That's your cue to check the `where` clause or think about a clustering key.

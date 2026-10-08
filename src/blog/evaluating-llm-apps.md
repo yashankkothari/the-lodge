@@ -6,6 +6,9 @@ tags: ["post", "genai", "llms", "guides"]
 
 A data pipeline without tests breaks quietly. An LLM feature without evaluations breaks quietly *and* changes behaviour whenever someone edits a prompt or the provider ships a new model version. The fix is the same discipline data engineers already use: a fixed dataset, automated checks and a number you watch.
 
+
+<figure><img src="/img/blog/diagram-evals.png" alt="Evals in CI: golden set, run, graders, scores, gate" loading="lazy"><figcaption>Evals as a pipeline step that can fail the build.</figcaption></figure>
+
 ## 1. Build a golden dataset
 
 Collect 50–200 real inputs: actual user questions, real documents, messy edge cases. For each, write down what a good output looks like. That could be an exact label, a required fact, or a short rubric. Version it in git next to the prompts.
@@ -53,3 +56,17 @@ Every prompt edit, model upgrade or retrieval change runs the suite. A drop in a
 Quality is one axis. A change that improves accuracy by two points but doubles latency or cost per request is a trade-off, not a win. Put all three on the same dashboard.
 
 The teams that ship reliable GenAI features aren't the ones with the cleverest prompts. They're the ones that can tell, within minutes, whether a change made things better or worse.
+
+## Try it: a five-question eval that fails
+
+Here's a tiny golden set with cheap graders (substring, exact match, regex) run against a 1.7B local model:
+
+```bash
+curl -O https://www.yashank.site/files/demos/ollama_client.py
+curl -O https://www.yashank.site/files/demos/eval_demo.py
+python eval_demo.py
+```
+
+<figure><img src="/img/blog/term-evals.png" alt="Eval output: 2 of 5 pass, gate fails" loading="lazy"><figcaption>Real output. The small model scored 2/5 and the gate blocked the merge.</figcaption></figure>
+
+This is the eval working, not breaking. It caught a model inventing a port number, contradicting a basic SQL fact, and running past the length budget. Swap in a bigger model or a better prompt, rerun, and you have a number to compare instead of a feeling.

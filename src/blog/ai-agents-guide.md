@@ -8,6 +8,9 @@ An **agent** is an LLM running in a loop that can call tools. Instead of answeri
 
 That's all it is. The engineering is in the tools, the loop's limits and what happens when it goes wrong.
 
+
+<figure><img src="/img/blog/diagram-agents.png" alt="The agent loop: model, tool call, run tool, observation" loading="lazy"><figcaption>An agent is this loop with a budget and guardrails around it.</figcaption></figure>
+
 ## The loop
 
 ```python
@@ -51,3 +54,17 @@ Log every step: the prompt, the tool call, its arguments, the result, tokens use
 ## Evaluate on tasks, not vibes
 
 Keep a set of realistic tasks with a known correct outcome and run the agent against them after every change to the prompt, tools or model. Track success rate, steps and cost per task. An agent that's 5% more accurate but three times as expensive may not be an improvement.
+
+## Try it: a tool-calling agent in 25 lines
+
+This runs the loop above against a local model through Ollama's tool calling. One tool, an allowlist of paths, and a four-step budget:
+
+```bash
+curl -O https://www.yashank.site/files/demos/ollama_client.py
+curl -O https://www.yashank.site/files/demos/agent_demo.py
+python agent_demo.py
+```
+
+<figure><img src="/img/blog/term-agent.png" alt="Agent demo: one tool call to disk_usage, then a final answer" loading="lazy"><figcaption>Real output. The model called the tool once, read the result, and stopped.</figcaption></figure>
+
+Try asking it about `/etc` and watch the allowlist return an error the model has to deal with. That's the guardrail doing its job. For a full agent with memory, skills and a chat front end, see how I run [OpenClaw over Telegram](/blog/openclaw-telegram-ollama/).
