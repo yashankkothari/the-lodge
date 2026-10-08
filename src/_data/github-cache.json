@@ -19,7 +19,7 @@
     {
       "name": "JavaScript",
       "label": "JavaScript  ",
-      "bytes": 1212501,
+      "bytes": 1212577,
       "pct": "7.3",
       "bar": "███░░░░░░░░░░░░░░░░░░░░░░░░░░░",
       "repos": 10
@@ -35,7 +35,7 @@
     {
       "name": "CSS",
       "label": "CSS         ",
-      "bytes": 329039,
+      "bytes": 330248,
       "pct": "2.0",
       "bar": "█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
       "repos": 6
@@ -75,16 +75,16 @@
     {
       "name": "Nunjucks",
       "label": "Nunjucks    ",
-      "bytes": 21145,
+      "bytes": 21393,
       "pct": "0.1",
       "bar": "█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░",
       "repos": 1
     }
   ],
-  "totalBytes": 16592366,
+  "totalBytes": 16593899,
   "stars": 0,
   "firstYear": 2023,
-  "lastPush": "2026-10-08T11:15:05Z",
+  "lastPush": "2026-10-08T12:22:09Z",
   "name": "Yashank Kothari",
   "bio": "i love computers and making art",
   "location": "Mumbai, India",
@@ -101,7 +101,7 @@
       "url": "https://github.com/yashankkothari/the-lodge",
       "homepage": "https://the-lodge-lac.vercel.app",
       "year": 2026,
-      "pushed": "2026-10-08T11:15:05Z"
+      "pushed": "2026-10-08T12:22:09Z"
     },
     {
       "name": "Lung Cancer Detection Using ML",
