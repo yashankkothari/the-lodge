@@ -73,3 +73,5 @@ That's a harder start than the one people a few years ahead of me had. It's also
 - Look for teams that still invest in reviewing and mentoring juniors. An apprenticeship is worth more than a slightly higher first salary.
 
 I'd rather be the person who knows when the generated code is wrong than the person who can only generate it.
+
+*Update, October 2026: I revisited this after Claude Opus 5.5 came out, in [Opus 5.5 and the Junior Question, Seventeen Months Later](/blog/opus-5-5-and-the-junior-question/).*
