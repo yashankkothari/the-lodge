@@ -1,6 +1,6 @@
 ---
 title: MalNotWare
-order: 2
+order: 4
 year: 2025
 tech: [Docker, VirusTotal API, Browser Extension, JavaScript]
 thumb: /img/projects/malnotware-home.jpg

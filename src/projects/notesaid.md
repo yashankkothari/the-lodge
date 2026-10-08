@@ -1,6 +1,6 @@
 ---
 title: NotesAid
-order: 1
+order: 3
 year: 2025
 tech: [Next.js, React, TypeScript, PWA]
 thumb: /img/projects/notesaid-home.jpg

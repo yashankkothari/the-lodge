@@ -1,6 +1,6 @@
 ---
 title: OncoLytix
-order: 3
+order: 5
 year: 2025
 tech: [MobileNetV2, MediaPipe Model Maker, React Native, Expo, Flask]
 thumb: /img/projects/oncolytix-home.jpg
