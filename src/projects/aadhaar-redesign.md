@@ -1,6 +1,6 @@
 ---
 title: Aadhaar Portal Redesign
-order: 6
+order: 5
 year: 2025
 tech: [React, JavaScript, WCAG 2.1, Web Speech API]
 thumb: /img/projects/aadhaar-home.jpg

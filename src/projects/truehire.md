@@ -1,6 +1,6 @@
 ---
 title: TrueHire
-order: 5
+order: 4
 year: 2025
 tech: [Google Gemini, Prompt Engineering, Electron, Lit]
 thumb: /img/projects/truehire-home.jpg
