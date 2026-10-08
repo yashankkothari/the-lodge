@@ -3,11 +3,6 @@ layout: base.njk
 title: Home
 ---
 
-<figure class="portrait">
-  <img src="/img/yashank.png" alt="{{ github.name }}, smiling and looking up, in a dark red shirt against a black curtain" width="400" height="400">
-  <figcaption>fig. 1 — the one who keeps this place</figcaption>
-</figure>
-
 # Welcome
 
 You found the door. Most people walk past it.
