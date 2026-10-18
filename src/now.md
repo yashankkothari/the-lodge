@@ -49,7 +49,7 @@ Going deeper into ML engineering: getting models out of notebooks and into pipel
 ## Building
 
 - **[Savory](https://twitter-bookmark-organizer.vercel.app)**: a browser extension that turns your X bookmarks into an organized, searchable library, with tags, folders, notes and on-device search by meaning. No account, no server.
-- **[Pixopoly](https://pixopoly-website.vercel.app)**: a pixel-art property trading game for 2 to 6 players, built in Godot. Play online, on your network or on one PC. Coming soon to Steam.
+- **[Pixonomy](https://pixopoly-website.vercel.app)**: a pixel-art property trading game for 2 to 6 players, built in Godot. Play online, on your network or on one PC. Coming soon to Steam.
 - **phonetocam**: turns an Android phone into a low-latency webcam for Windows, written in Rust.
 - This website. It keeps growing rooms.
 

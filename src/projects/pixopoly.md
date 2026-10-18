@@ -1,5 +1,5 @@
 ---
-title: Pixopoly
+title: Pixonomy
 order: 2
 year: 2026
 tech: [Godot, Pixel Art]
@@ -14,7 +14,7 @@ stats:
 
 ## The Idea
 
-Roll. Buy. Build. Repeat. Pixopoly keeps the buy-the-world fantasy of classic property games and fixes the parts that make people quit halfway: one runaway leader, long dead turns and trades nobody trusts.
+Roll. Buy. Build. Repeat. Pixonomy keeps the buy-the-world fantasy of classic property games and fixes the parts that make people quit halfway: one runaway leader, long dead turns and trades nobody trusts.
 
 ## Features
 
@@ -30,7 +30,7 @@ In development and coming soon to Steam.
 ## Screenshots
 
 <figure class="shot">
-  <img src="/img/projects/pixopoly-og.jpg" alt="Pixopoly logo over the game board mid-game" loading="lazy">
+  <img src="/img/projects/pixopoly-og.jpg" alt="Pixonomy logo over the game board mid-game" loading="lazy">
   <figcaption>Round 34 on the city board.</figcaption>
 </figure>
 
