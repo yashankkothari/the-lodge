@@ -4,7 +4,7 @@
 
   // --- console whisper ---
   console.log(
-    "%cTHE LODGE%c\nYou opened the console. Of course you did.\nThe source is open: https://github.com/yashankkothari\nIf you're hiring: kothariyashank@gmail.com",
+    "%cYASHANK KOTHARI%c\nYou opened the console. Of course you did.\nThe source is open: https://github.com/yashankkothari\nIf you're hiring: kothariyashank@gmail.com",
     "font: 20px 'Times New Roman'; letter-spacing: 6px; color: #8b0000;",
     "font: 12px 'Courier New'; color: #999;"
   );

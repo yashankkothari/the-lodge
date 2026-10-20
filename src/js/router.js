@@ -70,7 +70,7 @@
         shown = key(url);
         document.title = page.title;
         scrollFor(url, opts.scroll);
-        if (window.lodgeTypewriter) window.lodgeTypewriter(120);
+        if (window.portfolioTypewriter) window.portfolioTypewriter(120);
       }
       if (document.startViewTransition && effectsOn() && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
         document.startViewTransition(swap);
@@ -81,7 +81,7 @@
       main.setAttribute("tabindex", "-1");
       main.focus({ preventScroll: true });
       root.classList.remove("routing");
-      document.dispatchEvent(new CustomEvent("lodge:navigated", { detail: { url: url.href } }));
+      document.dispatchEvent(new CustomEvent("portfolio:navigated", { detail: { url: url.href } }));
     }).catch(function () {
       location.href = url.href; // fall back to an ordinary load
     });
@@ -116,5 +116,5 @@
   });
 
   // let other scripts (the terminal) navigate the same way
-  window.lodgeNavigate = function (path) { go(new URL(path, location.href), { push: true }); };
+  window.portfolioNavigate = function (path) { go(new URL(path, location.href), { push: true }); };
 })();

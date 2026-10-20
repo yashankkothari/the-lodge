@@ -97,11 +97,11 @@
 
   // show the track in the OS media controls
   if ("mediaSession" in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({ title: btn.dataset.title, artist: btn.dataset.artist, album: "The Lodge" });
+    navigator.mediaSession.metadata = new MediaMetadata({ title: btn.dataset.title, artist: btn.dataset.artist, album: "Yashank Kothari" });
     navigator.mediaSession.setActionHandler("play", function () { play(); });
     navigator.mediaSession.setActionHandler("pause", pause);
   }
 
   // let the terminal reach the radio
-  window.lodgeRadio = { toggle: function () { btn.click(); }, playing: function () { return !audio.paused; } };
+  window.portfolioRadio = { toggle: function () { btn.click(); }, playing: function () { return !audio.paused; } };
 })();

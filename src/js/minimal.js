@@ -1,68 +1,127 @@
-// theme
-const root=document.documentElement;
-document.getElementById('theme').onclick=()=>{root.dataset.theme=root.dataset.theme==='light'?'dark':'light';localStorage.setItem('t',root.dataset.theme)};
-
-// original pixel owl, blinks every few seconds
-const O=[
-"................",
-"..##........##..",
-"..###......###..",
-"..############..",
-".##############.",
-".#WWWW####WWWW#.",
-".#WPPW####WPPW#.",
-".#WPPW####WPPW#.",
-".#WWWW#YY#WWWW#.",
-".######YY######.",
-".##BBBBBBBBBB##.",
-".#BB.BB.BB.BB##.",
-"..#BBBBBBBBBB#..",
-"...##########...",
-"....Y......Y....",
-"................"];
-const cv=document.getElementById('owl'),g=cv&&cv.getContext('2d');
-function owl(blink){const css=getComputedStyle(root);const col={'#':'#6b4f3a','W':'#f3ead8','P':blink?'#f3ead8':'#14110f','Y':css.getPropertyValue('--gold'),'B':'#a98a6a'};
- g.clearRect(0,0,96,96);O.forEach((r,y)=>[...r].forEach((c,x)=>{if(c==='.')return;let k=c;if(blink&&(c==='W'||c==='P')&&(y===5||y===6||y===7))k=(y===7?'#':'W');g.fillStyle=col[k]||col[c];g.fillRect(x*6,y*6,6,6)}))}
-if(g){owl(false);setInterval(()=>{owl(true);setTimeout(()=>owl(false),160)},3200);}
-
-// tiny original chiptune player (WebAudio, no files)
-const tracks=[{n:'night shift',s:[0,3,7,10,7,3,5,8],bpm:112},{n:'retry, idempotent',s:[0,4,7,11,9,7,4,2],bpm:96},{n:'local model, warm',s:[0,2,3,7,8,7,3,2],bpm:84}];
-let ti=0,ctx,timer,step=0,start=0;const len=32;
-const $=id=>document.getElementById(id);
-function note(f,t,d){const o=ctx.createOscillator(),v=ctx.createGain();o.type='square';o.frequency.value=f;v.gain.setValueAtTime(.05,t);v.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(v).connect(ctx.destination);o.start(t);o.stop(t+d)}
-function tick(){const tr=tracks[ti],b=60/tr.bpm/2,t=ctx.currentTime;note(220*2**(tr.s[step%8]/12),t,b*.9);if(step%4===0)note(110*2**(tr.s[0]/12),t,b*1.8);step++;
- $('fill').style.width=(step%len/len*100)+'%';const s=Math.floor((Date.now()-start)/1000);$('time').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');timer=setTimeout(tick,b*1000)}
-function play(){ctx=ctx||new AudioContext();if(timer){clearTimeout(timer);timer=null;$('play').textContent='play';return}start=Date.now();$('play').textContent='pause';tick()}
-function go(d){ti=(ti+d+tracks.length)%tracks.length;$('track').textContent=tracks[ti].n;step=0;if(timer){clearTimeout(timer);timer=null;play()}}
-document.getElementById('play')&&document.querySelectorAll('.ctl button').forEach(b=>b.onclick=()=>b.dataset.a==='play'?play():go(b.dataset.a==='next'?1:-1));
-
-
-// blog filters
-const btns=document.querySelectorAll('.filters button');
-btns.forEach(b=>b.onclick=()=>{btns.forEach(x=>x.classList.toggle('on',x===b));const f=b.dataset.f;
- document.querySelectorAll('.posts .post').forEach(p=>p.classList.toggle('hide',f!=='all'&&p.dataset.tag!==f));
- document.querySelectorAll('.posts .month').forEach(m=>{let n=m.nextElementSibling,vis=false;while(n&&!n.classList.contains('month')){if(!n.classList.contains('hide'))vis=true;n=n.nextElementSibling}m.classList.toggle('hide',!vis)})});
-
-// commit graph: start scrolled to the most recent weeks on narrow screens
-document.querySelectorAll('.graph').forEach(g => { g.scrollLeft = g.scrollWidth; });
-
-// tap a diagram or screenshot to see it full size (pinch/pan on phones)
-(function () {
-  const imgs = document.querySelectorAll('.post-body img');
-  if (!imgs.length) return;
-  const box = document.createElement('div');
-  box.className = 'zoom'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'image, tap to close');
-  box.innerHTML = '<button type="button" aria-label="close">×</button><div class="zoom-scroll"><img alt=""></div>';
-  document.body.appendChild(box);
-  const big = box.querySelector('img');
-  const close = () => { box.classList.remove('open'); document.documentElement.classList.remove('noscroll'); };
-  box.querySelector('button').onclick = close;
-  box.addEventListener('click', e => { if (e.target === box || e.target.classList.contains('zoom-scroll')) close(); });
-  addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
-  imgs.forEach(img => {
-    img.classList.add('zoomable'); img.tabIndex = 0;
-    const open = () => { big.src = img.currentSrc || img.src; big.alt = img.alt; box.classList.add('open'); document.documentElement.classList.add('noscroll'); box.querySelector('.zoom-scroll').scrollLeft = 0; };
-    img.addEventListener('click', open);
-    img.addEventListener('keydown', e => { if (e.key === 'Enter') open(); });
+const root = document.documentElement;
+const themeButton = document.getElementById("theme");
+function labelTheme() {
+  themeButton.setAttribute("aria-label", "Switch to " + (root.dataset.theme === "dark" ? "light" : "dark") + " theme");
+}
+if (themeButton) {
+  labelTheme();
+  themeButton.addEventListener("click", () => {
+    root.dataset.theme = root.dataset.theme === "light" ? "dark" : "light";
+    try { localStorage.setItem("t", root.dataset.theme); } catch {}
+    labelTheme();
   });
-})();
+}
+document.querySelector("[data-print]")?.addEventListener("click", () => window.print());
+const clock = document.querySelector("[data-clock]");
+if (clock) {
+  const format = new Intl.DateTimeFormat("en-GB", { hour:"2-digit", minute:"2-digit", timeZone:"Asia/Kolkata" });
+  const tickClock = () => clock.textContent = format.format(new Date());
+  tickClock(); setInterval(tickClock, 60000);
+}
+
+// Every article is present in the server-rendered HTML. Filtering only changes visibility.
+const filters = [...document.querySelectorAll(".filters button")];
+const search = document.getElementById("post-search");
+const rows = [...document.querySelectorAll(".archive-row")];
+let activeTopic = "all";
+function filterPosts() {
+  const term = (search?.value || "").trim().toLowerCase();
+  let count = 0;
+  rows.forEach((row) => {
+    const matches = (activeTopic === "all" || row.dataset.tag === activeTopic) && row.dataset.search.includes(term);
+    row.hidden = !matches;
+    if (matches) count++;
+  });
+  document.querySelectorAll(".archive-year").forEach((group) => group.hidden = ![...group.querySelectorAll(".archive-row")].some((row) => !row.hidden));
+  const empty = document.querySelector(".empty-search");
+  if (empty) empty.hidden = count > 0;
+  const status = document.querySelector(".search-status");
+  if (status) status.textContent = count + (count === 1 ? " article" : " articles") + " shown";
+}
+filters.forEach((button) => button.addEventListener("click", () => {
+  activeTopic = button.dataset.f;
+  filters.forEach((item) => {
+    item.classList.toggle("on", item === button);
+    item.setAttribute("aria-pressed", String(item === button));
+  });
+  filterPosts();
+}));
+search?.addEventListener("input", filterPosts);
+
+// The original pixel owl and three little chiptunes now live on /now/.
+const O = [
+"................","..##........##..","..###......###..","..############..",
+".##############.",".#WWWW####WWWW#.",".#WPPW####WPPW#.",".#WPPW####WPPW#.",
+".#WWWW#YY#WWWW#.",".######YY######.",".##BBBBBBBBBB##.",".#BB.BB.BB.BB##.",
+"..#BBBBBBBBBB#..","...##########...","....Y......Y....","................"];
+const cv = document.getElementById("owl"), g = cv && cv.getContext("2d");
+function owl(blink) {
+  const col = {"#":"#6b4f3a",W:"#f3ead8",P:blink?"#f3ead8":"#14110f",Y:getComputedStyle(root).getPropertyValue("--gold"),B:"#a98a6a"};
+  g.clearRect(0,0,96,96);
+  O.forEach((row,y) => [...row].forEach((c,x) => {
+    if (c === ".") return;
+    let k = c;
+    if (blink && (c === "W" || c === "P") && y >= 5 && y <= 7) k = y === 7 ? "#" : "W";
+    g.fillStyle = col[k]; g.fillRect(x*6,y*6,6,6);
+  }));
+}
+if (g) {
+  owl(false);
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(() => {
+    if (document.hidden || root.dataset.effects === "off") return;
+    owl(true); setTimeout(() => owl(false),160);
+  },3200);
+}
+const tracks = [{n:"night shift",s:[0,3,7,10,7,3,5,8],bpm:112},{n:"retry, idempotent",s:[0,4,7,11,9,7,4,2],bpm:96},{n:"local model, warm",s:[0,2,3,7,8,7,3,2],bpm:84}];
+let ti=0,ctx,timer,step=0,start=0;
+const $ = (id) => document.getElementById(id);
+function note(f,t,d) {
+  const oscillator=ctx.createOscillator(),volume=ctx.createGain();
+  oscillator.type="square";oscillator.frequency.value=f;
+  volume.gain.setValueAtTime(.05,t);volume.gain.exponentialRampToValueAtTime(.0001,t+d);
+  oscillator.connect(volume).connect(ctx.destination);oscillator.start(t);oscillator.stop(t+d);
+}
+function tick() {
+  const track=tracks[ti],beat=60/track.bpm/2,t=ctx.currentTime;
+  note(220*2**(track.s[step%8]/12),t,beat*.9);
+  if (step%4===0) note(110*2**(track.s[0]/12),t,beat*1.8);
+  step++;$("fill").style.width=(step%32/32*100)+"%";
+  const seconds=Math.floor((Date.now()-start)/1000);
+  $("time").textContent=Math.floor(seconds/60)+":"+String(seconds%60).padStart(2,"0");
+  timer=setTimeout(tick,beat*1000);
+}
+async function play() {
+  ctx=ctx||new AudioContext();await ctx.resume();
+  if(timer){clearTimeout(timer);timer=null;$("play").textContent="play";return}
+  start=Date.now();$("play").textContent="pause";tick();
+}
+function go(direction) {
+  ti=(ti+direction+tracks.length)%tracks.length;$("track").textContent=tracks[ti].n;step=0;
+  if(timer){clearTimeout(timer);timer=null;play()}
+}
+if ($("play")) document.querySelectorAll(".ctl button").forEach((button) => button.addEventListener("click", () => button.dataset.a==="play"?play():go(button.dataset.a==="next"?1:-1)));
+document.querySelectorAll(".graph").forEach((graph) => graph.scrollLeft=graph.scrollWidth);
+
+// Native modal supports Escape and keeps keyboard focus inside the enlarged image.
+const images = [...document.querySelectorAll(".post-body img, .shelf img")];
+if (images.length) {
+  const dialog = document.createElement("dialog");
+  dialog.className="zoom-dialog";dialog.setAttribute("aria-label","Enlarged image");
+  const close=document.createElement("button");close.type="button";close.textContent="Close ×";
+  const big=document.createElement("img");
+  dialog.append(close,big);document.body.append(dialog);
+  let previousFocus;
+  close.addEventListener("click",()=>dialog.close());
+  dialog.addEventListener("click",(event)=>{
+    const box=dialog.getBoundingClientRect();
+    if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom) dialog.close();
+  });
+  dialog.addEventListener("close",()=>previousFocus?.focus());
+  images.forEach((image)=>{
+    image.classList.add("zoomable");image.tabIndex=0;image.setAttribute("role","button");
+    image.setAttribute("aria-label","Enlarge "+(image.alt||"image"));
+    const open=()=>{previousFocus=image;big.src=image.currentSrc||image.src;big.alt=image.alt;dialog.showModal()};
+    image.addEventListener("click",open);
+    image.addEventListener("keydown",(event)=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();open()}});
+  });
+}

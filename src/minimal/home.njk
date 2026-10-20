@@ -1,69 +1,44 @@
 ---
 layout: minimal.njk
-title: ""
-description: "yashank kothari, data engineer in mumbai. pipelines, local llms and small tools."
+title: Yashank Kothari
+description: "Yashank Kothari, data engineer in Mumbai. Data pipelines, backend systems, applied ML, and a few software, game, and art projects."
 navHome: true
 permalink: "{{ '/' if site.design == 'minimal' else '/minimal/' }}"
 eleventyExcludeFromCollections: true
 ---
-  <section class="hero">
-    <div class="tape">
-      <canvas id="owl" width="96" height="96" aria-label="a small pixel owl"></canvas>
-      <div class="deck">
-        <p class="now"><span class="dim">now playing</span><br><b id="track">night shift</b> <span class="dim">· chiptune, made in-browser</span></p>
-        <div class="bar"><i id="fill"></i></div>
-        <div class="ctl"><button data-a="prev">prev</button><button data-a="play" id="play">play</button><button data-a="next">skip</button><span class="dim" id="time">0:00</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <h2>about</h2>
-    <ul>
-      <li>data engineer at <span class="hl c-blue">icici lombard</span>, mumbai</li>
-      <li>b.tech computer engineering, honours in data science · kj somaiya, 2026</li>
-      <li>i build pipelines that don't break when you run them twice</li>
-      <li>now: running local llms on an <span class="hl c-green">omarchy</span> laptop, talking to them over telegram</li>
-      <li>cs2 on weekends · michael jackson, elvis and rock on repeat</li>
-    </ul>
-    <p class="cta"><a class="btn" href="/files/yashank-kothari-resume.pdf" download>download résumé (pdf)</a><a class="btn ghost" href="/portfolio/">see projects</a></p>
-  </section>
-
-  <section id="work">
-    <h2>work</h2>
-    {%- set hl = ['c-blue','c-gold','c-pink'] %}
-    {%- for job in linkedin.experience %}
-    <div class="job has-logo">
-      {% if job.logo %}<img class="logo" src="{{ job.logo }}" alt="{{ job.org }} logo" width="40" height="40" loading="lazy">{% endif %}
-      <div>
-        <p class="job-period">{{ job.period | lower }} · {{ job.location | lower }}</p>
-        <h3>{{ job.role | lower }} · <span class="hl {{ hl[loop.index0 % 3] }}">{{ job.org | lower }}</span></h3>
-        <ul>
-        {%- for pt in job.points | limit(2) %}
-          <li>{{ pt }}</li>
-        {%- endfor %}
-        </ul>
-      </div>
-    </div>
-    {%- endfor %}
-    <p class="dim small">full details, education, skills and certifications in the <a href="/files/yashank-kothari-resume.pdf" download>résumé</a>.</p>
-  </section>
-
-  <section>
-    <h2>latest writing</h2>
-    <ul class="posts">
-    {%- for post in collections.post | reverse | limit(3) %}
-      <li class="post"><span class="date dim">{{ post.date | shortDate }}</span><a href="{{ post.url }}">{{ post.data.title | lower }}</a><span></span></li>
-    {%- endfor %}
-    </ul>
-  </section>
-{%- if contributions.days.length %}
-
-  <section>
-    <h2>commits</h2>
-    <div class="graph" aria-label="github contributions over the last year">
-    {%- for d in contributions.days %}<i data-l="{{ d.level }}" title="{{ d.date }}"></i>{% endfor -%}
-    </div>
-    {% if contributions.total %}<p class="dim small">{{ contributions.total }} contributions in the last year</p>{% endif %}
-  </section>
-{%- endif %}
+{% from "icons.njk" import icon %}
+<section class="home-intro" id="about">
+  <h1>Yashank Kothari</h1>
+  <p class="hello">Hey, I’m Yashank. I build data systems, software, and the occasional game.</p>
+  <div class="profile-lines">
+    <div><span class="profile-label">Working at</span><span><a class="pill" href="/resume/#experience"><img src="/img/logos/icici-lombard.png" width="18" height="18" alt="">ICICI Lombard</a><span class="inline-note">as a data engineer</span></span></div>
+    <div><span class="profile-label">Previously</span><span><a class="pill" href="/resume/#experience"><img src="/img/logos/colgate-palmolive.png" width="18" height="18" alt="">Colgate-Palmolive</a><a class="pill" href="/resume/#experience"><img src="/img/logos/card91.png" width="18" height="18" alt="">Card91</a></span></div>
+    <div><span class="profile-label">Building</span><span><a class="pill color-gold" href="/work/savory/">{{ icon("bookmark") }}Savory</a><a class="pill color-purple" href="/work/pixopoly/">{{ icon("dice") }}Pixonomy</a><a class="pill color-green" href="/now/#building">{{ icon("code") }}phonetocam</a></span></div>
+    <div><span class="profile-label">Built</span><span><a class="pill color-blue" href="/work/notesaid/">{{ icon("notes") }}NotesAid</a><a class="pill color-green" href="/work/malnotware/">{{ icon("shield") }}MalNotWare</a><a class="pill color-pink" href="/work/oncolytix/">{{ icon("pulse") }}OncoLytix</a><a class="pill" href="/portfolio/">+ more</a></span></div>
+    <div><span class="profile-label">Focus</span><span class="exploring">Data systems <span>·</span> backends <span>·</span> applied ML</span></div>
+  </div>
+  <div class="home-prose">
+    <p>I’m a data engineer in Mumbai. At ICICI Lombard, I work on ETL pipelines, reporting workflows, and data reconciliation in Oracle. Before that, I worked with Airflow, dbt, and Snowflake at Colgate-Palmolive, and on fraud detection at Card91.</p>
+    <p>Outside work, I’m usually building something I want to use. Right now that’s Savory, a searchable home for saved posts, and Pixonomy, a pixel-art game to play with friends. I also run language models locally and build tools around them. More of my <a href="/portfolio/">projects are here</a>, along with my <a href="/resume/">full résumé</a>.</p>
+    <p>I write about <a href="/blog/tags/data-engineering/">data pipelines</a>, <a href="/blog/tags/backend/">backend systems</a>, and <a href="/blog/tags/genai/">applied ML</a>. Usually with code, diagrams, and a reason for choosing one approach over another.</p>
+    <p>I also love making art, usually in Figma, Blender, or After Effects late at night. Outside that, it’s CS2, Michael Jackson, Elvis, and rock on repeat. Here’s <a href="/now/">what I’m into right now</a> and <a href="/uses/">what’s on my desk</a>.</p>
+  </div>
+</section>
+<section class="home-writing" aria-labelledby="selected-writing">
+  <div class="section-title"><h2 id="selected-writing">Selected writing</h2><a href="/blog/">All posts <span aria-hidden="true">↗</span></a></div>
+  <ul class="recent-posts">
+  {%- for slug in ["idempotent-pipelines", "airflow-dag-design", "evaluating-llm-apps", "fastapi-in-production"] %}
+  {%- for post in collections.post %}
+  {%- if post.url == "/blog/" + slug + "/" %}
+    <li><a href="{{ post.url }}"><span>{{ post.data.title }}</span><time datetime="{{ post.date | isoDate }}">{{ post.date | shortDate }}</time></a></li>
+  {%- endif %}
+  {%- endfor %}
+  {%- endfor %}
+  </ul>
+</section>
+<section class="home-elsewhere" aria-labelledby="elsewhere">
+  <h2 id="elsewhere">Find me on</h2>
+  <div class="social-links"><a href="https://github.com/yashankkothari">{{ icon("github") }} GitHub</a><a href="{{ linkedin.url }}">{{ icon("linkedin") }} LinkedIn</a><a href="/feed.xml">{{ icon("rss") }} RSS</a></div>
+  <p>Or write to <a href="mailto:kothariyashank@gmail.com">kothariyashank@gmail.com</a>.</p>
+  <p class="small dim">There’s also <a href="/stats/">GitHub stats</a>, <a href="/now/#reading">books &amp; records</a>, and <a href="/classic/">the previous design</a>.</p>
+</section>

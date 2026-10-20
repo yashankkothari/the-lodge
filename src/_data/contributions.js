@@ -16,7 +16,13 @@ module.exports = async function () {
     days.sort((a, b) => a.date.localeCompare(b.date));
     const total = (html.match(/([\d,]+)\s+contributions?\s+in the last year/) || [])[1] || "";
     const out = { days, total };
-    fs.writeFileSync(CACHE, JSON.stringify(out));
+    const serialized = JSON.stringify(out);
+    // Keep serve mode read-only so the data watcher cannot trigger itself.
+    // Production builds refresh the snapshot only when its content changes.
+    const isServing = process.argv.includes("--serve");
+    if (!isServing && (!fs.existsSync(CACHE) || fs.readFileSync(CACHE, "utf8") !== serialized)) {
+      fs.writeFileSync(CACHE, serialized);
+    }
     return out;
   } catch (e) {
     if (fs.existsSync(CACHE)) return JSON.parse(fs.readFileSync(CACHE, "utf8"));

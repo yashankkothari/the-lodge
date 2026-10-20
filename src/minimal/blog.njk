@@ -1,28 +1,33 @@
 ---
 layout: minimal.njk
-title: blog
-description: "practical notes on data pipelines, local llms and my setup."
+title: Blog
+description: "Practical guides and essays on data engineering, backend systems, local LLMs, AI agents, and Linux by Yashank Kothari."
 section: blog
 permalink: "{{ '/blog/' if site.design == 'minimal' else '/minimal/blog/' }}"
 eleventyExcludeFromCollections: true
 ---
-{%- set posts = collections.post | reverse -%}
-  <section>
-    <h2>blog</h2>
-    <p class="intro">notes on data pipelines, backends, llms and my setup, plus the occasional essay on what all this ai means.</p>
-    <div class="filters">
-      <button class="on" data-f="all">all <span class="dim">{{ posts | length }}</span></button>
-      {%- for f in ["data", "backend", "genai", "agents", "essays", "linux"] %}
-      <button data-f="{{ f }}">{{ f }} <span class="dim">{{ posts | byTopic(f) | length }}</span></button>
-      {%- endfor %}
-    </div>
-    <ul class="posts">
-    {%- set last = "" %}
-    {%- for post in posts %}
-      {%- set m = post.date | monthYear %}
-      {%- if m != last %}<li class="month">{{ m }}</li>{% set last = m %}{% endif %}
-      {%- set t = post.data.tags | topic %}
-      <li class="post" data-tag="{{ t }}"><span class="date dim">{{ post.date | dayNum }}</span><a href="{{ post.url }}">{{ post.data.title | lower }}</a><span class="hl {{ {'genai':'c-blue','agents':'c-pink','data':'c-green','linux':'c-gold','backend':'c-purple','essays':'c-orange'}[t] }} tag">{{ t }}</span></li>
-    {%- endfor %}
-    </ul>
-  </section>
+{% set posts = collections.post | reverse %}
+<div class="blog-heading"><h1>Writing</h1><p>Notes from building things. Sometimes the things are pipelines.</p></div>
+<div class="blog-controls">
+  <div class="filters" role="group" aria-label="Filter writing by topic">
+    <button class="on" data-f="all" aria-pressed="true">All <span>{{ posts | length }}</span></button>
+    {% for f, label in {data:"Data",backend:"Backend",genai:"AI & LLMs",agents:"Agents",essays:"Essays",linux:"Linux"} %}
+    <button data-f="{{ f }}" aria-pressed="false">{{ label }}</button>
+    {% endfor %}
+  </div>
+  <label class="search-label"><span class="sr-only">Search article titles and topics</span><input type="search" id="post-search" placeholder="Find a note…" autocomplete="off"></label>
+</div>
+<p class="search-status sr-only" aria-live="polite"></p>
+<div class="archive">
+{% set lastYear = "" %}
+{% for post in posts %}
+{% set year = post.date | year %}
+{% if year != lastYear %}{% if not loop.first %}</ul></section>{% endif %}<section class="archive-year"><h2>{{ year }}</h2><ul class="posts">{% set lastYear = year %}{% endif %}
+  <li class="post archive-row" data-tag="{{ post.data.tags | topic }}" data-search="{{ (post.data.title + ' ' + (post.data.tags | join(' '))) | lower | escape }}">
+    <a href="{{ post.url }}"><span class="post-title">{{ post.data.title }}</span><span class="post-meta"><time datetime="{{ post.date | isoDate }}">{{ post.date | shortDate }}</time><span>· {{ post.templateContent | readingTime }} min</span></span></a>
+  </li>
+{% if loop.last %}</ul></section>{% endif %}
+{% endfor %}
+</div>
+<p class="empty-search" hidden>No notes match that search. Try another word or topic.</p>
+<p class="archive-footnote">Prefer a feed? <a href="/feed.xml">Follow via RSS</a>. Or explore <a href="/blog/tags/data-engineering/">data engineering</a>, <a href="/blog/tags/genai/">AI</a>, and the rest of the <a href="/blog/tags/backend/">backend notes</a>.</p>

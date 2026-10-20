@@ -3,7 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% if title %}{{ title }} · {% endif %}THE LODGE</title>
+  <title>{% if title %}{{ title }} · {% endif %}Yashank Kothari</title>
+  <link rel="icon" href="/img/favicon-32.png?v={{ assetV }}" type="image/png" sizes="32x32">
+  <link rel="icon" href="/img/monogram.svg?v={{ assetV }}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png?v={{ assetV }}" sizes="180x180">
+  {% if page.url.startsWith('/classic/') %}<meta name="robots" content="noindex,follow">{% endif %}
   <link rel="stylesheet" href="/css/style.css?v={{ assetV }}">
   <script type="speculationrules">
     { "prefetch": [{ "where": { "href_matches": "/*" }, "eagerness": "moderate" }] }
@@ -42,7 +46,7 @@
   <div class="scanlines" aria-hidden="true"></div>
   <div class="vhs" aria-hidden="true"></div>
   <header class="site-header">
-    <a href="/" class="site-title">The Lodge<span class="blink" aria-hidden="true">_</span></a>
+    <a href="/" class="site-title">Yashank Kothari<span class="blink" aria-hidden="true">_</span></a>
     <nav>
       <a href="/">Home</a>
       <a href="/portfolio/">The Work</a>
@@ -76,7 +80,6 @@
       ✦ THIS SITE IS UNDER CONSTRUCTION. IT ALWAYS WILL BE.
     </span></div>
     </div>
-    <p>The owls are not what they seem.</p>
     <p><a href="/stats/">stats</a> · <a href="/uses/">uses</a> · <a href="https://github.com/yashankkothari">github</a> · <a href="https://www.linkedin.com/in/yashankkothari/">linkedin</a></p>
     <p>It is <span data-clock>--:--:--</span> in Mumbai. <span data-visits></span></p>
     <p class="faint">&copy; 2026 &middot; this page was here before you arrived.</p>

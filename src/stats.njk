@@ -1,6 +1,7 @@
 ---
 layout: base.njk
 title: Stats
+description: "GitHub activity, language breakdown, public repositories, and contribution history for Yashank Kothari."
 permalink: /stats/
 ---
 <h1>Readings</h1>
@@ -37,3 +38,13 @@ code on record ..... {{ (github.totalBytes / 1024) | round | int }} KB
 </pre>
 
 <p class="faint-note">Forks and the profile repo are left out. Rebuilt whenever the site is.</p>
+
+{% if contributions.days.length %}
+<section class="contribution-section">
+  <h2>Days at the keyboard</h2>
+  <div class="graph" role="img" aria-label="GitHub contribution calendar for the last year">
+  {% for day in contributions.days %}<i data-l="{{ day.level }}" title="{{ day.date }}"></i>{% endfor %}
+  </div>
+  {% if contributions.total %}<p class="small dim">{{ contributions.total }} contributions in the last year.</p>{% endif %}
+</section>
+{% endif %}

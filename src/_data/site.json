@@ -1,4 +1,5 @@
 {
-  "_comment": "Switch the homepage and blog index between designs. \"minimal\" = new look (classic stays at /classic/). \"classic\" = original Lodge look (minimal moves to /minimal/).",
-  "design": "minimal"
+  "_comment": "Switch the homepage and blog index between designs. \"minimal\" = current design (previous design stays at /classic/). \"classic\" = previous design (minimal moves to /minimal/).",
+  "design": "minimal",
+  "url": "https://www.yashank.site"
 }

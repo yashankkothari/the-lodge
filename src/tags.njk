@@ -6,10 +6,11 @@ pagination:
   alias: tag
 permalink: /blog/tags/{{ tag | slugify }}/
 eleventyComputed:
-  title: "Transmissions: {{ tag }}"
+  title: "Writing: {{ tag }}"
+  description: "Guides, experiments, and essays about {{ tag | replace('-', ' ') }} by Yashank Kothari, a data engineer and software builder in Mumbai."
 ---
 <h1>{{ tag | replace("-", " ") }}</h1>
-<p>Transmissions filed under this frequency.</p>
+<p>Guides, experiments, and essays filed under this topic.</p>
 
 <ul class="post-list">
 {%- for post in collections[tag] | reverse %}
@@ -17,4 +18,4 @@ eleventyComputed:
 {%- endfor %}
 </ul>
 
-<p class="post-back"><a href="/blog/">&larr; all transmissions</a></p>
+<p class="post-back"><a href="/blog/">&larr; all writing</a></p>

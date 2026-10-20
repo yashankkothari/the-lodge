@@ -1,12 +1,16 @@
 ---
 layout: base.njk
 title: Uses
+description: "Yashank Kothari’s hardware, software, ML stack, and current models and agents: Opus 5.5, GPT 6.1 Sol, OpenClaw, Hermes Agent, and local LLMs."
 permalink: /uses/
+updated: 2026-10-20
 ---
 
 # Uses
 
 The tools on the workbench. Nothing here is sponsored; most of it was chosen at 2 a.m.
+
+<p class="post-date">Last updated {{ updated | readableDate }}</p>
 
 ## Desk
 
@@ -24,6 +28,30 @@ The tools on the workbench. Nothing here is sponsored; most of it was chosen at 
 - **Editors:** Neovim and VS Code
 - **Terminal:** kitty
 - **Version control:** Git, GitHub
+
+## Models & agents
+
+Opus 5.5 and GPT 6.1 Sol are the models I reach for most right now. I also use OpenClaw and Hermes Agent, alongside a local Ollama setup.
+
+- **Go-to models:** Claude Opus 5.5 and GPT 6.1 Sol
+- **Coding agents:** Claude Code CLI and Codex
+- **Agent setups:** OpenClaw and Hermes Agent
+- **Local inference:** Ollama with Qwen3
+- **Chat interface:** Telegram for my OpenClaw setup
+
+I’ve written up my [local Ollama setup](/blog/ollama-local-llms/) and [OpenClaw over Telegram](/blog/openclaw-telegram-ollama/).
+
+## Machine learning & applied AI
+
+- **Core stack:** Python, NumPy, pandas, Matplotlib
+- **Computer vision:** MediaPipe Model Maker and MobileNetV2 for image classification
+- **Inference APIs:** Flask and FastAPI
+- **LLM applications:** Google Gemini, local models through Ollama, and structured model outputs
+- **Embeddings & retrieval:** nomic-embed-text, semantic search, and RAG pipelines
+- **Evaluation:** Python scripts for checking model outputs and retrieval results
+- **Fraud detection:** Tazama and transaction rules in Python
+
+Some of that is in [OncoLytix](/work/oncolytix/) and [TrueHire](/work/truehire/). The smaller experiments are in my notes on [RAG](/blog/rag-pipeline-guide/), [LLM evaluation](/blog/evaluating-llm-apps/), and [agents](/blog/ai-agents-guide/).
 
 ## Data work
 

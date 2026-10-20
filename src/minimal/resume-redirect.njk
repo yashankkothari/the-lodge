@@ -1,7 +1,24 @@
 ---
+layout: minimal.njk
+title: Experience & résumé
+description: "Yashank Kothari’s experience at ICICI Lombard, Colgate-Palmolive, and Card91, plus education, projects, certifications, and technical skills."
 permalink: "{{ '/resume/' if site.design == 'minimal' else '/minimal/resume/' }}"
 eleventyExcludeFromCollections: true
 ---
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>résumé · yashank kothari</title>
-<meta http-equiv="refresh" content="0; url=/files/yashank-kothari-resume.pdf"><link rel="canonical" href="/files/yashank-kothari-resume.pdf"></head>
-<body><p><a href="/files/yashank-kothari-resume.pdf">yashank kothari's résumé (pdf)</a></p></body></html>
+<div class="resume">
+  <h1>Experience</h1>
+  <p class="intro">Data engineering, useful software, and learning by building.</p>
+  <div class="resume-actions"><a class="subtle-link" href="/files/yashank-kothari-resume.pdf" download>Download résumé ↗</a><button type="button" data-print>Print this page</button><a href="{{ linkedin.url }}">LinkedIn ↗</a></div>
+  <section id="experience" class="experience-list">
+  {% for job in linkedin.experience %}
+    <article class="job has-logo">
+      <img class="logo" src="{{ job.logo }}" width="38" height="38" alt="" loading="lazy">
+      <div><p class="job-period">{{ job.period }} · {{ job.location }}</p><h2>{{ job.role }}</h2><p class="job-org">{{ job.org }}</p><ul>{% for pt in job.points %}<li>{{ pt }}</li>{% endfor %}</ul></div>
+    </article>
+  {% endfor %}
+  </section>
+  <section id="education"><h2>Education</h2>{% for ed in linkedin.education %}<p class="job-period">{{ ed.period }}</p><h3>{{ ed.school }}</h3><p>{{ ed.degree }}</p>{% endfor %}</section>
+  <section><h2>Projects</h2>{% for p in collections.project | sort(false, false, "data.order") %}<article class="resume-project"><h3><a href="{{ p.url }}">{{ p.data.title }}</a><span>{{ p.data.year }}</span></h3><p>{{ p.data.summary }}</p><p class="small dim">{{ p.data.tech | join(" · ") }}</p></article>{% endfor %}</section>
+  <section><h2>Certifications</h2><ul class="plain-list">{% for c in linkedin.certifications %}<li><strong>{{ c.name }}</strong><span class="dim"> — {{ c.issuer }}, {{ c.year }}</span></li>{% endfor %}</ul></section>
+  <section><h2>Skills &amp; tools</h2><dl class="skills-list">{% for s in linkedin.skills %}<div><dt>{{ s.group }}</dt><dd>{{ s.items }}</dd></div>{% endfor %}</dl></section>
+</div>

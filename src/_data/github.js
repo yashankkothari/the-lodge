@@ -5,8 +5,18 @@ const path = require("path");
 
 const USER = "yashankkothari";
 const CACHE = path.join(__dirname, "github-cache.json");
+const IS_SERVING = process.argv.includes("--serve");
 // Repos to leave off the site (profile README repo, forks are skipped automatically).
 const HIDDEN = new Set([USER, "yashankkothari.github.io"]);
+
+// Display the current site name while preserving the real repository URL.
+function displayProfile(data) {
+  return { ...data, repos: (data.repos || []).map((repo) =>
+    repo.url === "https://github.com/yashankkothari/the-lodge"
+      ? { ...repo, name: "Personal website", homepage: "https://www.yashank.site" }
+      : repo
+  ) };
+}
 
 async function getJSON(url) {
   const headers = { "User-Agent": "eleventy-portfolio" };
@@ -18,9 +28,9 @@ async function getJSON(url) {
 
 module.exports = async function () {
   // rebuilds during development reuse a fresh snapshot instead of burning the 60/hour API limit
-  if (fs.existsSync(CACHE) && Date.now() - fs.statSync(CACHE).mtimeMs < 3600000) {
+  if (fs.existsSync(CACHE) && (IS_SERVING || Date.now() - fs.statSync(CACHE).mtimeMs < 3600000)) {
     const cached = JSON.parse(fs.readFileSync(CACHE, "utf8"));
-    if (cached.languages) return cached;
+    if (cached.languages) return displayProfile(cached);
   }
   try {
     const [profile, repos] = await Promise.all([
@@ -65,10 +75,13 @@ module.exports = async function () {
           pushed: r.pushed_at,
         })),
     };
-    fs.writeFileSync(CACHE, JSON.stringify(data, null, 2));
-    return data;
+    const serialized = JSON.stringify(data, null, 2);
+    if (!IS_SERVING && (!fs.existsSync(CACHE) || fs.readFileSync(CACHE, "utf8") !== serialized)) {
+      fs.writeFileSync(CACHE, serialized);
+    }
+    return displayProfile(data);
   } catch (err) {
     console.warn(`[github] fetch failed (${err.message}); using cached snapshot`);
-    return fs.existsSync(CACHE) ? JSON.parse(fs.readFileSync(CACHE, "utf8")) : { repos: [] };
+    return displayProfile(fs.existsSync(CACHE) ? JSON.parse(fs.readFileSync(CACHE, "utf8")) : { repos: [] });
   }
 };

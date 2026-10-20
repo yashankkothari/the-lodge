@@ -1,11 +1,12 @@
 ---
 layout: base.njk
 ---
-<article class="post">
-  <h1>{{ title }}</h1>
-  <p class="post-date">{{ page.date | readableDate }} {% include "tag-list.njk" %}</p>
-  <div class="post-body">
-    {{ content | safe }}
-  </div>
-  <p class="post-back"><a href="/blog/">{% if site.design == "minimal" %}&larr; all posts{% else %}&larr; return to the transmissions{% endif %}</a></p>
+<article class="post article-page">
+  <div class="article-header"><a class="eyebrow" href="/blog/">Writing / {{ tags | topic }}</a><h1>{{ title }}</h1><p class="post-date"><time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time><span>· {{ content | readingTime }} min read</span>{% if updated %}<span>· Updated {{ updated | readableDate }}</span>{% endif %}</p><p class="article-author">By <a href="/">Yashank Kothari</a></p>{% include "tag-list.njk" %}</div>
+  {% set headings = content | articleHeadings %}
+  {% if headings.length > 2 %}<aside class="article-toc"><details open><summary>On this page</summary><ol>{% for heading in headings %}<li class="toc-level-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.text }}</a></li>{% endfor %}</ol></details></aside>{% endif %}
+  <div class="post-body">{{ content | headingLinks | safe }}</div>
+  <div class="article-end"><p>Written by <a href="/">Yashank Kothari</a>, a data engineer in Mumbai who builds pipelines, small products, and experiments with local AI.</p><a href="/blog/">← All writing</a><a href="/feed.xml">Subscribe via RSS ↗</a></div>
+  {% set related = collections.post | relatedPosts(page.url, tags) %}
+  {% if related.length %}<section class="related-posts"><h2>Keep reading</h2><ul class="recent-posts">{% for post in related %}<li><a href="{{ post.url }}">{{ post.data.title }}</a></li>{% endfor %}</ul></section>{% endif %}
 </article>

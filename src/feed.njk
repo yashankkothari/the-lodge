@@ -1,0 +1,23 @@
+---
+permalink: /feed.xml
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+<title>Yashank Kothari — Writing</title>
+<link>{{ site.url }}/blog/</link>
+<description>Notes on data engineering, local AI, software, and building things.</description>
+<language>en</language>
+<atom:link href="{{ site.url }}/feed.xml" rel="self" type="application/rss+xml"/>
+{% for post in collections.post | reverse %}
+<item>
+<title>{{ post.data.title | xmlEscape | safe }}</title>
+<link>{{ site.url }}{{ post.url }}</link>
+<guid isPermaLink="true">{{ site.url }}{{ post.url }}</guid>
+<pubDate>{{ post.date | rssDate }}</pubDate>
+<description>{{ post.templateContent | excerpt | xmlEscape | safe }}</description>
+</item>
+{% endfor %}
+</channel>
+</rss>

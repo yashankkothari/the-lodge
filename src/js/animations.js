@@ -42,5 +42,5 @@
   }
 
   typewriter(root.classList.contains("crt-on") ? 900 : 250);
-  window.lodgeTypewriter = typewriter;
+  window.portfolioTypewriter = typewriter;
 })();

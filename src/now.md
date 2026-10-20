@@ -1,24 +1,41 @@
 ---
 layout: base.njk
 title: Now
+description: "Yashank Kothari’s current projects, coding agents, local ML setup, books, music, and games. Updated October 2026."
 permalink: /now/
-updated: 2026-10-08
+updated: 2026-10-20
 ---
 
 # Now
 
-What I am doing at this moment, more or less. Updated when something shifts.
+Lately: data pipelines at work, Savory and Pixonomy after work, and a lot of time with coding agents.
 
 <p class="post-date">Last updated {{ updated | readableDate }} · Mumbai</p>
 
-## Working
+## At work
 
-Building data pipelines as a Data Engineer at ICICI Lombard: PL/SQL, Oracle workflows, and the reconciliation scripts that keep two systems agreeing about what happened.
+I’m a data engineer at ICICI Lombard in Mumbai. Most of my work is in Oracle: ETL pipelines, PL/SQL workflows, reporting data, and reconciliation.
 
-## Learning
+<span id="building"></span>
 
-<!-- Edit these. They are guesses. -->
-Going deeper into ML engineering: getting models out of notebooks and into pipelines that run on a schedule.
+## What I’m building
+
+- **[Savory](https://getsavory.xyz)** — a searchable library for X bookmarks, with folders, tags, notes, and on-device semantic search.
+- **[Pixonomy](https://playpixopoly.com)** — a pixel-art property game in Godot for 2–6 players. Online, over a LAN, or on one PC.
+- **phonetocam** — turning an Android phone into a low-latency webcam for Windows, in Rust.
+- **This website** — getting the projects and writing into a shape I actually like.
+
+The longer write-ups and screenshots are on the [projects page](/portfolio/).
+
+## What I’m coding with
+
+Claude Code CLI and Codex are my main coding agents right now, mostly with Claude Opus 5.5 and GPT 6.1 Sol. I’m also using OpenClaw and Hermes Agent.
+
+Locally, I run Qwen3 through Ollama on my Omarchy laptop, with Telegram as an interface for OpenClaw. I’ve written up the [Ollama setup](/blog/ollama-local-llms/) and [OpenClaw setup](/blog/openclaw-telegram-ollama/), including the parts that needed fixing along the way.
+
+The rest of my ML tools, hardware, and software are on the [Uses page](/uses/).
+
+<span id="reading"></span>
 
 ## Reading
 
@@ -30,6 +47,8 @@ Going deeper into ML engineering: getting models out of notebooks and into pipel
 
 ## Listening
 
+Michael Jackson, The Strokes, EsDeeKid, and Daft Punk have been in the rotation.
+
 <div class="shelf shelf-albums">
   <figure><img src="/img/now/bad.jpg" alt="Bad album art" loading="lazy" width="300"><figcaption><span>Bad</span><span class="dim">Michael Jackson</span></figcaption></figure>
   <figure><img src="/img/now/reality-awaits.jpg" alt="Reality Awaits album art" loading="lazy" width="300"><figcaption><span>Reality Awaits</span><span class="dim">The Strokes</span></figcaption></figure>
@@ -39,6 +58,8 @@ Going deeper into ML engineering: getting models out of notebooks and into pipel
 
 ## Playing
 
+CS2 on weekends, with Monster Hunter Rise, Balatro, and Black Flag in the rotation.
+
 <div class="shelf shelf-games">
   <figure><img src="/img/now/cs2.jpg" alt="Counter-Strike 2" loading="lazy" width="300"><figcaption><span>Counter-Strike 2</span><span class="dim">Valve</span></figcaption></figure>
   <figure><img src="/img/now/mh-rise.jpg" alt="Monster Hunter Rise" loading="lazy" width="300"><figcaption><span>Monster Hunter Rise</span><span class="dim">Capcom</span></figcaption></figure>
@@ -46,11 +67,16 @@ Going deeper into ML engineering: getting models out of notebooks and into pipel
   <figure><img src="/img/now/black-flag.jpg" alt="Assassin's Creed Black Flag Resynced" loading="lazy" width="300"><figcaption><span>Black Flag Resynced</span><span class="dim">Ubisoft</span></figcaption></figure>
 </div>
 
-## Building
-
-- **[Savory](https://twitter-bookmark-organizer.vercel.app)**: a browser extension that turns your X bookmarks into an organized, searchable library, with tags, folders, notes and on-device search by meaning. No account, no server.
-- **[Pixonomy](https://pixopoly-website.vercel.app)**: a pixel-art property trading game for 2 to 6 players, built in Godot. Play online, on your network or on one PC. Coming soon to Steam.
-- **phonetocam**: turns an Android phone into a low-latency webcam for Windows, written in Rust.
-- This website. It keeps growing rooms.
-
 <p class="faint-note">This is a <a href="https://nownownow.com/about">/now page</a>.</p>
+
+<details class="pixel-corner">
+  <summary>The pixel owl and a few chiptunes</summary>
+  <div class="tape">
+    <canvas id="owl" width="96" height="96" role="img" aria-label="A small pixel owl"></canvas>
+    <div class="deck">
+      <p class="now"><span class="dim">Original browser-made chiptunes</span><br><b id="track">night shift</b></p>
+      <div class="bar"><i id="fill"></i></div>
+      <div class="ctl"><button type="button" data-a="prev">prev</button><button type="button" data-a="play" id="play">play</button><button type="button" data-a="next">skip</button><span class="dim" id="time">0:00</span></div>
+    </div>
+  </div>
+</details>
