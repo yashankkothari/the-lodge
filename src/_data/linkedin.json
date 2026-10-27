@@ -8,10 +8,10 @@
       "location": "Mumbai, India",
       "period": "Jul 2026 – Present",
       "points": [
-        "Built scalable ETL pipelines with 100+ PL/SQL stored procedures and triggers, raising data integrity and processing accuracy by 18%.",
-        "Replaced manual extraction and refresh cycles with automated, schedule-driven Oracle workflows, cutting daily load times by 25%.",
-        "Encoded BI logic (dynamic KPIs, aggregated metrics, derived columns) into ETL workflows using PL/SQL analytical functions for enterprise dashboards.",
-        "Wrote automated reconciliation scripts to resolve sync anomalies between OLTP systems and the OLAP warehouse."
+        "Build and maintain PL/SQL stored procedures and Oracle data pipelines behind insurance reporting.",
+        "Write and tune the SQL that feeds daily loads and business KPIs.",
+        "Reconcile data between transactional (OLTP) and reporting (OLAP) systems so the numbers match.",
+        "Work with business and analytics teams to turn reporting requests into reliable data."
       ],
       "logo": "/img/logos/icici-lombard.png"
     },
@@ -34,9 +34,9 @@
       "location": "Bangalore, India",
       "period": "Jun 2025 – Jul 2025",
       "points": [
-        "Integrated the Tazama open-source fraud detection engine, porting core rule logic from TypeScript to Python.",
-        "Implemented 30+ transaction rules across P2P and P2B flows, reducing false positives and reaching 98.5% detection accuracy.",
-        "Added Google Maps API geolocation checks for real-time verification of transaction locations."
+        "Researched real-time fraud detection for UPI-style P2P and P2B payments: rule engines, anomaly detection and ML scoring.",
+        "Evaluated the open-source Tazama fraud engine for adoption, studying its TypeScript rule logic against Card91's payment flows.",
+        "Delivered recommendations and an implementation plan for bringing Tazama into real-time transaction monitoring."
       ],
       "logo": "/img/logos/card91.png"
     }
