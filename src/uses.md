@@ -49,7 +49,7 @@ I’ve written up my [local Ollama setup](/blog/ollama-local-llms/) and [OpenCla
 - **LLM applications:** Google Gemini, local models through Ollama, and structured model outputs
 - **Embeddings & retrieval:** nomic-embed-text, semantic search, and RAG pipelines
 - **Evaluation:** Python scripts for checking model outputs and retrieval results
-- **Fraud detection:** Tazama and transaction rules in Python
+- **Fraud detection:** Tazama (evaluated), rule engines
 
 Some of that is in [OncoLytix](/work/oncolytix/) and [TrueHire](/work/truehire/). The smaller experiments are in my notes on [RAG](/blog/rag-pipeline-guide/), [LLM evaluation](/blog/evaluating-llm-apps/), and [agents](/blog/ai-agents-guide/).
 
