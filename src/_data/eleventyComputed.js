@@ -23,7 +23,7 @@ function image(data) {
   const raw = rawContent(data);
   const found = raw.match(/<img[^>]*src=["']([^"']+)["']/);
   const img = data.thumb || data.image || (found && found[1]);
-  return img ? new URL(img, data.site && data.site.url || SITE_URL).href : "";
+  return new URL(img || "/img/og.png", data.site && data.site.url || SITE_URL).href;
 }
 module.exports = {
   seoTitle: (data) => !data.title || data.title.toLowerCase() === "yashank kothari" ? "Yashank Kothari — Data Engineer & Builder" : data.title + " · Yashank Kothari",
