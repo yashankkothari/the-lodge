@@ -6,7 +6,7 @@ tags: ["post", "backend", "guides"]
 
 When people hear "fraud detection" they usually picture a machine learning model scoring every transaction. Models are a big part of it. But in most real payment systems there's also a **rule engine** sitting in the path of every transaction, and it isn't going away.
 
-I spent this summer as an AI/ML intern at Card91, where I worked on integrating the open-source **Tazama** fraud engine. A big chunk of that was porting rule logic from TypeScript to Python and implementing more than 30 transaction rules. Doing that made it much clearer to me why rules and models end up working side by side.
+I spent this summer as an AI/ML intern at Card91, where I researched fraud detection and evaluated the open-source **Tazama** fraud engine. Reading through its rule logic made it much clearer to me why rules and models end up working side by side.
 
 ## What a rule engine does
 
@@ -107,7 +107,7 @@ def test_velocity_ignores_old_txns():
     assert not velocity_rule(Txn("c1", 100, "IN", now), recent).triggered
 ```
 
-Beyond unit tests, the useful habit is **backtesting**: run a new or changed rule over historical transactions before deploying it, and see how many it would have flagged. When porting rules between languages, as I did, comparing outputs from the old and new implementations on the same inputs is the quickest way to catch behaviour that drifted in translation.
+Beyond unit tests, the useful habit is **backtesting**: run a new or changed rule over historical transactions before deploying it, and see how many it would have flagged. When porting rules between languages, comparing outputs from the old and new implementations on the same inputs is the quickest way to catch behaviour that drifted in translation.
 
 ## The short version
 
