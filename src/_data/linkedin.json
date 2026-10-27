@@ -21,10 +21,10 @@
       "location": "Mumbai, India",
       "period": "Jan 2026 – Jun 2026",
       "points": [
-        "Designed a Medallion data model (Staging, Curated, Consumption) in dbt and Jinja-templated SQL for BI reporting in Domo and Sigma.",
-        "Built idempotent Apache Airflow pipelines moving high-volume data from Google Cloud Storage to Snowflake.",
-        "Supported the SAP ECC to SAP S/4HANA migration: remediated legacy tables, updated transformations, validated for zero-defect production data.",
-        "Built a natural-language query interface in Retool AI so business teams could query databases without writing SQL."
+        "Built 30+ idempotent Apache Airflow pipelines moving high-volume data from Google Cloud Storage to Snowflake.",
+        "Designed multiple Medallion data models (Staging, Curated, Consumption) in dbt and Jinja-templated SQL, powering BI reporting in Domo and Sigma.",
+        "Helped migrate 20+ tables in the SAP ECC to SAP S/4HANA move, remediating legacy tables, updating transformations and validating for zero-defect production data.",
+        "Trained and tuned the model behind a Retool AI natural-language query tool spanning 15+ tables, so business teams could query data without writing SQL."
       ],
       "logo": "/img/logos/colgate-palmolive.png"
     },
@@ -39,6 +39,19 @@
         "Delivered recommendations and an implementation plan for bringing Tazama into real-time transaction monitoring."
       ],
       "logo": "/img/logos/card91.png"
+    }
+  ],
+  "leadership": [
+    {
+      "role": "Creative Head",
+      "org": "KJSCE Students' Council",
+      "period": "Jul 2023 – Jul 2025",
+      "points": [
+        "Led all art and creative work for the Students' Council, running a team of 8 designers across two years.",
+        "Set the creative direction for 15+ college fests drawing a combined footfall of 50,000, including Symphony, Abhiyantriki and Skream.",
+        "Designed each fest's full visual identity: branding, banners, posters, social content, launch videos, stickers, caps and merch.",
+        "Earlier: Jt. Creative Head, KJSCE SAHAS (Nov 2022 – Sep 2023)."
+      ]
     }
   ],
   "education": [
