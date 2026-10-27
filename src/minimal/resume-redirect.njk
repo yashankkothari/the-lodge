@@ -17,6 +17,7 @@ eleventyExcludeFromCollections: true
     </article>
   {% endfor %}
   </section>
+  {% if linkedin.leadership %}<section id="leadership"><h2>Leadership</h2>{% for job in linkedin.leadership %}<article class="job"><div><p class="job-period">{{ job.period }}</p><h2>{{ job.role }}</h2><p class="job-org">{{ job.org }}</p><ul>{% for pt in job.points %}<li>{{ pt }}</li>{% endfor %}</ul></div></article>{% endfor %}</section>{% endif %}
   <section id="education"><h2>Education</h2>{% for ed in linkedin.education %}<p class="job-period">{{ ed.period }}</p><h3>{{ ed.school }}</h3><p>{{ ed.degree }}</p>{% endfor %}</section>
   <section><h2>Projects</h2>{% for p in collections.project | sort(false, false, "data.order") %}<article class="resume-project"><h3><a href="{{ p.url }}">{{ p.data.title }}</a><span>{{ p.data.year }}</span></h3><p>{{ p.data.summary }}</p><p class="small dim">{{ p.data.tech | join(" · ") }}</p></article>{% endfor %}</section>
   <section><h2>Certifications</h2><ul class="plain-list">{% for c in linkedin.certifications %}<li><strong>{{ c.name }}</strong><span class="dim"> — {{ c.issuer }}, {{ c.year }}</span></li>{% endfor %}</ul></section>
