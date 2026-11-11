@@ -30,7 +30,7 @@ eleventyExcludeFromCollections: true
   {%- for slug in ["idempotent-pipelines", "airflow-dag-design", "evaluating-llm-apps", "fastapi-in-production"] %}
   {%- for post in collections.post %}
   {%- if post.url == "/blog/" + slug + "/" %}
-    <li><a href="{{ post.url }}"><span>{{ post.data.title }}</span><time datetime="{{ post.date | isoDate }}">{{ post.date | shortDate }}</time></a></li>
+    <li><a href="{{ post.url }}"><span>{{ post.data.title }}</span><time datetime="{{ post.date | isoDate }}">{{ post.date | monthYear }}</time></a></li>
   {%- endif %}
   {%- endfor %}
   {%- endfor %}

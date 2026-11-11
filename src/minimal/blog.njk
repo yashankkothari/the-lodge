@@ -24,7 +24,7 @@ eleventyExcludeFromCollections: true
 {% set year = post.date | year %}
 {% if year != lastYear %}{% if not loop.first %}</ul></section>{% endif %}<section class="archive-year"><h2>{{ year }}</h2><ul class="posts">{% set lastYear = year %}{% endif %}
   <li class="post archive-row" data-tag="{{ post.data.tags | topic }}" data-search="{{ (post.data.title + ' ' + (post.data.tags | join(' '))) | lower | escape }}">
-    <a href="{{ post.url }}"><span class="post-title">{{ post.data.title }}</span><span class="post-meta"><time datetime="{{ post.date | isoDate }}">{{ post.date | shortDate }}</time><span>· {{ post.templateContent | readingTime }} min</span></span></a>
+    <a href="{{ post.url }}"><span class="post-title">{{ post.data.title }}</span><span class="post-meta"><time datetime="{{ post.date | isoDate }}">{{ post.date | shortDate }}</time><span>{{ post.templateContent | readingTime }} min</span></span></a>
   </li>
 {% if loop.last %}</ul></section>{% endif %}
 {% endfor %}

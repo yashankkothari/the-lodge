@@ -29,7 +29,7 @@ eleventyExcludeFromCollections: true
 </section>
 {% endfor %}
 <section class="repository-section"><h2>More from GitHub</h2><p class="dim">Smaller experiments, side projects, and earlier work.</p><div class="repository-grid">
-{% for repo in github.repos %}
+{% for repo in github.repos | withoutFeatured(collections.project) %}
 <a class="repository" href="{{ repo.url }}"><span>{{ icon("code") }} {{ repo.name }}</span><span class="small dim">{{ repo.description or repo.language or "Open repository" }}</span></a>
 {% endfor %}
 </div></section>
