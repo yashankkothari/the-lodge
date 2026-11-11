@@ -2,7 +2,7 @@
 layout: base.njk
 ---
 <article class="post article-page">
-  <div class="article-header"><a class="eyebrow" href="/blog/">Writing / {{ tags | topic }}</a><h1>{{ title }}</h1><p class="post-date"><time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time><span>· {{ content | readingTime }} min read</span>{% if updated %}<span>· Updated {{ updated | readableDate }}</span>{% endif %}</p><p class="article-author">By <a href="/">Yashank Kothari</a></p>{% include "tag-list.njk" %}</div>
+  <div class="article-header"><a class="eyebrow" href="/blog/">Writing / {{ tags | topic }}</a><h1>{{ title }}</h1><p class="post-date"><time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time><span>· {{ content | readingTime }} min read</span>{% if updated %}<span>· Updated {{ updated | readableDate }}</span>{% endif %}<span class="article-author">· By <a href="/">Yashank Kothari</a></span></p>{% include "tag-list.njk" %}</div>
   {% set headings = content | articleHeadings %}
   {% if headings.length > 2 %}<aside class="article-toc"><details open><summary>On this page</summary><ol>{% for heading in headings %}<li class="toc-level-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.text }}</a></li>{% endfor %}</ol></details></aside>{% endif %}
   <div class="post-body">{{ content | headingLinks | safe }}</div>
