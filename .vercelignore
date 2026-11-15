@@ -1,0 +1,4 @@
+/plans
+.env
+.env.*
+!.env.example

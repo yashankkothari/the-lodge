@@ -1,0 +1,8 @@
+import type { SectionId, SectionNoteConfig } from "@/config/types";
+
+export const sectionNotes: Partial<Record<SectionId, SectionNoteConfig>> = {
+  bookshelf: {
+    text: "Books I keep\ncoming back to",
+    side: "right",
+  },
+};
