@@ -11,8 +11,9 @@ export const navigationConfig = {
 
 export const navigationItems: SiteNavigationItem[] = [
   { id: "home", label: "Home", href: "/", icon: "home", order: 0 },
-  { id: "work", label: "Work", href: "/portfolio", icon: "work", order: 1 },
-  { id: "blog", label: "Writing", href: "/blog", icon: "blog", order: 2 },
-  { id: "now", label: "Now", href: "/now", icon: "now", order: 3 },
-  { id: "uses", label: "Uses", href: "/uses", icon: "uses", order: 4 },
+  { id: "work", label: "Projects", href: "/portfolio", icon: "work", order: 1 },
+  { id: "experience", label: "Experience", href: "/resume", icon: "resume", order: 2 },
+  { id: "blog", label: "Writing", href: "/blog", icon: "blog", order: 3 },
+  { id: "now", label: "Now", href: "/now", icon: "now", order: 4 },
+  { id: "uses", label: "Uses", href: "/uses", icon: "uses", order: 5 },
 ];
