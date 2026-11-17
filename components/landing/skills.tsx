@@ -1,4 +1,5 @@
-import { skillsConfig, skillsSectionConfig } from "@/config/skills";
+import { skillLogos, skillsConfig, skillsSectionConfig } from "@/config/skills";
+import Image from "next/image";
 import type { SkillIcon, SkillItem } from "@/config/types";
 import { cn } from "@/lib/utils";
 import type { ComponentType } from "react";
@@ -151,7 +152,11 @@ function SkillChip({ skill }: { skill: SkillItem }) {
 
   return (
     <div className={chipClasses} aria-label={skill.name}>
-      <Icon size="18" />
+      {skillLogos[skill.icon] ? (
+        <Image src={skillLogos[skill.icon]!} alt="" width={18} height={18} className="size-[18px] shrink-0 object-contain" />
+      ) : (
+        <span className={skill.icon === "dbt" || skill.icon === "plsql" ? "text-destructive" : skill.icon === "aws" ? "text-chart-4" : "text-primary"}><Icon size="18" /></span>
+      )}
       <span className="font-medium">{skill.name}</span>
     </div>
   );

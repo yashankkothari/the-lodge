@@ -4,6 +4,18 @@ export const projectsSectionConfig = {
   title: "Projects",
   liveButtonLabel: "Visit",
   liveTooltip: "Open project",
+  description: "Things I build to make the everyday more useful, or more fun.",
+  allProjectsLabel: "All projects",
+  caseStudyLabel: "Case study",
+  statusLabels: { building: "In development", new: "New", shipped: "Live" },
+};
+
+export const homeProjectsConfig = {
+  ids: ["savory", "pixopoly"],
+  previews: {
+    savory: { src: "/img/projects/savory-library.jpg", alt: "Savory's bookmark library with folders, tags, and search" },
+    pixopoly: { src: "/img/projects/pixopoly-og.jpg", alt: "Pixonomy's pixel-art game board and logo" },
+  } as Record<string, { src: string; alt: string }>,
 };
 
 export const projectsConfig: Project[] = [

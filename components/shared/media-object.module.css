@@ -1,0 +1,104 @@
+/* Ported from Commonplace's personality.css media objects. */
+.pickup {
+  display: block;
+  width: 100%;
+  padding: 10px 12% 14px 0;
+  text-align: left;
+  border-radius: var(--radius-lg);
+  -webkit-tap-highlight-color: transparent;
+}
+.pickup:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.object {
+  --disc-out: 0%;
+  --disc-spin: 0deg;
+  --material-black: var(--foreground);
+  --material-white: var(--background);
+  position: relative;
+  display: block;
+  width: 100%;
+  container-type: inline-size;
+}
+:global(.dark) .object { --material-black: var(--background); --material-white: var(--foreground); }
+.case {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 76%;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  box-shadow: 0 8px 18px color-mix(in oklch, var(--material-black) 22%, transparent);
+}
+.case::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in oklch, var(--material-black) 34%, transparent), color-mix(in oklch, var(--material-white) 22%, transparent) 2.5%, color-mix(in oklch, var(--material-black) 12%, transparent) 5%, transparent 9%), linear-gradient(115deg, color-mix(in oklch, var(--material-white) 16%, transparent), transparent 34%);
+}
+.cover { position: relative; display: block; aspect-ratio: 2 / 3; overflow: hidden; }
+.square { aspect-ratio: 1; }
+.band {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5.2% 0;
+  background: var(--muted);
+  color: var(--foreground);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: clamp(6px, 3.1cqw, 10px);
+  font-weight: 500;
+  letter-spacing: 0.15em;
+}
+.disc {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  right: 0;
+  width: 62%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(var(--disc-out), -50%) rotate(var(--disc-spin));
+  background: radial-gradient(circle, transparent 0 7%, var(--material-white) 7% 8.5%, var(--muted-foreground) 8.5% 9.5%, var(--material-white) 9.5% 17%, transparent 17.5%), conic-gradient(from 10deg, var(--muted), var(--border) 9%, color-mix(in oklch, var(--chart-5) 20%, var(--material-white)) 15%, color-mix(in oklch, var(--primary) 20%, var(--material-white)) 21%, var(--muted) 29%, var(--border) 44%, var(--material-white) 55%, color-mix(in oklch, var(--success) 20%, var(--material-white)) 63%, color-mix(in oklch, var(--chart-4) 20%, var(--material-white)) 69%, var(--border) 80%, var(--muted));
+  box-shadow: 0 6px 16px color-mix(in oklch, var(--material-black) 20%, transparent);
+}
+.music .case { border-radius: calc(var(--radius-sm) / 2); }
+.music .disc {
+  width: 72%;
+  background: radial-gradient(circle, var(--material-black) 0 2.2%, transparent 2.6%), radial-gradient(circle, transparent 0 17%, var(--material-black) 17.4%), var(--art) center / 36% 36% no-repeat, var(--material-black);
+}
+.music .disc i {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, transparent 0 1.6px, color-mix(in oklch, var(--material-white) 6%, transparent) 1.7px 2.4px), conic-gradient(from 40deg, color-mix(in oklch, var(--material-white) 22%, transparent), transparent 14%, transparent 36%, color-mix(in oklch, var(--material-white) 16%, transparent) 50%, transparent 64%);
+  mask: radial-gradient(circle, transparent 0 18.5%, var(--material-black) 19%);
+}
+.book { perspective: 700px; }
+.book .case { width: 74%; margin-left: 4%; transform-origin: left center; transform: rotateY(-18deg); }
+.pages {
+  position: absolute;
+  z-index: 0;
+  top: 2.2%;
+  bottom: 2.2%;
+  left: 8%;
+  width: 71%;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  transform-origin: left center;
+  transform: rotateY(-18deg) translateX(5.5%);
+  background: repeating-linear-gradient(90deg, color-mix(in oklch, var(--material-white) 88%, var(--muted-foreground)) 0 1px, var(--material-white) 1px 2.4px);
+}
+.open { --disc-out: 17%; --disc-spin: 70deg; }
+.open .case { transform: translate(-2%, -2%) rotate(-1.5deg); }
+.open.book .case { transform: translateY(-2%) rotateY(-27deg); }
+@media (hover: hover) and (pointer: fine) {
+  .pickup:hover .object { --disc-out: 17%; --disc-spin: 70deg; }
+  .pickup:hover .case { transform: translate(-2%, -2%) rotate(-1.5deg); }
+  .pickup:hover .book .case { transform: translateY(-2%) rotateY(-27deg); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .case { transition: transform 400ms cubic-bezier(.2,.9,.3,1.2); }
+  .disc { transition: transform 600ms cubic-bezier(.2,.9,.3,1.15); }
+}

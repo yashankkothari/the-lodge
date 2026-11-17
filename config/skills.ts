@@ -1,4 +1,24 @@
-import type { SkillCategoryConfig, SkillItem } from "@/config/types";
+import type { SkillCategoryConfig, SkillIcon, SkillItem } from "@/config/types";
+
+export const skillLogos: Partial<Record<SkillIcon, string>> = {
+  python: "/images/stack/python.svg",
+  javascript: "/images/stack/javascript.svg",
+  typescript: "/images/stack/typescript.svg",
+  cpp: "/images/stack/cplusplus.svg",
+  airflow: "/images/stack/apacheairflow.svg",
+  snowflake: "/images/uses/snowflake.svg",
+  oracle: "/images/stack/oracle.svg",
+  postgres: "/images/stack/postgresql.svg",
+  pandas: "/images/stack/pandas.svg",
+  fastapi: "/images/stack/fastapi.svg",
+  nodejs: "/images/stack/nodejs.svg",
+  react: "/images/stack/react.svg",
+  docker: "/images/stack/docker.svg",
+  git: "/images/stack/git.svg",
+  linux: "/images/stack/linux.svg",
+  grafana: "/images/stack/grafana.svg",
+  jira: "/images/stack/jira.svg",
+};
 
 export const skillsSectionConfig = {
   title: "Stack",

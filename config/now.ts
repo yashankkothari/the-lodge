@@ -1,3 +1,11 @@
+import { booksConfig } from "@/config/books";
+
+export const nowMediaConfig = {
+  inspectLabel: "Pick up",
+  putBackLabel: "Put back",
+  gamePlatform: "PC",
+};
+
 export const nowConfig = {
   title: "Now",
   metaTitle: "Now",
@@ -67,35 +75,19 @@ export const nowSections: NowSection[] = [
 ];
 
 /** Books, with the same covers the bookshelf uses. */
-export const nowReading = [
-  {
-    id: "ddia",
-    title: "Designing Data-Intensive Applications",
-    creator: "Martin Kleppmann",
-    image: "/img/now/ddia.jpg",
-  },
-  {
-    id: "industrial-society",
-    title: "Industrial Society and Its Future",
-    creator: "Theodore Kaczynski",
-    image: "/img/now/industrial-society.jpg",
-  },
-  {
-    id: "sun-and-steel",
-    title: "Sun and Steel",
-    creator: "Yukio Mishima",
-    image: "/img/now/sun-and-steel.jpg",
-  },
-];
+export const nowReading = ["steve-jobs", "ddia", "industrial-society", "sun-and-steel"].map((id) => {
+  const book = booksConfig.find((item) => item.id === id)!;
+  return { id: book.id, title: book.title, creator: book.author, image: book.cover.src };
+});
 
 export const nowListening = {
   blurb:
     "Michael Jackson, The Strokes, EsDeeKid, and Daft Punk have been in the rotation.",
   items: [
-    { id: "bad", title: "Bad", creator: "Michael Jackson", image: "/img/now/bad.jpg" },
-    { id: "reality-awaits", title: "Reality Awaits", creator: "The Strokes", image: "/img/now/reality-awaits.jpg" },
-    { id: "rebel", title: "Rebel", creator: "EsDeeKid", image: "/img/now/rebel.jpg" },
-    { id: "discovery", title: "Discovery", creator: "Daft Punk", image: "/img/now/discovery.jpg" },
+    { id: "bad", title: "Bad", creator: "Michael Jackson", image: "/img/now/bad-hd.jpg" },
+    { id: "reality-awaits", title: "Reality Awaits", creator: "The Strokes", image: "/img/now/reality-awaits-hd.jpg" },
+    { id: "rebel", title: "Rebel", creator: "EsDeeKid", image: "/img/now/rebel-hd.jpg" },
+    { id: "discovery", title: "Discovery", creator: "Daft Punk", image: "/img/now/discovery-hd.jpg" },
   ],
 };
 
@@ -103,9 +95,9 @@ export const nowPlaying = {
   blurb:
     "CS2 on weekends, with Monster Hunter Rise, Balatro, and Black Flag in the rotation.",
   items: [
-    { id: "cs2", title: "Counter-Strike 2", creator: "Valve", image: "/img/now/cs2.jpg" },
-    { id: "mh-rise", title: "Monster Hunter Rise", creator: "Capcom", image: "/img/now/mh-rise.jpg" },
-    { id: "balatro", title: "Balatro", creator: "LocalThunk", image: "/img/now/balatro.jpg" },
-    { id: "black-flag", title: "Black Flag Resynced", creator: "Ubisoft", image: "/img/now/black-flag.jpg" },
+    { id: "cs2", title: "Counter-Strike 2", creator: "Valve", image: "/img/now/cs2-hd.jpg" },
+    { id: "mh-rise", title: "Monster Hunter Rise", creator: "Capcom", image: "/img/now/mh-rise-hd.jpg" },
+    { id: "balatro", title: "Balatro", creator: "LocalThunk", image: "/img/now/balatro-hd.jpg" },
+    { id: "black-flag", title: "Black Flag Resynced", creator: "Ubisoft", image: "/img/now/black-flag-hd.jpg" },
   ],
 };

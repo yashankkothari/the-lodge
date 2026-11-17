@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { getUsesArt } from "@/components/landing/uses-art";
+import { useId, useState } from "react";
+import Image from "next/image";
 import { usesConfig, usesGroups } from "@/config/uses";
+import { usesImages } from "@/config/uses-images";
 import { cn } from "@/lib/utils";
+import styles from "./uses-gallery.module.css";
 
 const entries = usesGroups.flatMap((group) => [
   ...group.items.map((item) => ({ ...item, category: group.id, categoryTitle: group.title })),
@@ -18,6 +20,7 @@ const entries = usesGroups.flatMap((group) => [
 ]);
 
 export function UsesGallery() {
+  const stickerId = useId().replaceAll(":", "");
   const [category, setCategory] = useState("all");
   const selectedGroup = usesGroups.find((group) => group.id === category);
   const visible = category === "all" ? entries : entries.filter((item) => item.category === category);
@@ -32,6 +35,20 @@ export function UsesGallery() {
 
   return (
     <div className="px-6 sm:px-8">
+      <svg className={styles.filters} aria-hidden="true" focusable="false">
+        <defs>
+          <filter id={stickerId} x="-25%" y="-25%" width="150%" height="160%" colorInterpolationFilters="sRGB">
+            <feMorphology in="SourceAlpha" operator="dilate" radius="3" result="edge" />
+            <feFlood floodColor="var(--sticker-paper)" result="paper" />
+            <feComposite in="paper" in2="edge" operator="in" result="outline" />
+            <feDropShadow in="outline" dx="1" dy="3" stdDeviation="2" floodColor="var(--sticker-shadow)" floodOpacity="0.18" />
+            <feMerge>
+              <feMergeNode />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
       <div role="group" aria-label={usesConfig.filterLabel} className="flex flex-wrap gap-x-5 gap-y-1 border-t border-border py-3">
         {filters.map((filter) => (
           <button
@@ -56,13 +73,20 @@ export function UsesGallery() {
       <p role="status" className="sr-only">{visible.length} items, {selectedGroup?.title ?? usesConfig.allLabel}</p>
       <ul id="uses-inventory" aria-label={selectedGroup?.title ?? usesConfig.title} className="grid grid-cols-2 gap-x-5 gap-y-10 pb-14 pt-6 sm:grid-cols-3 sm:gap-x-8 sm:gap-y-12">
         {visible.map((item) => {
-          const Art = getUsesArt(item.art);
+          const media = usesImages[item.id];
           return (
-            <li key={item.id} className="min-w-0 text-center">
-              <div className="flex h-36 items-center justify-center text-muted-foreground sm:h-44">
-                {Art && <Art size={116} className="size-28 sm:size-32" />}
-              </div>
-              <h2 className="text-sm font-medium leading-snug tracking-tight">{item.name}</h2>
+            <li key={item.id} className={cn(styles.item, "min-w-0 text-center")}>
+              <a href={media.href} target="_blank" rel="noopener noreferrer" className={cn(styles.link, "block rounded-lg outline-offset-4 focus-visible:outline-2 focus-visible:outline-ring")}>
+                <div className={styles.artwork} aria-hidden="true">
+                  {media.files.map((file) => (
+                    <div key={file} className={cn(styles.sticker, media.files.length > 1 && styles.pair, file.endsWith(".svg") && styles.logo)} style={{ filter: `url(#${stickerId})` }}>
+                      <Image src={`/images/uses/${file}`} alt="" width={240} height={240} sizes="(max-width: 639px) 140px, 180px" className={styles.image} style={media.clip ? { clipPath: media.clip, height: "auto", aspectRatio: "1" } : undefined} />
+                    </div>
+                  ))}
+                </div>
+                <h2 className="text-sm font-medium leading-snug tracking-tight">{item.name}</h2>
+                <span className="sr-only">{usesConfig.externalLinkLabel}</span>
+              </a>
               {item.note && <p className="mx-auto mt-2 max-w-52 text-xs leading-relaxed text-muted-foreground">{item.note}</p>}
               <p className="mt-2 font-mono text-[10px] tracking-wide text-muted-foreground/60">{item.categoryTitle}</p>
             </li>

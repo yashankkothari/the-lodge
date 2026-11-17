@@ -4,14 +4,14 @@ date: 2026-10-06
 tags: ["post", "data-engineering", "snowflake", "guides"]
 ---
 
-In Snowflake you pay for storage and for compute, and compute is almost always the bigger bill. Compute is billed per second while a virtual warehouse is running, with a 60-second minimum each time it starts. Most savings come from keeping warehouses the right size and off when idle.
+Snowflake makes it surprisingly easy to spend money without noticing. Storage matters, but compute is usually where the real bill comes from. A virtual warehouse keeps charging while it's running, billed per second with a 60-second minimum each time it starts. So before getting clever with SQL optimisations, I'd check how long the warehouses are sitting there doing nothing.
 
 
 <figure><img src="/img/blog/diagram-snowflake.png" alt="Snowflake query path: result cache, warehouse, disk cache, micro-partitions" loading="lazy"><figcaption>Each layer to the right costs more. Most savings come from staying left.</figcaption></figure>
 
 ## Warehouses
 
-**Auto-suspend and auto-resume.** Set a short auto-suspend for most workloads:
+**Auto-suspend is the first place I'd look.** Most batch workloads don't need a warehouse sitting awake for ages after the job finishes. Set a short idle timeout and let it resume when work arrives:
 
 ```sql
 ALTER WAREHOUSE transform_wh SET
@@ -19,27 +19,27 @@ ALTER WAREHOUSE transform_wh SET
   AUTO_RESUME  = TRUE;
 ```
 
-A warehouse left at a 10-minute suspend after every two-minute job spends most of its credits doing nothing.
+If a two-minute job runs and the warehouse stays awake for another ten, you've spent most of those credits watching it idle. It's the first setting I'd check.
 
-**Size up for speed, not as a habit.** Each size step roughly doubles both the compute and the credits per hour. A query that scales well can finish in half the time on the next size up for about the same cost. One that doesn't scale just costs double, so check before you upsize.
+**Don't just make the warehouse bigger because the query is slow.** Each size step roughly doubles the compute and hourly credit rate. Some queries scale well enough to finish twice as fast and cost about the same. Others barely improve and simply cost more. Measure before and after.
 
-**Separate warehouses by workload.** Keep ELT, BI dashboards and ad-hoc analysis on different warehouses, so one heavy job doesn't slow the CEO's dashboard and each cost is visible on its own.
+**Don't put every workload on the same warehouse by default.** I'd separate ELT jobs, dashboards and ad-hoc queries when the usage justifies it. Otherwise a big transformation can interfere with someone's dashboard, and when the bill arrives you can't even tell which workload burned the credits.
 
 ## Queries
 
-1. **Select only the columns you need.** Snowflake stores data by column, so `SELECT *` on a wide table reads far more than it has to.
-2. **Filter on columns that prune well.** Snowflake skips micro-partitions whose min/max range can't match your filter. Filtering on a date column that follows load order usually prunes well; wrapping it in a function (`WHERE TO_CHAR(created_at, 'YYYY') = '2026'`) can defeat pruning.
-3. **Read the Query Profile.** Compare "Partitions scanned" with "Partitions total", and look for "Bytes spilled to local/remote storage". Spilling means the warehouse ran out of memory for that query.
-4. **Watch for exploding joins.** A join on a non-unique key multiplies rows. If the output is much larger than both inputs, the join keys are probably wrong.
+1. **Stop selecting columns nobody needs.** Snowflake stores columns separately, so `SELECT *` on a wide table can make you read a lot of unnecessary data.
+2. **Give micro-partition pruning a chance.** Snowflake can skip partitions using their recorded min/max values. A straightforward date filter may work well; converting every date to a string in the `WHERE` clause can make pruning harder.
+3. **Open Query Profile instead of guessing.** Check partitions scanned versus total, then look for local or remote spilling. If a query is spilling, it couldn't keep all the intermediate work in memory.
+4. **Check join cardinality.** If joining two modest tables suddenly produces an enormous output, look for non-unique keys and accidental many-to-many matches before blaming warehouse size.
 
 ## Caching
 
-- **Result cache.** An identical query on unchanged data returns the stored result without using a warehouse, for up to 24 hours.
-- **Warehouse cache.** A running warehouse keeps recently read data on local disk. Suspending clears it, which is a fair trade for most batch jobs.
+- **Result cache:** Snowflake can reuse a previously computed result for an eligible identical query on unchanged data, potentially avoiding warehouse compute for up to 24 hours.
+- **Warehouse cache:** while the warehouse stays running, local disks can hold recently accessed data. Suspending drops that cache. For most batch jobs, I'd rather save idle credits than keep a warehouse awake just for warm cache.
 
 ## Clustering keys
 
-Only for very large tables (multi-terabyte) where queries filter on the same columns and pruning is poor. Automatic clustering costs credits to maintain, so measure before and after.
+Clustering keys aren't something I'd add to every table because a tutorial mentioned them. They make sense mainly for very large tables with recurring filter patterns and genuinely poor pruning. Automatic clustering itself costs credits, so you'd better measure whether the improvement pays for maintenance.
 
 ## Keep an eye on spend
 
@@ -52,7 +52,7 @@ GROUP BY 1
 ORDER BY 2 DESC;
 ```
 
-Pair it with a **resource monitor** on each warehouse, so a runaway query hits a credit limit instead of the monthly bill.
+I'd also put **resource monitors** around spend. They aren't a replacement for understanding your workloads, but they're useful protection against a job quietly eating the budget because somebody left a warehouse running.
 
 ## Try it: three queries to run this week
 
@@ -76,4 +76,4 @@ create resource monitor monthly_budget with credit_quota = 400
 alter warehouse etl_wh set resource_monitor = monthly_budget;
 ```
 
-When `partitions_scanned` is close to `partitions_total` on a big table, the filter isn't pruning. That's your cue to check the `where` clause or think about a clustering key.
+If `partitions_scanned` is almost the same as `partitions_total` for a large table, the query is reading nearly everything. Before throwing a bigger warehouse at it, look at the filter and whether the data layout lets Snowflake prune partitions. More compute won't fix a bad access pattern.

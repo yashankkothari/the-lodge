@@ -4,7 +4,8 @@ export const usesConfig = {
   allLabel: "All",
   filterLabel: "Filter by category",
   relatedTitle: "From the workbench",
-  galleryNote: "A small inventory of everyday tools, illustrated in paper cut.",
+  galleryNote: "Product photos and software logos belong to their respective makers. Each sticker links to the product or tool.",
+  externalLinkLabel: " (opens in a new tab)",
   metaTitle: "Uses",
   description:
     "The hardware, software, ML stack, and current models and agents on my desk.",
@@ -43,10 +44,12 @@ export const usesGroups: UsesGroup[] = [
     items: [
       {
         id: "machine",
-        name: "Ryzen 5 5600X build",
-        note: "32 GB DDR4, Gigabyte Radeon RX 9060 XT 16 GB",
+        name: "AMD Ryzen 5 5600X",
+        note: "The processor in my desktop build",
         art: "tower",
       },
+      { id: "gpu", name: "Gigabyte RX 9060 XT OC", note: "16 GB VRAM", art: "chip" },
+      { id: "ram", name: "Corsair DDR4", note: "32 GB", art: "chip" },
       {
         id: "monitors",
         name: "BenQ EW270Q",
@@ -55,20 +58,21 @@ export const usesGroups: UsesGroup[] = [
       },
       {
         id: "keyboard",
-        name: "Cosmic Byte mechanical",
-        note: "In white",
+        name: "Cosmic Byte CB-GK-37 Firefly",
+        note: "White",
         art: "keyboard",
       },
-      { id: "mouse", name: "Razer Orochi V2", art: "mouse" },
+      { id: "mouse", name: "Razer Orochi V2", note: "White", art: "mouse" },
       {
         id: "headphones",
         name: "Razer BlackShark V2 X",
-        note: "For Badalamenti, mostly",
+        note: "White. For Badalamenti, mostly",
         art: "headphones",
       },
-      { id: "speakers", name: "Creative Pebble V3", art: "speaker" },
+      { id: "speakers", name: "Creative Pebble V3", note: "White", art: "speaker" },
       { id: "mic", name: "Blue Snowball iCE", art: "microphone" },
       { id: "tablet", name: "iPad Air 2", art: "tablet" },
+      { id: "psp", name: "Sony PSP", note: "PlayStation Portable", art: "tablet" },
     ],
   },
   {

@@ -12,6 +12,7 @@ import {
 } from "@/config/resume";
 import { ArrowRightIcon, ForwardIcon } from "@/components/shared/site-icons";
 import { PrintButton } from "./print-button";
+import { ExperienceText } from "@/components/shared/experience-text";
 
 export const metadata: Metadata = {
   title: "Experience & Resume",
@@ -72,7 +73,7 @@ export default function ResumePage() {
 
         <section aria-label="Roles" className="border-t border-dashed">
           {resumeRoles.map((role) => (
-            <article key={role.id} className="border-b px-6 py-6 last:border-b-0">
+            <article key={role.id} className="micro-transition border-b px-6 py-6 last:border-b-0 hover:bg-muted/20 focus-within:bg-muted/20 motion-safe:hover:translate-x-0.5">
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 <Company name={role.company} logo={role.logo} />
                 <p className="font-mono text-[11px] tracking-wide text-muted-foreground">
@@ -84,7 +85,7 @@ export default function ResumePage() {
               </h2>
               <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground marker:text-muted-foreground/40">
                 {role.points.map((point) => (
-                  <li key={point}>{point}</li>
+                  <li key={point}><ExperienceText>{point}</ExperienceText></li>
                 ))}
               </ul>
             </article>
@@ -105,7 +106,7 @@ export default function ResumePage() {
           </div>
           <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground marker:text-muted-foreground/40">
             {resumeLeadership.points.map((point) => (
-              <li key={point}>{point}</li>
+              <li key={point}><ExperienceText>{point}</ExperienceText></li>
             ))}
           </ul>
         </section>

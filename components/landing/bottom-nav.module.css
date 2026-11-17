@@ -1,0 +1,40 @@
+.nav {
+  position: fixed;
+  z-index: 60;
+  left: 12px;
+  right: 12px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  max-width: 420px;
+  margin-inline: auto;
+  padding: 5px;
+  border-radius: var(--radius-4xl);
+  isolation: isolate;
+}
+.surface.surface { inset: 0; border-radius: inherit; }
+.link {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-width: 0;
+  min-height: 52px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: var(--radius-xl);
+  color: color-mix(in oklch, var(--foreground) 85%, var(--background));
+  font-size: 9px;
+  line-height: 1.3;
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+}
+.icon { width: 24px; height: 24px; }
+.link[data-active="true"] { color: var(--foreground); }
+.active { position: absolute; z-index: -1; inset: 0; border-radius: inherit; background: color-mix(in oklch, var(--foreground) 12%, transparent); }
+.link:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+@media (min-width: 768px) { .nav { display: none; } }
+@media (min-width: 361px) and (max-width: 767px) { .link { font-size: 10px; } }
+@media (hover: hover) and (pointer: fine) { .link:hover { color: var(--foreground); background: color-mix(in oklch, var(--foreground) 6%, transparent); } }
+@media (prefers-reduced-motion: no-preference) { .link { transition: background-color 180ms ease, color 180ms ease; } }

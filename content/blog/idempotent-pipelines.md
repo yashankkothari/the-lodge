@@ -4,9 +4,9 @@ date: 2026-08-14
 tags: ["post", "data-engineering", "guides"]
 ---
 
-A pipeline is **idempotent** when running it once or five times for the same input gives the same result. It is the single most useful property a batch job can have, because every job eventually gets rerun: a retry after a timeout, a backfill after a bug fix, someone clicking "Clear" in Airflow at 3 a.m.
+A data pipeline is going to get rerun. Maybe a task times out, maybe a backfill is needed, maybe someone clears an Airflow task at 3 a.m. If running the same input twice doubles your numbers, the pipeline was broken before anyone pressed that button.
 
-If a rerun doubles your revenue numbers, the pipeline is broken even when every task is green.
+That's why I care so much about **idempotency**: the same input should give the same result, whether the job runs once or five times. A green DAG means nothing if the report now shows twice the revenue.
 
 
 <figure><img src="/img/blog/diagram-idempotent.png" alt="Append vs delete-insert on a retry" loading="lazy"><figcaption>A retry is only safe when the write replaces the partition instead of adding to it.</figcaption></figure>
@@ -15,13 +15,13 @@ If a rerun doubles your revenue numbers, the pipeline is broken even when every 
 
 ### 1. Process a window, not "whatever is new"
 
-Bad: `WHERE loaded_at > (SELECT MAX(loaded_at) FROM target)`. The answer changes every time you run it.
+Bad: `WHERE loaded_at > (SELECT MAX(loaded_at) FROM target)`. Now the input depends on whatever happened in the previous run. Good luck reproducing a failure from last Tuesday.
 
-Good: every run owns a fixed, explicit window, such as one day, passed in from the scheduler. In Airflow that is the run's `data_interval_start` and `data_interval_end`. Rerunning the 7 October run always processes 7 October.
+Better: make the input interval explicit. A daily run should know that it owns the 7 October window regardless of whether it runs on the seventh, eighth or a month later. Airflow gives you `data_interval_start` and `data_interval_end` for exactly this reason. The scheduler's clock should not change what historical data you're replaying.
 
 ### 2. Overwrite the window, don't append to it
 
-Two safe ways to write:
+The write strategy is the other half. I generally want one of these two patterns instead of a blind append:
 
 **Delete-then-insert inside one transaction**
 
@@ -49,11 +49,11 @@ WHEN NOT MATCHED THEN INSERT (policy_id, status, premium, updated_at)
      VALUES (s.policy_id, s.status, s.premium, s.updated_at);
 ```
 
-`INSERT INTO ... SELECT` with no delete or key is the classic source of duplicates. Avoid it for anything that can be rerun.
+Blind `INSERT INTO ... SELECT` is fine until somebody retries the job and you get two copies of every row. If there's any chance of a rerun, think about the write semantics before celebrating a successful load.
 
 ### 3. Deduplicate the source before you merge
 
-MERGE fails (or behaves unpredictably) when the source has two rows for the same key. Keep only the latest:
+`MERGE` isn't a substitute for knowing your source data. If there are two versions of the same business key in one batch, the result can fail or depend on the database's merge rules. Resolve that ambiguity before writing. Here I keep the newest row:
 
 ```sql
 SELECT *
@@ -65,17 +65,17 @@ QUALIFY ROW_NUMBER() OVER (
 
 ## A quick checklist
 
-- Every run is parameterised by a date window from the scheduler, never by `CURRENT_DATE` inside the SQL.
-- Writes are overwrite-by-partition or MERGE on a key, never blind appends.
-- The source is deduplicated on that key first.
-- Side effects (emails, API calls, file drops) live in their own task, so retrying the load doesn't resend them.
-- You've actually tested it: run the same day twice and compare row counts.
+- Does the job get a specific date window rather than relying on `CURRENT_DATE`?
+- Can I explain what happens when the same window is written a second time?
+- Have I removed duplicate business keys from the incoming data before the merge?
+- Are emails, file drops and other side effects separated from the data write so retries don't repeat them?
+- Have I actually run the same window twice and compared the results, instead of assuming the SQL is idempotent?
 
-Make this the default and backfills stop being scary.
+I'd much rather spend a little time getting the write pattern right now than be the person manually cleaning duplicate rows out of a production report later.
 
 ## Try it: break it, then fix it
 
-Here's the whole idea in 25 lines of Python and SQLite. The script loads the same 1,000 orders twice, once with a blind append and once with delete-then-insert inside a single transaction.
+I put together a tiny SQLite demo so you can see the failure without needing a warehouse. It loads 1,000 orders, then retries the exact same batch. First with a naive append, then with delete-and-insert wrapped in a transaction. Watch what happens to the row count:
 
 ```bash
 curl -O https://www.yashank.site/files/demos/idempotent_demo.py
@@ -85,4 +85,4 @@ python idempotent_demo.py idempotent
 
 <figure><img src="/img/blog/term-idem.png" alt="Terminal output: append doubles rows, idempotent load keeps 1,000" loading="lazy"><figcaption>Real output. The append run doubles to 2,000 rows on the retry; the idempotent run stays at 1,000.</figcaption></figure>
 
-Swap SQLite for Snowflake and the pattern is the same: `DELETE ... WHERE order_date = :ds` and `INSERT` inside one transaction, or a `MERGE` on the business key.
+The demo uses SQLite because it's easy to run locally. On Snowflake, the same principle applies: `DELETE ... WHERE order_date = :ds` and `INSERT` in one transaction, or `MERGE` using a real business key. Different database, same requirement: a retry shouldn't rewrite history by accident.

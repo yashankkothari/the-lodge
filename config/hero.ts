@@ -8,6 +8,6 @@ export const heroConfig: HeroConfig = {
   highlightedPhrases: ["data pipelines", "production"],
   headlineAfter: ".",
   description:
-    "Data engineer in Mumbai. I work on ETL pipelines, reporting workflows, and reconciliation, and outside work I build software like Savory and Pixonomy.",
+    "Data engineer in Mumbai. I work on ETL pipelines, reporting workflows, reconciliation, and applied AI/ML. Outside work, I build software like Savory and Pixonomy.",
   descriptionHighlight: "build software",
 };

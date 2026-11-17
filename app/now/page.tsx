@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { MediaObject } from "@/components/shared/media-object";
 import Link from "next/link";
 import { Footer } from "@/components/landing/footer";
 import { siteConfig } from "@/config/site";
@@ -20,20 +20,12 @@ export const metadata: Metadata = {
 
 type ShelfItem = { id: string; title: string; creator: string; image: string };
 
-function Shelf({ items }: { items: readonly ShelfItem[] }) {
+function Shelf({ items, medium }: { items: readonly ShelfItem[]; medium: "book" | "music" | "game" }) {
   return (
     <ul className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
       {items.map((item) => (
         <li key={item.id}>
-          <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted ring-1 ring-inset ring-border">
-            <Image
-              src={item.image}
-              alt={`${item.title} cover`}
-              fill
-              sizes="(min-width: 640px) 22vw, 45vw"
-              className="object-cover"
-            />
-          </div>
+          <MediaObject item={item} medium={medium} />
           <p className="mt-2 text-xs font-medium leading-snug text-foreground">
             {item.title}
           </p>
@@ -127,7 +119,7 @@ export default function NowPage() {
           className="scroll-mt-20 border-t border-dashed px-6 py-6"
         >
           <h2 className="text-base font-medium tracking-tight">Reading</h2>
-          <Shelf items={nowReading} />
+          <Shelf items={nowReading} medium="book" />
         </section>
 
         <section
@@ -138,7 +130,7 @@ export default function NowPage() {
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             {nowListening.blurb}
           </p>
-          <Shelf items={nowListening.items} />
+          <Shelf items={nowListening.items} medium="music" />
         </section>
 
         <section
@@ -149,7 +141,7 @@ export default function NowPage() {
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             {nowPlaying.blurb}
           </p>
-          <Shelf items={nowPlaying.items} />
+          <Shelf items={nowPlaying.items} medium="game" />
         </section>
 
         <p className="border-t border-dashed px-6 py-6 font-mono text-[11px] text-muted-foreground">

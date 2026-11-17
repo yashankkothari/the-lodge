@@ -148,7 +148,7 @@ export const siteConfig: PortfolioConfig = {
     fullName: "Yashank Kothari",
     firstName: "Yashank",
     avatar: {
-      src: "/images/profile-monogram.png",
+      src: "/images/profile-monogram.svg",
       alt: "Hand-lettered yk monogram for Yashank Kothari",
       fallback: "YK",
     },
@@ -159,10 +159,10 @@ export const siteConfig: PortfolioConfig = {
     githubUsername: "yashankkothari",
   },
   sectionOrder: [
+    "skills",
     "projects",
     "writing",
     "socials",
-    "skills",
     "about",
     "github",
     "experience",

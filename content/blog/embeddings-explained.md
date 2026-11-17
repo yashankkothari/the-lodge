@@ -4,37 +4,37 @@ date: 2026-08-29
 tags: ["post", "genai", "llms", "guides"]
 ---
 
-Most people meet embeddings as the retrieval step in a RAG pipeline and never look further. That's a shame, because they're one of the most useful tools in applied machine learning, and they're far simpler than the models that generate text.
+Embeddings get treated as some magical ingredient you throw into a vector database because every RAG tutorial told you to. They're actually worth understanding on their own. They're useful well beyond chatbots, and the basic idea isn't nearly as intimidating as the terminology makes it sound.
 
 ## What an embedding is
 
-An **embedding** is a list of numbers (a vector) that represents a piece of input, such as a sentence, a product description or an image. An embedding model is trained so that inputs with similar meaning end up with vectors that point in similar directions.
+An **embedding** is just a numerical representation of something: text, an image, a product description, whatever the model was trained to handle. The useful property is that similar inputs should end up close to each other in the resulting space. That gives us a way to compare things without demanding the exact same words.
 
-"How do I reset my password?" and "I forgot my login" share almost no words, but a good text embedding model places them close together. "How do I reset my router?" lands somewhere nearby but noticeably further away.
+Imagine a support search. Someone types "I forgot my login" and your help article says "reset your password". Keyword matching might struggle, but a decent embedding model should see the relationship. A question about resetting a router might share the word "reset" yet be much less relevant. That's the kind of distinction I want to capture.
 
-That's the whole trick. Once meaning is geometry, you can compare, group and search things using basic linear algebra.
+That's the useful bit. You can compare two pieces of text without requiring them to share the same words. Underneath all the vector-database branding, you're comparing numbers.
 
 ## Cosine similarity
 
-The standard way to compare two embeddings is **cosine similarity**: the cosine of the angle between the vectors.
+The comparison you'll keep running into is **cosine similarity**. It looks at the angle between two vectors instead of just subtracting the numbers:
 
 ```text
 cos(a, b) = (a · b) / (|a| * |b|)
 ```
 
-It ranges from -1 to 1. Close to 1 means the vectors point the same way, close to 0 means they're unrelated. In practice, with most text embedding models, scores cluster in a narrower band, so "0.8" doesn't have a universal meaning. You learn what a good score looks like for your model and your data.
+The mathematical range is -1 to 1. A score near 1 means the vectors point in almost the same direction. Near 0 means they're roughly orthogonal. But don't take a screenshot of a similarity score of 0.8 and declare it "80% semantically correct". Real embedding distributions often occupy a narrower range, and the useful threshold depends on the model and data.
 
-Cosine similarity ignores vector length and only looks at direction. That's usually what you want, since length often reflects things like input size rather than meaning.
+Cosine ignores magnitude and compares direction. That's often the behaviour we're after for similarity search, although you should still check what your specific embedding model was trained to produce.
 
 ## Normalisation
 
-If you **normalise** every vector to unit length (divide by its norm), cosine similarity becomes a plain dot product. That's faster to compute and it's what many vector databases assume.
+If every vector has length one, cosine similarity becomes an ordinary dot product. You get there by **normalising** each vector—dividing it by its norm. Now search can use a much simpler calculation.
 
-Some embedding APIs return normalised vectors already. Check the documentation rather than assuming. Normalising an already normalised vector is harmless, so when in doubt, do it once at write time and store the result.
+Some APIs already return unit vectors. Check before building assumptions into your index. I usually want the normalisation decision to happen once when the vector is stored, not to have three different services making different choices later.
 
 ## A small runnable example
 
-Real embeddings have hundreds or thousands of dimensions. These toy vectors have four, hand-made so the dimensions loosely mean "account", "networking", "billing" and "food". The maths is identical.
+Real models produce vectors with hundreds or thousands of numbers. I don't think staring at 1,536 floats helps anybody learn this, so the example below uses four hand-made dimensions: roughly account issues, networking, billing and food. They're fake vectors, but the calculations are real.
 
 ```python
 import numpy as np
@@ -83,33 +83,33 @@ best = max(centroids, key=lambda k: centroids[k] @ ticket)
 print(f"\nNew ticket classified as: {best}")
 ```
 
-Swap the toy vectors for output from a real embedding model and the same code works for search, deduplication and classification.
+The `search` function is doing nearest-neighbour lookup, the similarity matrix finds likely duplicate tickets, and the centroids give us a simple classifier. Replace my made-up vectors with actual model output and the same basic operations apply.
 
 ## Uses beyond RAG
 
-- **Semantic search.** Find documents by meaning rather than keywords. Often best combined with keyword search (hybrid search), because embeddings can miss exact terms like product codes.
-- **Deduplication.** Near-identical support tickets, product listings or records from different sources score very high against each other. A threshold plus human review of the borderline band goes a long way.
-- **Clustering.** Run k-means or a density-based method on embeddings to find themes in thousands of free-text responses without labelling anything first.
-- **Classification.** Train a simple logistic regression on embeddings, or use nearest centroid as above. With a few hundred labelled examples this is often competitive with much heavier approaches, and far cheaper to run.
-- **Anomaly detection.** Items far from every cluster are worth a look.
+- **Search by meaning.** Match a question to relevant documents even when they use different wording. I'd still combine it with keyword search for codes, names and other exact terms.
+- **Spot duplicates.** Compare support tickets, product listings or imported records. Review the borderline scores instead of pretending one threshold can decide everything.
+- **Find groups in messy text.** K-means or other clustering methods can reveal themes across thousands of responses before anybody has labelled them.
+- **Classify cheaply.** Logistic regression on top of embeddings, or a nearest-centroid approach like this demo, can be enough for plenty of tasks without another enormous model call.
+- **Find unusual items.** If something sits far away from your normal clusters, it might deserve a closer look.
 
 ## Choosing dimensions
 
-More dimensions can capture more nuance, but cost more to store and compare. A million 1,536-dimensional float32 vectors is roughly 6 GB before any index overhead.
+More dimensions can represent more detail, but you're paying for them in storage and search. A million 1,536-dimensional float32 vectors is roughly 6 GB before adding an index. "Just use the largest embedding model" becomes expensive advice pretty quickly.
 
-Some newer models are trained so you can truncate vectors to fewer dimensions with modest quality loss. If yours supports that, test a smaller size on your own retrieval eval before defaulting to the largest. Re-normalise after truncating.
+Some embedding models support shortening the vector while keeping much of the useful signal. If yours does, test the smaller dimension count on real queries before deciding bigger must be better. And remember to normalise again after truncating.
 
 ## Pitfalls
 
-- **Mixing models.** Vectors from different embedding models (or different versions of the same one) are not comparable. Changing models means re-embedding everything. Store the model name alongside each vector.
-- **Assuming a universal threshold.** A similarity cut-off that works for one model and domain won't transfer. Calibrate on labelled pairs.
-- **Long inputs.** Models have input limits and may truncate silently. Embedding a whole document into one vector also blurs its topics together. Chunk sensibly.
-- **Domain mismatch.** A general model may not separate terms that matter in your field, like insurance policy types. Test on your own data.
-- **Exact matches.** Embeddings are weak at IDs, numbers and rare names. Keep keyword search around.
+- **Don't mix vector spaces.** Different embedding models or versions won't necessarily produce comparable vectors. Record the model version and re-embed when you switch.
+- **Don't worship a magic cutoff.** A threshold from somebody else's tutorial might be useless for your documents. Label some pairs and measure it.
+- **Watch truncation.** Long documents can exceed input limits, and one vector for an entire report can lose important detail. Split documents around their actual structure.
+- **Test your domain.** A generic model may treat two insurance products as nearly identical when the difference matters enormously to your business.
+- **Keep exact search available.** Product IDs and unusual names are exactly where embeddings can disappoint you.
 
-## Where to start
+## What I'd try first
 
-- Pick one embedding model, record its name with every vector, and normalise at write time.
-- Build a small labelled set of similar and dissimilar pairs from your own data, and use it to choose thresholds and dimensions.
-- Try deduplication or clustering before RAG. They're simpler, easier to evaluate and often more immediately useful.
-- Use hybrid search when exact terms matter.
+- Start with one model and record which version created each stored vector.
+- Assemble a few dozen examples of what should and shouldn't match in your own data.
+- Try using embeddings to group or deduplicate records before jumping straight to a chat interface.
+- Add keyword search wherever exact strings actually matter. Semantic search isn't supposed to replace every other kind of search.

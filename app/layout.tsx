@@ -157,7 +157,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistMono.variable} antialiased`}
+        className={`${geistMono.variable} antialiased pb-[calc(84px+env(safe-area-inset-bottom))] md:pb-0`}
       >
         <noscript>
           <style>{`.no-js-visible { opacity: 1 !important; transform: none !important; filter: none !important; stroke-dashoffset: 0 !important; stroke-dasharray: none !important; }`}</style>

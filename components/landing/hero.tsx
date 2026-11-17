@@ -11,6 +11,9 @@ import { RotatingGlobe } from "./rotating-globe";
 import { motion, type Variants } from "motion/react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useHaptic } from "react-haptic";
+import { profileBannerConfig } from "@/config/profile-banner";
+import { InteractiveSticker } from "./interactive-sticker";
+import bannerStyles from "./profile-banner.module.css";
 
 // Keep blur on the text itself, so the banner and section shell stay sharp.
 const textVariants: Variants = {
@@ -107,9 +110,12 @@ export function Hero() {
       initial="hidden"
       animate="visible"
     >
-      <div className="flex flex-col items-start gap-2">
+      <div className="flex items-start gap-3 sm:gap-5">
+        <div className={bannerStyles.profile}>
+          <InteractiveSticker src={siteConfig.personal.avatar.src} alt={siteConfig.personal.avatar.alt} label={profileBannerConfig.profileLabel} tilt={-5} sizes="(max-width: 640px) 56px, 88px" soundSrc={profileBannerConfig.profileSoundSrc} />
+        </div>
         <div className="w-full min-w-0 space-y-2">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 max-sm:justify-between">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <div className="flex min-w-0 items-center gap-1 text-xl  font-mono font-semibold tracking-wide sm:text-2xl">
             <VerseText
               text={heroConfig.greeting}
@@ -148,9 +154,6 @@ export function Hero() {
               </span>
             </motion.span>
             </div>
-            <span className="size-2 rounded-full bg-muted ring-1 ring-inset ring-muted max-sm:hidden">
-
-            </span>
             <Tooltip onOpenChange={setIsLocationTooltipOpen}>
               <TooltipTrigger
                 className="micro-transition flex min-h-4 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm text-xs text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground/20 hover:text-foreground sm:text-sm"
@@ -180,7 +183,7 @@ export function Hero() {
 
           <motion.h1
             data-reveal=""
-            className="no-js-visible text-lg sm:text-sm md:text-lg font-semibold leading-[1.05] tracking-tight text-balance"
+            className="no-js-visible text-base font-medium leading-snug tracking-tight text-balance"
             variants={textVariants}
             custom={0.1}
           >

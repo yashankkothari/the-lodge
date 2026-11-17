@@ -171,7 +171,7 @@ The home page is a loop, not a hand-written layout.
 - `github` is special: it is server-fetched, wrapped in React Suspense with
   `components/skeletons/github-skeleton.tsx`, and only rendered when
   `GITHUB_TOKEN` is present.
-- The current order is projects, socials, skills, about, github, experience,
+- The current order is skills, projects, writing, socials, about, github, experience,
   bookshelf, bookmarks, certifications. Services, workflow and contact exist but
   are flagged off.
 
@@ -303,18 +303,28 @@ Deliberately **excluded**, leave these as authored:
   `transform` are animated, never `filter` (animated blur forces a repaint of
   the whole subtree per frame), and `whileInView` fires once rather than on
   every scroll pass.
-- The header logo is a blue dithered, mountain-shaped A with a shaded side face
+- The header logo is a blue dithered version of the hand-lettered yk signature
   on a transparent background, with no tile behind it. It uses the footer
   Earth's four blue shades and an ordered 4 by 4 Bayer pattern, rendered as
   crisp SVG pixels. Hovering the Home link with a fine pointer or focusing it
   with the keyboard lifts the mark by 1px. Reduced motion and touch keep it
   still. Keep the Home link's 44px target intact.
-- The profile portrait sits in the banner's lower-left slot, configured by
-  `personal.avatar`. It is a paper-cut SVG monogram (`/images/profile-monogram.svg`)
-  because the source site has no portrait photo; swap the `src` for a photo any
-  time. Its static grayscale, contrast, brightness, and drop-shadow filters live
-  in `profile-banner.module.css`, and dark mode softens the paper. Keep the
-  cutout free of a background tile.
+- The profile signature is a transparent, traced SVG of the supplied yk mark
+  (`/images/profile-monogram.svg`), configured by `personal.avatar`. It sits
+  fully below the banner, beside the name and introduction in a compact row,
+  with a positive gap at every breakpoint. Keep its
+  background transparent and invert the dark ink in dark mode.
+- The full banner is the supplied real photograph of Steve Jobs with a
+  Macintosh, credited to Norman Seeff in `config/profile-banner.ts`.
+  `dither-photo.tsx` applies a WebGL ordered Bayer shader with four gray tones
+  and a partial blend to preserve recognition. Render only on image load,
+  resize, and theme changes, with the original photo as the no-JavaScript,
+  unsupported-WebGL, and context-loss fallback. Never replace it with generated
+  portrait artwork.
+- Important experience technologies and results use `ExperienceText` on the
+  home and resume pages. Definitions live in `config/experience-terms.ts`.
+  Highlights support hover, keyboard focus, and tap, with reduced-motion-safe
+  underline animations and no change to the authored claims.
 - The hero name uses the supplied `VerseText` component for its comic print and
   idle glitch, with the foreground and `--verse-text-blend` theme tokens. Keep
   its built-in reduced-motion and offscreen pauses. The headline, description,
@@ -328,16 +338,31 @@ Deliberately **excluded**, leave these as authored:
   parallax, resets on leave, and stays still for touch and reduced motion.
   Animated elements use `data-reveal` for the reduced-motion override, with a
   no-JavaScript fallback.
-- The shared header uses separate rounded label and icon pieces, with one link
-  and one focus target per pair. Desktop uses the logo for Home and shows Work
-  and Resume as direct links. GitHub stays a separate header control with its
-  star count, alongside search and theme. Mobile keeps the compact header and a
-  matching bottom Menu trigger. Navigation copy and destinations live in
-  `config/navigation.ts`; the mobile menu uses the shared Popover primitive. The
-  menu is one opaque rounded panel with paper-cut icons on the left and a subtle
-  active row. Header label and icon faces are 28.8px tall. Header controls and
-  menu rows retain 44px click targets. Hover icon motion is limited to fine
-  pointers without reduced motion.
+- The shared header uses text navigation inside one refractive glass capsule.
+  Desktop uses the yk logo for Home, with consistently spaced text links and
+  one focus target per destination. Small paper-cut icons are integrated beside
+  the desktop labels. Search and theme use matching 16px icons on 44px targets
+  with transparent faces. Do not show an open-source or GitHub header button.
+  Mobile navigation is a fixed six-destination glass bar in
+  `components/landing/bottom-nav.tsx`, with icons, readable labels, safe-area
+  spacing, and an animated active pill. Navigation copy and destinations live in
+  `config/navigation.ts`. Keep each target at least 44px, the back-to-top control
+  above the bar, and enough body padding to clear it. Respect reduced motion.
+- The header floats on one refractive glass surface. `header-glass.tsx` creates
+  a rounded lens normal map for SVG backdrop displacement and specular inset
+  highlights. Avoid RGB separation, which creates edge fringes. Its fallback uses translucent
+  blur and saturation; reduced transparency uses an opaque surface. Keep the
+  text and controls outside the distortion pass and retain 44px click targets.
+- Stack appears directly before Projects and keeps its technology logos in
+  their original colors. Home Projects shows only Savory and Pixonomy as visual
+  preview cards; the full collection stays on `/portfolio`. The selection and
+  previews are configured in `config/projects.ts`.
+- Now uses the book, vinyl sleeve, and game-disc treatments adapted from the
+  user's Commonplace `MediaObject`. It is separate from the home bookshelf.
+  Keep Steve Jobs in Reading, reuse the verified book covers, and use locally
+  sourced square album artwork and portrait game artwork. Provenance lives in
+  `public/img/now/sources.md`. Support tap and keyboard pickup states and
+  reduced motion, with no Commonplace backend or audio-player dependency.
 - Shared utility classes: `.section-heading`, `.micro-transition`,
   `.liquid-glass`, `.bottom-blur`, and the blueprint background used on card
   hover. Prefer these over repeating the utility stack.
@@ -367,6 +392,13 @@ Deliberately **excluded**, leave these as authored:
   and holds a visible pose for reduced motion.
 
 ### Paper-cut artwork
+
+The Uses page is an exception: use real product photography and authentic
+software logos stored in `public/images/uses/`, with provenance in `sources.md`.
+Keep the original image colors. `config/uses-images.ts` maps each inventory item
+to its assets and product link. Apply the silhouette-following sticker edge and
+static shadow in `components/uses-gallery.tsx` and its CSS module, without a
+background tile or redrawing the product. Respect reduced motion for hover lifts.
 
 Every illustration uses the `PaperCutIcon` base in
 `components/shared/paper-cut-icons.tsx`: muted ink outline, paper edge, offset
@@ -408,10 +440,12 @@ Prose colors are mapped onto project tokens (`--foreground`,
 - All books share one continuous row at every width. Narrow screens scroll
   horizontally instead of splitting the collection onto more shelves.
   The mobile ledge spans the full section width and uses the `rounded-lg` radius.
-- Covers and spines are local SVG paths, preserving each edition's lettering and
-  colors. Keep the spine viewBox equal to the real spine box and use
-  `textLength` to fit a long title: a wider viewBox or `preserveAspectRatio="none"`
-  squashes the lettering. Reveal the flat cover with an opacity transition, not
+- Covers and spines are real internet-sourced scans or photographs, stored as
+  local raster assets with exact source and edition provenance in
+  `public/images/books/sources.md` and `config/books.ts`. Keep front covers and
+  spines from the same edition, preserving original lettering and proportions.
+  Cropping and perspective correction are allowed; do not generate or redraw
+  the print. Reveal the flat cover with an opacity transition, not
   perspective rotation, skew, baked-in mockup shadows, or 3D page planes.
 - Keep cover images mounted and eagerly loaded before selection. Clip hidden
   artwork inside each book so preloaded covers cannot widen the scroll rail.

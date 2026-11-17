@@ -4,28 +4,30 @@ date: 2026-10-08
 tags: ["post", "genai", "llms", "guides"]
 ---
 
-A data pipeline without tests breaks quietly. An LLM feature without evaluations breaks quietly *and* changes behaviour whenever someone edits a prompt or the provider ships a new model version. The fix is the same discipline data engineers already use: a fixed dataset, automated checks and a number you watch.
+I wouldn't ship a data pipeline with zero tests and then act surprised when the numbers go wrong. Yet people will put an LLM into production, test three prompts by hand, and call it good. Then somebody changes one sentence or the model gets updated and the whole feature behaves differently.
+
+If it's part of a real product, it needs **evals**. Not a fancy benchmark leaderboard. Your actual inputs, expected behaviour and a test that runs when something changes.
 
 
 <figure><img src="/img/blog/diagram-evals.png" alt="Evals in CI: golden set, run, graders, scores, gate" loading="lazy"><figcaption>Evals as a pipeline step that can fail the build.</figcaption></figure>
 
 ## 1. Build a golden dataset
 
-Collect 50–200 real inputs: actual user questions, real documents, messy edge cases. For each, write down what a good output looks like. That could be an exact label, a required fact, or a short rubric. Version it in git next to the prompts.
+I'd start by saving 50–200 inputs that resemble what the feature actually receives. Not polished examples invented for a demo—real questions, incomplete messages, awkward documents. Then write down what a correct response would need to contain. Sometimes that's an exact category. Sometimes it's a fact or a short grading rubric. Commit the dataset beside the prompt so changes are reviewable.
 
-Start small. Thirty well-chosen examples beat none.
+Don't get stuck designing the perfect benchmark. Thirty ugly real-world examples are a better start than another week of prompt tweaking.
 
 ## 2. Use the cheapest check that works
 
-In order of preference:
+Don't pay another LLM to judge something a few lines of code can check. My order would be:
 
-1. **Deterministic checks.** Valid JSON? Matches the schema? Contains the required field? Correct label? These are fast, free and unambiguous.
-2. **Reference comparisons.** Does the extracted amount equal the labelled amount? Did retrieval return the labelled document?
-3. **LLM-as-judge.** A second model grades the output against a rubric ("Is every claim supported by the sources? yes/no, and why"). Useful for open-ended text, but spot-check the judge against human ratings before you trust it.
+1. **Code checks first.** Is it valid JSON? Does it follow the schema? Did it return an allowed label? These tests are cheap and easy to understand.
+2. **Compare against labelled results.** If you're extracting a payment amount, check it against the known amount. For retrieval, check whether the correct document came back.
+3. **Use another model only when you need judgement.** It can grade a summary against a rubric, but the judge can be wrong too. Compare its decisions with human-reviewed examples before trusting the score.
 
 ## 3. Score the parts separately
 
-For a RAG app, a single "quality" number hides the cause. Track retrieval (did the right chunk come back?), faithfulness (does the answer stick to the sources?) and answer quality on their own. For an agent, track task success, steps and cost per task.
+One "AI quality" score tells you almost nothing when something breaks. For RAG, I want to know whether retrieval found the right document *before* I blame the model for its answer. For agents, I care whether the task finished, how many steps it needed and what it cost.
 
 ## 4. Run evals like CI
 
@@ -43,23 +45,23 @@ regression? ── yes ──► block the change
      ship it
 ```
 
-Every prompt edit, model upgrade or retrieval change runs the suite. A drop in any metric beyond a small tolerance blocks the change, just as a failing dbt test blocks a deploy.
+I'd wire this into CI. Change the prompt? Run the cases. Swap models? Run them again. Replace the retriever? Same thing. Decide beforehand how much regression you're willing to tolerate and fail the build when it crosses that line. We already do this for code and data pipelines; the fact that the component generates text isn't a reason to stop.
 
 ## 5. Keep watching in production
 
-- Log inputs, outputs, latency, token cost and the model version for every call.
-- Sample production traffic for review each week and add interesting failures to the golden set.
-- Collect cheap user signals such as thumbs up or down, and whether the user retried or edited the answer.
+- Record the model version, inputs, outputs, timing and token usage, with sensitive data handled appropriately.
+- Review real production cases regularly and move the surprising failures into the test set.
+- Pay attention to what users actually do. If they keep retrying or rewriting the answer, a happy-looking model response might not be helping them.
 
 ## 6. Don't forget cost and latency
 
-Quality is one axis. A change that improves accuracy by two points but doubles latency or cost per request is a trade-off, not a win. Put all three on the same dashboard.
+An improved score isn't a win if the feature becomes painfully slow or three times more expensive to operate. I want accuracy, latency and cost next to each other. A two-point accuracy gain is only useful when you know what you're paying for it.
 
-The teams that ship reliable GenAI features aren't the ones with the cleverest prompts. They're the ones that can tell, within minutes, whether a change made things better or worse.
+If someone asks "did the new prompt actually improve anything?" and your answer is "it feels better", you don't have an evaluation process yet.
 
 ## Try it: a five-question eval that fails
 
-Here's a tiny golden set with cheap graders (substring, exact match, regex) run against a 1.7B local model:
+For a concrete example, I ran five questions against a small local 1.7B model. The checks are deliberately simple—exact matches, substrings and regex. There's no complicated evaluation platform involved:
 
 ```bash
 curl -O https://www.yashank.site/files/demos/ollama_client.py
@@ -69,4 +71,4 @@ python eval_demo.py
 
 <figure><img src="/img/blog/term-evals.png" alt="Eval output: 2 of 5 pass, gate fails" loading="lazy"><figcaption>Real output. The small model scored 2/5 and the gate blocked the merge.</figcaption></figure>
 
-This is the eval working, not breaking. It caught a model inventing a port number, contradicting a basic SQL fact, and running past the length budget. Swap in a bigger model or a better prompt, rerun, and you have a number to compare instead of a feeling.
+The model got 2/5. Good. The test caught it inventing a port number, getting a basic SQL fact wrong and ignoring the length limit. Now I can try a better prompt or a bigger model and see if it actually helps. That's a lot more useful than posting the one good answer it happened to generate.

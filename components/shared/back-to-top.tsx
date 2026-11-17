@@ -37,7 +37,7 @@ export function BackToTop() {
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
       }}
-      className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-6 z-[60] flex size-11 items-center justify-center rounded-full bg-transparent text-muted-foreground opacity-100 hover:bg-transparent hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      className="fixed bottom-[calc(84px+env(safe-area-inset-bottom))] md:bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-6 z-[60] flex size-11 items-center justify-center rounded-full bg-transparent text-muted-foreground opacity-100 hover:bg-transparent hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
       <span className="liquid-glass pointer-events-none absolute size-[26.4px] rounded-full" />
       <svg

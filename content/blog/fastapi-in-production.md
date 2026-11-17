@@ -4,18 +4,18 @@ date: 2025-09-06
 tags: ["post", "backend", "python", "guides"]
 ---
 
-FastAPI makes the first version of an API very pleasant. You write a typed function, add a decorator, and get validation and interactive docs for free. The trouble starts later, when real traffic arrives and something that worked fine on your laptop starts timing out.
+FastAPI is almost suspiciously pleasant when you're starting out. Write a typed function, add a decorator, and suddenly you have an API with validation and docs. Then it meets real traffic and the endpoint that worked perfectly on your laptop starts timing out.
 
-Most of those problems come from a handful of things the getting-started guide doesn't dwell on. Here's what I'd check before calling a FastAPI service production-ready.
+The tutorial isn't lying to you. It's just not preparing you for all the boring things that make a service stay up. These are the things I'd look at before trusting a FastAPI app in production.
 
 ## async def vs def, and blocking calls
 
-FastAPI lets you write endpoints as either `async def` or plain `def`, and the difference matters a lot.
+FastAPI makes `async def` look like the obvious modern choice, so it's tempting to put it everywhere. But the difference between `async def` and ordinary `def` is easy to misunderstand:
 
-- An **`async def`** endpoint runs on the event loop. While it's awaiting something, other requests can run. But if it does anything blocking, such as a synchronous database driver, `requests.get`, or heavy CPU work, it blocks the entire loop and every other request on that worker waits.
-- A plain **`def`** endpoint is run in a thread pool, so blocking calls inside it don't freeze the loop.
+- **`async def`** runs on the event loop. While you're awaiting network or database I/O through an async library, the worker can handle other requests. Call a blocking driver or `requests.get` inside it, though, and you've blocked that event loop.
+- **`def`** endpoints get executed in a thread pool. That can be a perfectly sensible option when you're working with synchronous libraries. There's no prize for adding `async` to code that doesn't benefit from it.
 
-The classic mistake:
+This is the classic footgun:
 
 ```python
 import requests
@@ -39,13 +39,13 @@ async def get_rates():
     return r.json()
 ```
 
-or keep it synchronous and declare it with `def`, letting FastAPI use the thread pool. The rule of thumb: **use `async def` only if everything slow inside it is awaited.** If in doubt, `def` is the safer default.
+Alternatively, keep the endpoint synchronous and let FastAPI run it in a worker thread. My rule is simple: if the slow I/O inside the function isn't actually awaited, adding `async` isn't doing what you think it is.
 
-For CPU-heavy work, neither helps much because of the GIL. Move it to a separate process or a task queue.
+For heavy CPU work, changing the function declaration won't make the task disappear. Python's GIL and worker capacity still matter; I'd move substantial processing to a separate process or queue instead of tying up request handling.
 
 ## Let Pydantic do the validation
 
-Request and response models are where FastAPI earns its keep. Be strict about them.
+One of the genuinely good parts of FastAPI is that Pydantic can make request validation boring. I'd use it properly rather than passing unvalidated dictionaries around and checking fields manually inside every route.
 
 ```python
 from pydantic import BaseModel, Field, field_validator
@@ -71,11 +71,11 @@ def create_payment(body: PaymentIn) -> PaymentOut:
     ...
 ```
 
-Setting a **`response_model`** isn't just for docs. It filters the output, so an internal field you accidentally return doesn't leak to the client. Bad input gets a 422 with a clear error before your code runs, which keeps endpoint bodies free of defensive checks.
+Don't treat **`response_model`** as a nice-to-have for Swagger. It filters what leaves your endpoint. That's the difference between returning the fields you intended and accidentally exposing some internal value because your database object had it. Request validation also saves you from writing the same defensive checks everywhere.
 
 ## Dependency injection for shared resources
 
-`Depends` is FastAPI's way of providing things an endpoint needs: a database session, the current user, settings. Using it consistently makes testing much easier, because you can override any dependency.
+I like `Depends` because it makes the endpoint's requirements explicit. A route needs a database session, user identity or settings? Declare it. In tests, you can replace that dependency with a fake instead of patching global state all over the place.
 
 ```python
 from fastapi import Depends
@@ -95,11 +95,11 @@ def read_account(account_id: str, db=Depends(get_db)):
 app.dependency_overrides[get_db] = lambda: fake_db
 ```
 
-The `yield` form guarantees cleanup runs after the response. For things that should exist once per process, like an HTTP client or a connection pool, create them in the app's **lifespan** handler rather than per request.
+The `yield` pattern gives the dependency a cleanup path. That's useful for things like database sessions. For resources you want to create once per process, such as a shared HTTP client or connection pool, I'd use the application's **lifespan** handler instead of constructing them on every request.
 
 ## Background tasks are not a queue
 
-`BackgroundTasks` runs a function after the response is sent. It's handy for small things like writing an audit log entry or sending a notification.
+FastAPI's `BackgroundTasks` is convenient because the HTTP response can return before a small follow-up function finishes. I'd use it for work that's genuinely okay to lose if the process dies, like a noncritical notification—not for something the business absolutely requires.
 
 ```python
 from fastapi import BackgroundTasks
@@ -111,15 +111,15 @@ def signup(user: UserIn, tasks: BackgroundTasks):
     return {"ok": True}
 ```
 
-But it runs inside the same worker process. If the worker restarts, the task is lost. There are no retries, no visibility, and long tasks tie up the worker. For anything that must happen, takes a while, or needs retrying, use a real **task queue** (Celery, RQ, Arq, or a managed queue) with separate workers.
+Here's the catch: it still runs in the same worker process. Restart the worker and you can lose the task. You don't get a proper retry system or job tracking for free. If this is something that absolutely must happen, use an actual **task queue** such as Celery, RQ, Arq or a managed queue.
 
-My rough test: if losing the task would mean a support ticket, it doesn't belong in `BackgroundTasks`.
+The question I'd ask is: if this task vanished halfway through, would somebody open a support ticket? If yes, I want durable queueing and retry behaviour.
 
 ## Workers: uvicorn and gunicorn
 
-`uvicorn main:app --reload` is for development. In production you want several worker processes so one slow request or crash doesn't take down everything, and so you use more than one CPU core.
+That `--reload` command from the tutorial is great while you're editing code. I wouldn't use it as a production deployment plan. You need a process setup that handles failures, uses available CPU capacity and makes restarts predictable.
 
-A common setup runs gunicorn as the process manager with uvicorn workers:
+One traditional deployment pattern uses Gunicorn to manage Uvicorn workers:
 
 ```bash
 gunicorn main:app \
@@ -130,22 +130,22 @@ gunicorn main:app \
   --graceful-timeout 20
 ```
 
-Uvicorn can also run multiple workers on its own with `--workers`. In containers on Kubernetes, many teams run one uvicorn process per container and scale by adding pods instead. Either way, start with roughly one worker per core and measure.
+Uvicorn also has its own `--workers` option. In Kubernetes, you might choose one Uvicorn process per container and scale through replicas instead. There's no single magic worker count. Start with something reasonable for the machine and workload, then measure throughput, memory and latency.
 
 ## Timeouts everywhere
 
-A service without timeouts will eventually hang on a slow dependency and pile up requests until it falls over. Set them at every layer:
+No timeout is basically a decision to let one slow dependency hold your service hostage. Put sensible time limits at every layer:
 
-- **Outbound HTTP**: always pass a timeout to your client. httpx has a default; `requests` waits forever unless you set one.
-- **Database**: set connection and statement timeouts in the driver or pool.
-- **The worker**: gunicorn's `--timeout` kills stuck workers.
-- **The proxy or load balancer** in front of the app.
+- **Outbound requests:** check the client's default and set an explicit timeout where it matters. In particular, `requests` won't time out unless you tell it to.
+- **Database calls:** configure connection and query limits so one bad statement doesn't occupy resources forever.
+- **Worker processes:** the process manager needs a policy for stuck workers, not just a hope that they'll finish.
+- **Reverse proxy:** make sure its timeout settings make sense alongside those in your application.
 
-For async code, `asyncio.timeout` (Python 3.11+) or `asyncio.wait_for` bounds a whole operation, not just one call.
+For a larger async operation, `asyncio.timeout` on Python 3.11+ or `asyncio.wait_for` can enforce a deadline around the entire block. One outbound request timeout doesn't necessarily cover everything the endpoint does.
 
 ## Structured logging
 
-Plain text logs are fine until you need to search them. Log **JSON** with consistent fields, and include a request ID so you can follow one request through everything it touched.
+You can get away with `print()` for a while. Then something breaks in production and you have to correlate one request across several systems. That's when consistent **JSON logs** and request IDs stop looking like boring enterprise plumbing and start looking essential.
 
 ```python
 import logging, time, uuid, json
@@ -168,14 +168,14 @@ async def log_requests(request, call_next):
     return response
 ```
 
-Libraries like structlog make this neater. Don't log request bodies blindly; they often contain personal or payment data.
+`structlog` and similar libraries can make this cleaner, but the format matters more than the package. And don't dump entire request bodies into logs just because debugging is easier that way. That data may include somebody's personal or payment information.
 
 ## Before you ship
 
-- Use `async def` only when every slow call inside is awaited; otherwise use `def`.
-- Validate inputs and set `response_model` on every endpoint.
-- Provide shared resources through `Depends` and the lifespan handler.
-- Keep `BackgroundTasks` for small, losable work; use a queue for the rest.
-- Run multiple workers, set timeouts at every layer, and log JSON with request IDs.
+- Check whether your endpoint is truly nonblocking before reaching for `async def`.
+- Define request and response schemas; don't leak internal objects by accident.
+- Make dependencies and their cleanup lifecycle explicit.
+- Use durable queues for important background work instead of hoping a worker survives.
+- Test worker configuration, timeouts and logging before calling the service production-ready.
 
-None of this is exotic. It's just the difference between an API that works and one that keeps working.
+None of this makes for a very exciting "I built an API in five minutes" video. It's the stuff that matters after those five minutes are over.

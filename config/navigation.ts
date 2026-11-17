@@ -2,6 +2,7 @@ import type { SiteNavigationItem } from "@/config/types";
 
 export const navigationConfig = {
   label: "Site navigation",
+  mobileLabel: "Mobile navigation",
   menu: "Menu",
   close: "Close navigation",
   search: "Open command palette",

@@ -32,11 +32,14 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // The dev badge otherwise covers the phone's bottom-left Menu target.
+  devIndicators: false,
   outputFileTracingIncludes: {
     "/**": ["./lib/fonts/**/*"],
     "/opengraph-image": ["./public/images/og/garden.png"],
   },
   images: {
+    qualities: [75, 90],
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { hostname: "i.scdn.co" },

@@ -4,20 +4,22 @@ date: 2025-12-13
 tags: ["post", "backend", "sql", "guides"]
 ---
 
-Most slow Postgres queries I've debugged came down to one of two things: a missing index, or an index that existed but couldn't be used. This is the mental model and the handful of patterns that cover most real cases.
+When a Postgres query is slow, the first instinct is usually "add an index". Sometimes that's exactly right. Other times there's already an index and the query planner has a perfectly good reason to ignore it. I've found it's worth understanding *why* before creating five more indexes and hoping one works.
+
+This is the model I use for B-trees, composite indexes and reading the actual query plan.
 
 ## What a B-tree index is
 
-When you run `CREATE INDEX` without specifying a type, Postgres builds a **B-tree**. It's a sorted, balanced tree of the indexed values, each pointing to the row's location in the table (the heap).
+In Postgres, a normal `CREATE INDEX` gives you a **B-tree** unless you specify otherwise. Think of a sorted lookup structure that stores the indexed values and points back to rows in the table. Sorting is what makes certain searches fast without scanning every record.
 
-Because it's sorted, a B-tree is good at:
+That means it works particularly well for:
 
-- equality: `WHERE email = 'a@b.com'`
-- ranges: `WHERE created_at >= '2025-12-01'`
-- sorting: `ORDER BY created_at`
-- prefix matches: `WHERE name LIKE 'Yas%'` (with the right collation or operator class)
+- Exact lookups such as `WHERE email = 'a@b.com'`.
+- Ranges like `WHERE created_at >= '2025-12-01'`.
+- Queries that need results ordered by an indexed column.
+- Prefix searches such as `LIKE 'Yas%'`, provided the collation or operator class supports that use.
 
-It does not help `LIKE '%shank'`, because there's no sorted prefix to search on.
+It doesn't magically speed up `LIKE '%shank'` because the useful sorted prefix is missing. This is why "but the column is indexed" isn't a convincing performance argument.
 
 ```sql
 CREATE TABLE orders (
@@ -31,11 +33,11 @@ CREATE TABLE orders (
 CREATE INDEX idx_orders_customer ON orders (customer_id);
 ```
 
-The primary key already gets a unique B-tree index automatically. Foreign keys do not, which catches people out: if you join or delete on `customer_id`, index it yourself.
+Postgres creates a unique index for the primary key automatically. It does **not** create an index for every foreign key. If a foreign-key column is heavily used in joins or affected by parent-row updates and deletes, check whether it needs its own index. That's an easy detail to miss when the schema looks properly constrained.
 
 ## Composite indexes: column order matters
 
-A composite index sorts by the first column, then by the second within each value of the first, and so on. Think of a phone book sorted by surname, then first name.
+For a multi-column index, order matters. Picture a phone book sorted by surname first and given name second. It's easy to find all the people named Kothari, then narrow down to a particular first name. Looking up only a first name is a different problem. A composite B-tree behaves similarly.
 
 ```sql
 CREATE INDEX idx_orders_cust_created ON orders (customer_id, created_at);
@@ -54,26 +56,26 @@ SELECT * FROM orders WHERE customer_id = 42;
 SELECT * FROM orders WHERE customer_id = 42 ORDER BY created_at DESC LIMIT 20;
 ```
 
-It is a poor fit for `WHERE created_at >= ...` alone, because the dates are scattered across every customer.
+What about filtering only by `created_at`? This index is arranged by customer first, so the dates aren't in one convenient global range. Depending on the data and Postgres version, the planner may find another approach much cheaper.
 
-The rule of thumb: **equality columns first, then the range or sort column**. Put the column you filter on with `=` at the front, and the one you filter with `>` or `ORDER BY` after it.
+My starting rule is to put common equality filters before the range or sort key. It's not an absolute law—query patterns and selectivity matter—but it's a good mental model before looking at the actual plan.
 
 ## Partial indexes
 
-If your queries only ever care about a subset of rows, index only that subset.
+Sometimes indexing the whole table is unnecessary. If the hot query only cares about pending orders, a **partial index** can cover just those rows:
 
 ```sql
 CREATE INDEX idx_orders_pending ON orders (created_at)
 WHERE status = 'pending';
 ```
 
-If 2% of orders are pending, this index is a fraction of the size of a full one, cheaper to maintain and more likely to stay in memory. The query has to include a matching condition for the planner to use it:
+Suppose only 2% of orders are pending. A partial index can be much smaller and cheaper than an index covering all orders. But the planner has to recognise that the query satisfies the index predicate. Here's the sort of query that can use it:
 
 ```sql
 SELECT * FROM orders WHERE status = 'pending' ORDER BY created_at LIMIT 50;
 ```
 
-Partial indexes are also the clean way to enforce conditional uniqueness:
+They're also handy for rules like "a user can only have one active cart", where a normal uniqueness constraint would be too broad:
 
 ```sql
 CREATE UNIQUE INDEX one_active_cart ON carts (user_id) WHERE active;
@@ -81,7 +83,7 @@ CREATE UNIQUE INDEX one_active_cart ON carts (user_id) WHERE active;
 
 ## Expression indexes
 
-An index on `email` doesn't help `WHERE lower(email) = ...`, because the indexed values aren't lowercased. Index the expression instead:
+Here's another common gotcha: you index `email` and later search using `lower(email)`. The plain index isn't necessarily useful for that transformed value. If that's the query pattern, index the expression itself:
 
 ```sql
 CREATE INDEX idx_users_email_lower ON users (lower(email));
@@ -89,13 +91,13 @@ CREATE INDEX idx_users_email_lower ON users (lower(email));
 SELECT * FROM users WHERE lower(email) = 'yashank@example.com';
 ```
 
-The query must use the same expression. The same applies to things like `date_trunc('day', created_at)`, though often it's better to rewrite the query as a range on the raw column so a plain index works.
+The expression in the query needs to match what the index can support. For date transformations, I'd first ask whether the query could use a simple timestamp range instead. A plain index on the underlying column is often easier to reuse.
 
 ## Covering indexes with INCLUDE
 
-Normally an index lookup finds matching entries, then visits the table to fetch the other columns. If the index holds every column the query needs, Postgres can do an **index-only scan** and skip the table (as long as the visibility map says the pages are all-visible, which regular vacuuming keeps true).
+Usually an index tells Postgres which rows to visit, but it still has to fetch other columns from the table. An **index-only scan** can avoid those table reads when the index contains everything the query needs and the visibility map says the relevant pages are all-visible. That's one reason vacuum maintenance matters.
 
-`INCLUDE` adds columns to the index leaf entries without making them part of the sort key:
+`INCLUDE` lets you carry extra columns in the index without making them part of its search ordering:
 
 ```sql
 CREATE INDEX idx_orders_cust_cov ON orders (customer_id, created_at)
@@ -107,42 +109,42 @@ WHERE customer_id = 42
 ORDER BY created_at DESC;
 ```
 
-Use it for hot queries that read a few small columns. Don't stuff wide text columns in; the index gets large and the benefit disappears.
+I'd use this for a very common query that needs a few extra small columns. Stuff every wide text field into the index and you've defeated the point by making the index enormous.
 
 ## Reading EXPLAIN ANALYZE
 
-Never guess whether an index is used. Ask:
+The query planner gets the final vote. To see what it actually chose, run:
 
 ```sql
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT * FROM orders WHERE customer_id = 42 ORDER BY created_at DESC LIMIT 20;
 ```
 
-`ANALYZE` actually runs the query, so be careful with writes (wrap them in a transaction and roll back). What I look for:
+Careful: `ANALYZE` executes the statement. Don't casually run it on a destructive write query; use a transaction and roll it back if you're testing one. For a read query, these are the bits I scan first:
 
-- **Node types.** `Seq Scan` reads the whole table. `Index Scan` and `Index Only Scan` use an index. `Bitmap Heap Scan` collects matches from an index first, then reads table pages in order, which is common for medium selectivity.
-- **Estimated vs actual rows.** `rows=10` estimated against `rows=50000` actual means the planner's statistics are off. Run `ANALYZE orders;` and see if the plan changes.
-- **Where the time goes.** Each node shows `actual time=start..end`. Read from the innermost node outwards and find the expensive one.
-- **Sort nodes.** A `Sort` with `external merge` spilled to disk. An index matching the `ORDER BY` can remove the sort entirely.
-- **Buffers.** `shared hit` came from memory, `read` came from disk.
+- **Scan type:** is Postgres reading the whole table (`Seq Scan`), walking an index, or using a bitmap scan to gather matching table pages?
+- **Estimates versus reality:** if it expects ten rows and gets fifty thousand, statistics may be misleading it. Run `ANALYZE orders;` and inspect the plan again.
+- **Actual time:** look for the expensive nodes rather than focusing on the top-level total alone.
+- **Sorting:** an `external merge` sort spilled to disk. Sometimes a better index can avoid that step altogether.
+- **Buffer activity:** `shared hit` indicates cached pages; `read` points to pages fetched into the buffer cache.
 
-A sequential scan isn't automatically wrong. On a small table, or when the query returns a large share of rows, it's often the fastest plan, and the planner knows that.
+And please don't treat `Seq Scan` as an error message. For a tiny table, or a query reading most of the rows, scanning everything can be the best plan. The objective is a fast query, not a pretty-looking execution plan.
 
 ## When indexes hurt
 
-Every index is a cost on writes. Each `INSERT` updates every index on the table; an `UPDATE` that changes an indexed column does too, and it can prevent Postgres's HOT optimisation, which avoids index updates when no indexed column changes. Indexes also take disk space, compete for memory and add vacuum work.
+Indexes aren't free. Every `INSERT` has to maintain them, and an `UPDATE` that changes an indexed column has work to do too. It can also prevent Postgres's HOT optimisation, which avoids index updates when the indexed values stay the same. Then there's disk space, memory and vacuum overhead. This is why indexing everything "just in case" is a bad habit.
 
-So:
+Before creating another index, I'd check a few things:
 
-- Don't index every column "just in case".
-- Find unused indexes with `pg_stat_user_indexes` (look for `idx_scan = 0` over a meaningful period) and drop them.
-- Watch for redundant indexes: one on `(customer_id)` is mostly covered by one on `(customer_id, created_at)`.
-- On a live table, use `CREATE INDEX CONCURRENTLY` to avoid blocking writes while it builds. It's slower and can't run inside a transaction.
+- Is there a real query that needs it, or am I just indexing columns out of anxiety?
+- Does `pg_stat_user_indexes` show the existing index has been unused over a meaningful observation period? If so, investigate before keeping it forever.
+- Are two indexes doing almost the same work, such as `(customer_id)` and `(customer_id, created_at)`?
+- Will creating it block production writes? On busy tables I'd look at `CREATE INDEX CONCURRENTLY`, accepting that it takes longer and can't run inside a transaction.
 
 ## What to remember
 
-- Start from the slow query, run `EXPLAIN (ANALYZE, BUFFERS)`, and let the plan tell you what's missing.
-- Composite index: equality columns first, then range or sort.
-- Use partial indexes for hot subsets, expression indexes for transformed lookups, `INCLUDE` for index-only scans.
-- Index foreign keys yourself.
-- Treat every index as a write cost and remove the ones nobody uses.
+- Start with the slow query and `EXPLAIN (ANALYZE, BUFFERS)`. Look at what Postgres actually did before deciding what it should have done.
+- Think about composite column order based on equality filters, ranges and sorting, then verify with a plan.
+- Use partial indexes for small hot subsets, expression indexes when queries transform values, and `INCLUDE` when a covering index genuinely helps.
+- Don't assume a foreign-key declaration added an index for you.
+- Every extra index has a write cost. If nobody uses it, ask why you're still maintaining it.
