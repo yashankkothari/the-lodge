@@ -1,5 +1,10 @@
 export const usesConfig = {
   title: "Uses",
+  headline: "The things I build with",
+  allLabel: "All",
+  filterLabel: "Filter by category",
+  relatedTitle: "From the workbench",
+  galleryNote: "A small inventory of everyday tools, illustrated in paper cut.",
   metaTitle: "Uses",
   description:
     "The hardware, software, ML stack, and current models and agents on my desk.",
@@ -22,6 +27,8 @@ export type UsesItem = {
 export type UsesGroup = {
   id: string;
   title: string;
+  filterLabel?: string;
+  art?: string;
   /** Optional lead paragraph before the grid. */
   body?: string;
   items: UsesItem[];
@@ -66,6 +73,8 @@ export const usesGroups: UsesGroup[] = [
   },
   {
     id: "editor",
+    filterLabel: "Editor",
+    art: "terminal",
     title: "Editor and terminal",
     body: "Neovim and VS Code, kitty for a terminal, and Git for everything that survives.",
     plain: [
@@ -77,6 +86,7 @@ export const usesGroups: UsesGroup[] = [
   },
   {
     id: "models",
+    filterLabel: "Models",
     title: "Models and agents",
     body: "Opus 5.5 and GPT 6.1 Sol are the models I reach for most right now. I also use OpenClaw and Hermes Agent, alongside a local Ollama setup.",
     items: [
@@ -102,6 +112,8 @@ export const usesGroups: UsesGroup[] = [
   },
   {
     id: "ml",
+    filterLabel: "ML and AI",
+    art: "neural",
     title: "Machine learning and applied AI",
     body: "Python for the modelling, MediaPipe and MobileNetV2 when the problem is visual, Flask or FastAPI to serve it, and nomic-embed-text when it needs retrieval.",
     plain: [
@@ -126,6 +138,7 @@ export const usesGroups: UsesGroup[] = [
   },
   {
     id: "data",
+    filterLabel: "Data",
     title: "Data work",
     body: "The day job lives here: Oracle and PL/SQL at the center, Airflow and dbt moving the data, and a BI layer on top.",
     items: [
@@ -151,6 +164,8 @@ export const usesGroups: UsesGroup[] = [
   },
   {
     id: "building",
+    filterLabel: "Building",
+    art: "blocks",
     title: "Building things",
     body: "React and Next.js on the web, React Native with Expo on mobile, Docker when it needs to run somewhere else.",
     plain: [
