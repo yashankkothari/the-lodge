@@ -4,54 +4,54 @@ date: 2025-01-11
 tags: ["post", "genai", "llms", "guides"]
 ---
 
-Every explanation of transformers I found while studying either stopped at "attention lets the model focus on relevant words" or jumped straight into a wall of matrix notation. The first is too vague to reason with. The second hides a fairly simple idea.
+When I was trying to understand transformers, every explanation seemed to be one of two extremes. Either "attention helps the model focus on words" (thanks, that explains nothing) or three pages of matrix equations before anyone tells you what problem we're even solving.
 
-This is the middle version: enough to understand why models behave the way they do, and why long prompts cost what they cost, with code you can run.
+I wanted something in the middle. Enough maths to know what's happening, not so much that the actual idea gets buried. I'll also connect it to the very practical question of why large context windows eat memory and money.
 
 ## Text becomes tokens
 
-A model never sees characters or words directly. A **tokenizer** splits text into **tokens**, chunks from a fixed vocabulary that are often whole common words, word pieces, or punctuation. "Unbelievably" might become `un`, `believ`, `ably`. Each token maps to an integer ID.
+Before any attention calculation, the text gets chopped into **tokens**. A tokenizer has a fixed vocabulary and maps each token to an integer. Sometimes a token is a whole word, sometimes it's punctuation or a fragment. A word like "unbelievably" might be split into pieces such as `un`, `believ` and `ably`, depending on the tokenizer. The model operates on those IDs, not on the word the way you see it on screen.
 
-This is why models are oddly bad at counting letters in a word: they never saw the letters, only the chunks.
+This is part of why asking a language model to count letters can get embarrassingly weird. We're seeing a word; the model is processing token IDs. Those are not the same view of the text.
 
 ## Tokens become embeddings
 
-Each token ID looks up a row in an **embedding matrix**, giving a vector of a few hundred to a few thousand numbers. These vectors are learned during training, and tokens used in similar contexts end up with similar vectors.
+The token ID is then used to look up a row in a learned **embedding matrix**. Now we're dealing with a vector of numbers instead of a word fragment. The model has learned these vectors during training so that it can work with relationships in a numerical space.
 
-So a sentence of `n` tokens becomes a matrix of shape `(n, d_model)`. Everything after this is arithmetic on that matrix.
+For `n` tokens, stack those vectors and you get an `(n, d_model)` matrix. That shape is worth remembering because the rest of the explanation is mostly operations on it.
 
 ## The problem attention solves
 
-A token's meaning depends on its neighbours. "Bank" in "river bank" and "bank account" should end up represented differently. Older recurrent networks passed information along the sequence one step at a time, which was slow to train and tended to lose track of distant words.
+Take the word "bank". In "river bank" and "bank account" it's the same token, but the surrounding words completely change what it means. Earlier recurrent networks passed information along the sequence step by step. That made training harder to parallelise and could make long-distance relationships difficult to learn.
 
-Attention lets every token look at every other token directly, in one step, and decide how much each one matters to it.
+Attention gives each position a way to gather information from other positions directly. It computes how strongly the current token should use information from each one, rather than relying on everything being carried through a long sequence of recurrent steps.
 
 ## Queries, keys and values
 
-For each token, the model computes three vectors by multiplying its embedding with three learned weight matrices:
+This is where the names **query**, **key** and **value** come in. For every token, learned projections create three different vectors:
 
-- **Query (Q)**: what this token is looking for.
-- **Key (K)**: what this token offers to others looking.
-- **Value (V)**: the information it actually passes along if chosen.
+- **Q, the query:** what information this position is trying to find.
+- **K, the key:** what other positions can match against.
+- **V, the value:** what information gets mixed into the output after the scores are calculated.
 
-The analogy I find useful is a fuzzy dictionary lookup. A normal dictionary matches a query to exactly one key and returns its value. Attention compares a query against every key, scores how well each matches, and returns a **weighted blend** of all the values.
+I picture a dictionary that doesn't insist on one exact match. Instead, it compares the query with every key and decides how relevant each entry is. Then it returns a **weighted mixture** of the values. It's a rough analogy, but it made Q, K and V much easier for me to reason about than just memorising their names.
 
 ## Scaled dot-product attention
 
-The scoring is a dot product: `Q · K` is large when the two vectors point in similar directions. For a whole sequence at once:
+The similarity score comes from a dot product. When a query and key line up, `Q · K` tends to be larger. To calculate all the token-to-token scores in one operation, we use:
 
 ```
 Attention(Q, K, V) = softmax(Q Kᵀ / √d_k) V
 ```
 
-Step by step:
+If that formula looks intimidating, break it apart:
 
-1. `Q Kᵀ` gives an `(n, n)` matrix of scores: how much each token cares about each other token.
-2. Divide by `√d_k` (the key dimension). Without this, dot products grow with dimension, softmax saturates, and gradients become tiny.
-3. **Softmax** each row, turning scores into weights that are positive and sum to 1.
-4. Multiply by `V`, so each token's output is a weighted average of the value vectors.
+1. Multiply `Q` by the transpose of `K`. That produces an `n × n` table of attention scores, one for every pair of positions.
+2. Divide by `√d_k`. With larger key dimensions, unscaled dot products can get huge and push softmax into regions with tiny gradients.
+3. Apply **softmax** row by row. Each row becomes a set of nonnegative weights adding up to one.
+4. Multiply those weights by `V`. Every position now receives a weighted combination of the value vectors.
 
-Here it is in NumPy:
+Here's the same thing without a deep-learning framework. Just NumPy:
 
 ```python
 import numpy as np
@@ -83,35 +83,35 @@ print(out.shape)          # (4, 8)
 print(w.round(2))         # lower-triangular: no token sees the future
 ```
 
-The `causal` flag is what text-generating models use. Setting future positions to negative infinity before softmax makes their weights zero, so token 3 can attend to tokens 1 to 3 but not 4. That's what lets the model be trained to predict the next token without cheating.
+Notice the `causal` switch. For next-token generation, a position must not look ahead to tokens that haven't been generated yet. The upper triangle of the score matrix gets set to negative infinity, so softmax assigns those future positions zero weight. Token 3 can use 1, 2 and 3, but it can't peek at token 4.
 
-In a real model the weight matrices are learned, not random.
+The random matrices in this demo only make the arithmetic runnable. An actual transformer learns those projection weights during training.
 
 ## Multi-head attention
 
-One attention pattern can only capture one kind of relationship at a time. **Multi-head attention** runs several attention operations in parallel, each with its own smaller Q, K and V projections. One head might learn to track which noun a pronoun refers to; another might focus on the previous token. The heads' outputs are concatenated and projected back to `d_model`.
+One set of attention weights doesn't have to carry every relationship in a sentence. **Multi-head attention** uses several sets of smaller Q, K and V projections in parallel. Different heads can learn to emphasise different patterns: maybe a pronoun's referent, maybe something nearby in the sequence. Their results are combined and projected back to `d_model`. The heads aren't assigned human-readable jobs in advance; those patterns are learned.
 
-A **transformer block** is multi-head attention followed by a small feed-forward network applied to each token separately, with residual connections and normalisation around both. A model stacks dozens of these blocks.
+Attention is only part of the block. A typical **transformer block** also has a feed-forward network, residual connections and normalisation. Stack a lot of those blocks and information gets repeatedly mixed and transformed. That's the architecture behind the simple sentence "it predicts the next token".
 
 ## Where does word order come from?
 
-Look at the formula again: nothing in it knows about position. Shuffle the input tokens and each token's output is the same, just shuffled. Attention on its own treats a sentence as a bag of tokens.
+There's a problem hiding in that nice matrix equation: where did word order go? Pure attention doesn't know whether "dog bites man" or "man bites dog" came first. If you rearrange the inputs, the operation rearranges its outputs accordingly. The order has to enter the computation somehow.
 
-So position has to be injected. The original transformer paper added fixed sine and cosine patterns to the embeddings. Some models learn a position embedding per slot. Many recent models use **rotary position embeddings (RoPE)**, which rotate the query and key vectors by an angle that depends on position, so their dot product reflects relative distance. The details vary; the point is that order is added information, not something attention gets for free.
+The original transformer used sine and cosine patterns to add positional information. Other architectures learn position vectors. Many current models use **RoPE**, which rotates query and key vectors in a position-dependent way so the attention scores can reflect relative position. Different mechanism, same requirement: position doesn't come free with the dot product.
 
 ## Why context windows cost what they do
 
-The score matrix is `n × n`. Double the prompt length and you quadruple the number of query-key comparisons, per head, per layer. That **quadratic cost** is the main reason context windows were small for so long and why long prompts are slow and expensive.
+Remember the `n × n` score matrix? Double the sequence length and there are roughly four times as many query-key pairs in full attention. That's the **quadratic** part of the work. Efficient implementations avoid materialising some intermediate data, but they don't make long sequences magically cheap.
 
-There's a second cost during generation. To avoid recomputing everything for each new token, models keep a **KV cache**: the keys and values for every previous token, at every layer. It grows linearly with context length and can eat a lot of GPU memory, which limits how many requests a server can handle at once.
+Generation has another memory bill: the **KV cache**. Instead of recomputing keys and values for every old token whenever a new token arrives, the server keeps them around for each layer. The cache grows with the amount of context and consumes GPU memory. A server with longer conversations can't necessarily handle as many concurrent users.
 
-Plenty of engineering goes into softening this, from memory-efficient attention kernels to sparse and sliding-window attention patterns. But the basic shape holds: more context means more compute and memory, and providers price accordingly.
+There are clever ways to reduce those costs—memory-efficient kernels, sparse attention, sliding windows and more. That's worth studying separately. For now I just want you to understand why "give the model the entire repo" isn't a free instruction.
 
-## The short version
+## What I want you to remember
 
-- Text becomes tokens, tokens become vectors.
-- Attention scores every token against every other with `Q · K`, softmaxes the scores, and blends the values.
-- Multiple heads learn different relationships; position has to be added separately.
-- The `n × n` score matrix and the KV cache are why long contexts are expensive.
+- A tokenizer turns text into IDs, and embeddings turn those IDs into vectors.
+- Queries and keys decide the attention weights; the values supply the information being mixed.
+- Multiple heads let the model learn different patterns, but it still needs positional information.
+- Full attention grows quadratically with sequence length, while KV caching trades extra memory for faster generation.
 
-If you remember one thing, make it the fuzzy dictionary lookup. Most transformer behaviour, good and odd, makes more sense once you picture every token asking every other token "are you relevant to me?" at every layer.
+The fuzzy dictionary lookup is the mental picture that finally made this click for me. Every token is looking at other tokens and working out what information to pull in. The equations are important, but once you get that part, they stop looking like random symbols.

@@ -4,35 +4,35 @@ date: 2026-03-14
 tags: ["post", "genai", "llms", "guides"]
 ---
 
-When an LLM doesn't do what you want, there are three main levers: change the prompt, give it better context with retrieval, or change the model itself with fine-tuning. They get discussed as if they compete. They don't. They fix different problems, and picking the wrong one is an expensive way to not solve yours.
+Every time an LLM gives a bad answer, somebody suggests fine-tuning. Somebody else says RAG. Half the time the prompt just wasn't clear. These aren't rival technologies. They're three different fixes for three different kinds of problems, and reaching for the fanciest one first is an excellent way to waste money.
 
 ## The one distinction that matters
 
-Before anything else, ask whether the problem is about **knowledge** or **behaviour**.
+Before installing another framework, ask one question: is the model missing **information**, or is it behaving badly with information it already has?
 
-- **Knowledge**: the model doesn't know something. Your internal docs, last week's policy change, a customer's order history.
-- **Behaviour**: the model knows enough but responds the wrong way. Wrong format, wrong tone, ignores a rule, too verbose, inconsistent at a narrow task.
+- **Missing knowledge:** the answer lives in internal documentation, yesterday's policy update or a customer's order history. None of that was necessarily in the model's training data.
+- **Wrong behaviour:** it has the information but won't stick to the format, follows the wrong tone, ignores an instruction or behaves inconsistently on a repetitive task.
 
-Retrieval mostly fixes knowledge. Fine-tuning mostly fixes behaviour. Prompting can help with both, a bit, and it's nearly free, so it always comes first.
+If it doesn't have your internal policy document, tweaking its personality won't help. If it has the right document but keeps ignoring your output format, building a vector database won't fix that either. I'd try a better prompt first because it costs almost nothing.
 
 ## Prompting
 
-Prompting changes nothing about the model. You're just giving it better instructions for this request.
+Changing the prompt is the lowest-effort thing to try. You aren't modifying weights or building an index. You're describing what this particular request needs more clearly.
 
-What it's good at:
+I'd use it for:
 
-- clear task definitions and constraints
-- output formats, especially combined with structured-output or JSON modes
-- a few worked examples (**few-shot** prompting) to show the pattern you want
-- small amounts of reference information pasted directly in
+- Explaining the task and telling the model what not to do.
+- Specifying the response format, ideally with structured output enforced by the API.
+- Showing a few examples of the pattern you're after (**few-shot prompting**).
+- Supplying a short piece of reference material right in the request.
 
-Cost: basically your time, plus the extra input tokens. Data needed: a handful of examples. You can iterate in minutes.
+The cost is mostly your time and a few extra input tokens. You can test a change in minutes instead of creating a whole new data pipeline.
 
-Where it runs out: when the information you need is too large or changes too often to paste in, or when you've written a page of rules and the model still drifts on some of them.
+But there's only so much you can stuff into a prompt. If you need thousands of documents that change every day, copying them in isn't a strategy. And if the model keeps breaking the same rule after careful instructions, another paragraph may not solve it.
 
 ## RAG
 
-**Retrieval-augmented generation** keeps the model unchanged and adds a search step. At query time you find the most relevant chunks of your data and put them in the context window alongside the question.
+**RAG** adds a search step before generation. You take the user's question, find relevant pieces of your own data, and put those pieces into the prompt. The model itself isn't retrained. You've simply given it material to work from.
 
 ```python
 def answer(question: str) -> str:
@@ -46,66 +46,66 @@ def answer(question: str) -> str:
     return llm_call(prompt)                              # generate
 ```
 
-What it changes: what the model **knows for this request**. Nothing is learned permanently.
+The distinction matters: the extra knowledge exists in this request's context. It hasn't been permanently added to the weights. When the next question comes in, retrieval has to happen again.
 
-What it's good at:
+I'd reach for RAG when I need:
 
-- large or frequently changing knowledge bases
-- answers that need citations, since you know exactly which chunks were used
-- access control, because you can filter retrieval by what the user is allowed to see
-- keeping information current: update the index, and the next answer reflects it
+- Lots of documentation or policies that change too frequently to bake into a prompt.
+- Evidence behind an answer, with links to the passages that were retrieved.
+- Permission-aware retrieval, so one employee doesn't accidentally receive another team's private documents.
+- New information to become searchable as soon as the index is updated.
 
-Cost: an embedding model, a vector store (or a search engine you already run), and the engineering to chunk, index and keep data fresh. More input tokens per call.
+Of course, now you have more infrastructure: document ingestion, chunking, embeddings, some form of search, index updates and more prompt tokens. You can use an existing search engine; a dedicated vector database isn't automatically required.
 
-Data needed: your documents. No labelled examples required to get started, though you'll want some question–answer pairs to evaluate retrieval quality.
+You can start with the documents themselves. But before calling the system reliable, collect questions where you know which document *should* come back. Otherwise you have no way to tell whether retrieval is helping.
 
-Where it struggles: most RAG failures are retrieval failures. If the right chunk isn't found, the model can't use it. Bad chunking, weak queries and missing metadata cause more trouble than the choice of model. Hybrid search (keyword plus embeddings) and reranking help a lot.
+Where it falls apart: retrieval gets the wrong chunk and everyone blames the LLM. I've seen people spend ages tuning the generator while their search step is feeding it irrelevant paragraphs. Fix the chunking, queries and metadata first. Hybrid search and reranking are often worth more than a model swap.
 
 ## Fine-tuning
 
-Fine-tuning continues training the model on your own examples, so the weights change.
+Fine-tuning is the one that actually changes model weights. You're taking a base model and training it further on examples of the behaviour you want.
 
-What it changes: **behaviour**. How the model responds by default: format, style, terminology, how it handles a narrow task. It's a poor way to add facts. The model may pick some up, but unreliably, they go stale, and you can't cite them. Use retrieval for facts.
+I think of it primarily as a way to change **how the model behaves**: formatting, terminology, tone or consistency on a particular job. Treating fine-tuning as a knowledge database is asking for trouble. Facts learned through training aren't easy to update or cite, and they can become stale. Put changing facts in retrieval.
 
-What it's good at:
+Cases where I'd consider it:
 
-- consistent output format or tone without a long prompt every time
-- narrow, repetitive tasks such as classification, extraction and routing, where a smaller tuned model can match a larger general one at lower cost and latency
-- shortening prompts, which cuts tokens on every call
+- Repeatedly getting a specific output style without shipping a massive instruction prompt each time.
+- Classification, extraction or routing tasks where a small specialised model might replace an expensive general one.
+- Reducing prompt length enough that the inference savings justify the training work.
 
 ### LoRA
 
-Full fine-tuning updates every weight, which needs a lot of GPU memory. **LoRA** (low-rank adaptation) freezes the original weights and trains small extra matrices added to certain layers. You end up with an adapter that's a small fraction of the model's size.
+Full fine-tuning updates all the weights, which gets expensive fast. **LoRA** keeps the base weights frozen and trains smaller matrices attached to certain layers. Instead of storing an entirely separate model for every task, you can store comparatively small adapters.
 
-Why it matters in practice:
+The practical advantages are:
 
-- far less memory to train, so it fits on modest hardware (QLoRA goes further by quantising the base model)
-- you can keep several adapters for different tasks on one base model
-- results are often close to full fine-tuning for task adaptation
+- Lower training-memory requirements. **QLoRA** pushes this further by quantising the frozen base.
+- Different adapters for different jobs without duplicating all the base weights.
+- For many tasks, quality that comes close enough to full fine-tuning to make the savings worthwhile.
 
-Cost: preparing data is usually the biggest cost, followed by training runs, evaluation and hosting the tuned model. Data needed: hundreds to thousands of good input–output examples, consistent and representative. Fifty sloppy examples will teach the model to be sloppy.
+The real expense is often assembling and cleaning the examples. Depending on the task, you may need hundreds or thousands of consistent input/output pairs, plus time for training and evaluation. A messy dataset doesn't become good just because you fed it to a clever training algorithm.
 
-The hidden cost is maintenance. When a better base model comes out, you retrain. When requirements change, you rebuild the dataset.
+And now you own a training dataset forever. New base model? Retrain. Requirements changed? Update the examples. Fine-tuning isn't a one-off command you get to forget about.
 
 ## They combine
 
-These aren't exclusive. A common mature setup is a model fine-tuned for format and domain behaviour, fed by RAG for current facts, with a solid prompt holding it together. But each layer should earn its place.
+You can use all three together. Sometimes that's the right design. But if you're adding RAG, fine-tuning and an elaborate agent workflow to answer a question that fits in one prompt, you've built yourself a problem.
 
 ## A decision checklist
 
-Work through these in order:
+When I'm deciding, I go through these questions in roughly this order:
 
-1. **Have I written a clear prompt with a few examples and tested it on real inputs?** If not, do that first.
-2. **Is the failure about missing or changing information?** Use RAG.
-3. **Do I need citations, freshness or per-user access control?** Use RAG.
-4. **Is the failure about format, tone or consistency, after good prompting?** Consider fine-tuning.
-5. **Do I have hundreds of high-quality examples, or can I build them?** If not, fine-tuning isn't ready yet.
-6. **Is cost or latency the problem at high volume on a narrow task?** A small model fine-tuned with LoRA may beat a large one.
-7. **Do I have an evaluation set to prove each change helped?** Without it, none of these decisions are measurable.
+1. Have I tested a clear prompt on actual user inputs, not just one demonstration?
+2. Is the missing piece information the model wasn't given? Retrieval is the likely answer.
+3. Do answers need citations, up-to-date documents or permissions? Again, retrieval.
+4. Does the output keep breaking a style or format rule despite a decent prompt? Fine-tuning might be worth testing.
+5. Can I produce enough good examples to train and validate it? If not, I'm not ready to fine-tune.
+6. Am I repeating a narrow task at enough volume that a smaller tuned model could save serious money or latency?
+7. Can I measure whether any of this improved the actual result? If not, I should fix that first.
 
-## In short
+## My default order
 
-- Prompt first. It's cheap and fast, and often enough.
-- Knowledge problem: retrieve. Behaviour problem: fine-tune.
-- Spend effort on retrieval quality before blaming the model.
-- Fine-tune only with good data and an eval set, and prefer LoRA unless you have a reason not to.
+- Start by writing a clearer prompt and seeing where it actually fails.
+- When the model needs facts, give it access to the facts. When it can't follow a consistent pattern, investigate training.
+- If search returns garbage, upgrading the generation model won't rescue the system.
+- Only train when you have good examples and tests. LoRA is usually the first method I'd investigate.

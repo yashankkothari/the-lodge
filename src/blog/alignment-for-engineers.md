@@ -4,36 +4,36 @@ date: 2026-04-25
 tags: ["post", "essays", "ai-philosophy"]
 ---
 
-"Helpful, honest, harmless" is a good slogan. It is also useless to a compiler. Nobody writes `if harmful: don't()`. What engineers actually write are prompts, filters, thresholds, test sets and fallback paths, and every one of those is a small, concrete guess about what the slogan means.
+AI companies love saying their models are "helpful, honest and harmless". Nice words. Completely useless when you're the engineer who has to make the actual product behave. You can't ship `if harmful: don't()` and call it alignment.
 
-I've been thinking about this while working on data pipelines that sit near language models. The interesting part of alignment, for most of us, isn't the research on how models are trained. It's the layer we own: the code that decides what the model sees, what it's allowed to say back, and how we know whether it's behaving.
+In the code you write prompts, filters, thresholds, tests and fallback paths. Each one is your interpretation of what "safe" should mean. I've been thinking about that while working around data pipelines and LLMs. Most of us aren't training frontier models. We still have to answer for the behaviour of the systems we put in front of users.
 
 ## Values are not specs
 
-A value is something like "don't mislead the user". A spec is something a test can check: "if the retrieved documents don't contain the answer, the response must say so and must not include a number".
+"Don't mislead users" is a value. It doesn't tell me what to implement. "If the supplied documents don't contain the answer, respond that you don't know and don't invent a number" is something I can test. That second sentence belongs in a specification.
 
-The gap between those two is where most of the work happens. The value is broad and the spec is narrow. Every spec you write covers some of the value and misses the rest, and the bits you miss are exactly the ones nobody tested.
+The frustrating part is that the specification will always cover less than the ideal behind it. You make rules for the cases you can think of. Then somebody finds a case you didn't. With a model, that missing requirement often turns into a perfectly fluent answer instead of an obvious failure.
 
-This isn't a new problem. Requirements documents have always been lossy translations of what a business actually wants. The difference with language models is that the system will happily fill the gaps with plausible behaviour, so the missing parts don't fail loudly. They just quietly do something you didn't intend.
+Bad requirements aren't new. The difference is that an ordinary program often throws an error when you haven't accounted for something. An LLM will happily improvise and make the mistake sound intentional. I'd much rather have a loud failure than a plausible lie in production.
 
 ## Refusals are a product decision
 
-A **refusal** looks like a safety feature, and sometimes it is. It is also a product decision with a cost.
+Refusals are an easy thing to celebrate in a safety report. "Look how many risky requests we blocked." Fine. But what did you block that was actually legitimate? That's part of the product decision too.
 
-If you build an assistant for an insurance claims team and it refuses to discuss anything involving injuries because "medical" tripped a filter, it isn't harmless. It's useless, and the user will route around it, probably by pasting the same text into a tool with fewer controls. Over-refusal pushes risk elsewhere rather than removing it.
+Imagine an insurance claims assistant that refuses to analyse a claim because the description mentions an injury and some generic medical filter panics. The employee still needs to process the claim. Now they may paste the text into a less controlled tool. Congratulations, your safety feature may have moved the risk somewhere you can't see it.
 
-So refusal logic deserves the same scrutiny as any other branch in your code:
+I'd review the refusal path the same way I'd review any other conditional branch:
 
-- What exactly triggers it?
-- What does the user see instead?
-- Is there a path to a human or a different tool?
-- How often does it fire on legitimate requests?
+- Which specific conditions make it refuse?
+- Does the user get an explanation or just a useless wall?
+- Can someone escalate or use a safer alternative?
+- How often are normal requests being rejected by mistake?
 
-That last question is the one teams forget to measure.
+That last question tends to disappear from the dashboard. It's easy to report how many dangerous requests you blocked. It's less flattering to report how many legitimate customers you made miserable.
 
 ## Guardrails are just code
 
-A **guardrail** is a check before or after the model call. Input checks catch things you never want sent (personal data, credentials, prompt injection patterns). Output checks catch things you never want shown (unsupported numbers, leaked system text, malformed JSON).
+A **guardrail** is code around a model call. Before the call, you might catch personal data, credentials or obvious prompt-injection attempts. After it, you might catch unsupported numbers, leaked system text or broken JSON. Calling it a guardrail doesn't make it infallible.
 
 ```python
 def answer(question: str, docs: list[str]) -> str:
@@ -47,45 +47,45 @@ def answer(question: str, docs: list[str]) -> str:
     return raw
 ```
 
-Nothing about this is magic. `contains_pii` and `grounded_in` are heuristics with false positives and false negatives. Treat them like any other classifier: know their error rates, log their decisions, and review the cases they get wrong. A guardrail you never measure is a guess you've stopped questioning.
+Those two functions look reassuring. They're also imperfect classifiers. `contains_pii` can flag harmless text, and `grounded_in` can miss a completely made-up claim. You need to measure false positives and false negatives, log what happened and inspect failures. Otherwise you've wrapped the model in another set of guesses and decided to trust those instead.
 
 ## Evals are where honesty lives
 
-If "honest" means anything at the code level, it means **evals**: a fixed set of inputs with known good behaviour, run every time you change the prompt, the model or the retrieval.
+The only way I'd be comfortable calling an LLM feature "honest" is if I could show how we're testing that claim. That's where **evals** come in: known inputs, expected outcomes and repeatable checks after every prompt, retrieval or model change.
 
-A useful eval set for honesty includes:
+And no, testing only questions with obvious answers doesn't count. I'd include:
 
-- Questions whose answer is in the context.
-- Questions whose answer is deliberately not in the context, where the right response is "I don't know".
-- Questions with a false premise, where the right response is to correct it.
-- Questions that invite a confident number, where the right response is a caveat.
+- Questions that the supplied documents actually answer.
+- Questions the documents don't answer, where the model is supposed to admit it.
+- Prompts built on a false assumption that the model should challenge.
+- Requests for exact numbers where the available evidence only supports an estimate.
 
-The second and third categories matter most. A system that scores well only on answerable questions has learned to answer, not to be honest.
+I'm especially interested in the middle two. If you only reward the system for providing an answer, don't be shocked when it invents one instead of saying no.
 
 ## Goodhart is waiting for you
 
-**Goodhart's law**: when a measure becomes a target, it stops being a good measure.
+**Goodhart's law** is the annoying reminder that a metric can stop being useful once everybody starts optimising specifically for it.
 
-The moment you optimise against an eval, you start to overfit to it. Tune a prompt until refusals on your test set hit zero, and you may have taught the system to never refuse. Reward responses that cite sources, and you may get citations attached to claims the sources don't support. Score "helpfulness" with another model as a judge, and you'll drift toward whatever that judge likes, which is often length and confidence.
+Suppose you optimise until your refusal rate on a test set is zero. Maybe you made the model better. Maybe you trained it to agree to everything. Require citations and you can end up with irrelevant sources stapled to confident claims. Use another model to grade "helpfulness" and you might start rewarding long, polished nonsense because the judge likes it. Your score goes up. The product doesn't necessarily improve.
 
-A few habits help:
+I try to put some friction between tuning and declaring victory:
 
-- Keep a held-out set you don't look at while tuning.
-- Use more than one metric, especially ones that pull in opposite directions (answer rate and correctness, for example).
-- Read raw outputs regularly. Aggregates hide the weird cases.
-- Refresh the eval set with real failures from production logs.
+- Keep test cases you haven't been staring at while changing prompts.
+- Measure competing things, like how often it answers *and* how often those answers are correct.
+- Open the raw responses. A single average hides spectacular failures.
+- Add real incidents from production to the evaluation set.
 
-None of this solves Goodhart. It just makes it slower and easier to notice.
+You can still game the metrics. At least these habits make it harder to fool yourself without noticing.
 
 ## The engineer's share
 
-It's tempting to treat alignment as someone else's job: the model provider trained it, so it's aligned. But the provider can't know your users, your data or your failure modes. Whatever general behaviour a model has, the system you ship is a combination of that model and your choices about context, checks and fallbacks.
+The easiest excuse is "the provider already aligned the model". The provider doesn't know which documents your app retrieves, which customer records it handles or what happens when a result is wrong. You made those choices. Their model might be one component, but the behaviour users experience is your system.
 
-That's the part I find motivating. You don't need to understand every detail of how a model was trained to make the system around it more honest. You need clear specs, measured guardrails and evals that test the uncomfortable cases.
+I actually like that part of the work. I can't change how the provider trained its model. I can decide what my application does when the model makes up a number, refuses a legitimate request or ignores the context. Those are engineering problems. We should stop treating them like PR statements.
 
 ## What I'd actually do on Monday
 
-- Write down, in one sentence each, what helpful, honest and harmless mean for your specific feature.
-- Turn each sentence into at least five test cases, including ones where the right answer is "no" or "I don't know".
-- Log every refusal and guardrail decision, and sample them weekly.
-- Track at least two metrics that trade off against each other, so you notice when tuning one breaks the other.
+- Define what those three nice-sounding values mean for one actual feature in your product.
+- Write test cases for each one, including cases where refusal or uncertainty is the right response.
+- Record what your filters and guardrails blocked, then read samples every week.
+- Watch two metrics that pull against each other. Improving the answer rate shouldn't quietly destroy correctness.

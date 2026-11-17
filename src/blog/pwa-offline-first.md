@@ -4,21 +4,21 @@ date: 2025-02-15
 tags: ["post", "backend", "guides"]
 ---
 
-The real test for a study app isn't a fast laptop on college Wi-Fi. It's someone on a packed bus, one bar of signal, trying to open their notes ten minutes before an exam. If the app shows a spinner and then a dinosaur, it has failed at the one moment it mattered.
+I don't care how fast a study app loads on a developer's laptop with perfect Wi-Fi if it falls apart the second a student tries opening notes on a crowded bus. Picture ten minutes before an exam, one bar of signal, and all you get is a spinner followed by Chrome's dinosaur. That's a terrible study app, no matter how nice the landing page looks.
 
-That's the problem I've been working on for NotesAid, a notes app for my classmates that's launching soon. It's a **progressive web app (PWA)**, and most of the effort has gone into making it behave well with bad or no network. Here's what I've learned.
+That was on my mind while building [NotesAid](/work/notesaid/), a notes app for my classmates. I wanted it to behave like a proper **progressive web app (PWA)**: something you can actually use when the connection disappears. The offline work turned out to be less glamorous and more important than a lot of the visible features.
 
 ## What makes something a PWA
 
-A PWA is a website that can be installed and can work offline. Practically, that means three things:
+A PWA is still a website. The useful difference is that you can install it and, if you've built it properly, keep using it without a connection. You need three pieces:
 
-1. Served over **HTTPS** (localhost is allowed during development).
-2. A **web app manifest** describing how it looks when installed.
-3. A **service worker** that intercepts network requests and can answer them from a cache.
+1. **HTTPS**, except when you're developing on localhost.
+2. A **web app manifest** so the phone knows what it's installing.
+3. A **service worker** to intercept requests and serve cached files when the network isn't there.
 
 ## The manifest
 
-The manifest is a JSON file linked from your HTML with `<link rel="manifest" href="/manifest.json">`:
+The manifest is just JSON. Link it in your HTML with `<link rel="manifest" href="/manifest.json">`:
 
 ```json
 {
@@ -37,11 +37,11 @@ The manifest is a JSON file linked from your HTML with `<link rel="manifest" hre
 }
 ```
 
-`display: standalone` hides the browser UI so it feels like an app. Provide a **maskable** icon, or Android will put your logo in an awkward white circle. iOS supports home screen installation too, but has historically been more limited and still reads some Apple-specific meta tags, so test on an actual iPhone.
+`display: standalone` gets rid of the usual browser chrome. Add a **maskable** icon unless you want Android to stick your logo in an ugly white circle. iPhones can install PWAs too, although iOS has its own quirks and some Apple-specific meta tags. Test it on an actual iPhone. A simulator isn't going to tell you everything.
 
 ## The service worker
 
-A service worker is a script that runs separately from your page and sits between it and the network. You register it from the page:
+A service worker runs separately from the page and gets a say in how requests are handled. Register it like this:
 
 ```javascript
 if ('serviceWorker' in navigator) {
@@ -49,11 +49,11 @@ if ('serviceWorker' in navigator) {
 }
 ```
 
-Its lifecycle has three events that matter:
+There are three lifecycle events worth understanding before you start caching things:
 
-- **install**: fires once for a new version. Pre-cache your app shell here.
-- **activate**: fires when this version takes control. Clean up old caches here.
-- **fetch**: fires for every request in scope. This is where caching strategies live.
+- **install**: a new worker is being installed. Good time to cache the app shell.
+- **activate**: the worker takes control. Get rid of caches from older versions.
+- **fetch**: a request comes in. Decide whether to use the network or a cached response.
 
 ```javascript
 const SHELL_CACHE = 'shell-v3';
@@ -74,9 +74,9 @@ self.addEventListener('activate', (event) => {
 
 ## Pick a caching strategy per kind of request
 
-There's no single right strategy. The trick is matching each type of request to the one that fits.
+Trying to cache everything the same way is where people get into trouble. A versioned JavaScript file and someone's latest notes aren't the same problem.
 
-**Cache-first**: check the cache, only go to the network on a miss. Best for things that never change once built, like versioned JS bundles, fonts and icons.
+**Cache-first**: use the cached copy if you have one; fetch only if you don't. This makes sense for versioned JS bundles, fonts and icons. Things that shouldn't change underneath you.
 
 ```javascript
 async function cacheFirst(req) {
@@ -85,7 +85,7 @@ async function cacheFirst(req) {
 }
 ```
 
-**Network-first**: try the network, fall back to cache if it fails. Best for content that must be fresh when possible, like an API response for a user's notes list. Add a timeout, otherwise a weak connection means waiting a long time before the fallback kicks in. On a bus, a request that hangs is worse than one that fails fast.
+**Network-first**: ask the server first, then fall back to what you saved. I'd use this for a student's notes list, where the latest version matters. Put a timeout on it, though. On a bad connection, waiting forever for a response is barely better than being offline.
 
 ```javascript
 async function networkFirst(req, cacheName, ms = 3000) {
@@ -103,7 +103,7 @@ async function networkFirst(req, cacheName, ms = 3000) {
 }
 ```
 
-**Stale-while-revalidate**: return the cached copy immediately, and fetch a fresh one in the background for next time. Best for content where slightly old is fine but speed matters, like a subject index or a shared note someone opened yesterday.
+**Stale-while-revalidate**: show the cached version immediately while you fetch a newer one for next time. A subject index or a shared note someone viewed yesterday can usually afford to be a little old. The screen opening instantly matters more.
 
 ```javascript
 async function staleWhileRevalidate(req, cacheName) {
@@ -117,7 +117,7 @@ async function staleWhileRevalidate(req, cacheName) {
 }
 ```
 
-Then route in the fetch handler. Only handle `GET` requests; the Cache API won't store anything else.
+Now decide which strategy handles each URL. Keep this to `GET` requests; the Cache API isn't a place to put your writes.
 
 ```javascript
 self.addEventListener('fetch', (event) => {
@@ -135,24 +135,24 @@ self.addEventListener('fetch', (event) => {
 });
 ```
 
-In practice I'd use **Workbox** rather than hand-writing all of this; it implements these strategies with expiry and edge cases handled. But writing them once by hand is the best way to understand what Workbox is doing.
+For a real app I'd reach for **Workbox**. It already handles expiration and a pile of edge cases I don't want to rediscover. Still worth writing these functions yourself once. Otherwise you're just copying service-worker config and hoping it works.
 
 ## The update flow
 
-This is the part that surprised me most. When you deploy a new service worker, the browser installs it, but it sits in a **waiting** state until every tab using the old one is closed. Users with the app open all day may never get the update.
+The update flow is surprisingly annoying. You ship a new service worker and the browser can leave it **waiting** because an old tab is still using the previous one. Someone leaves NotesAid open all day, and the fix you deployed might as well not exist for them.
 
-You can call `self.skipWaiting()` to activate immediately, but then the new worker may serve new assets to a page that loaded old ones, which can break things. The safer pattern is to detect the waiting worker, show a small "New version available, refresh" prompt, and only then tell it to skip waiting and reload the page.
+You *can* force it with `self.skipWaiting()`. But mixing a newly activated worker with a page that loaded older assets is a good way to break your own app. I'd rather show a little "New version available, refresh" prompt, then activate the worker and reload when the user agrees.
 
-Also: serve `sw.js` itself with no long-lived caching headers, so the browser can actually see new versions.
+And don't give `sw.js` long-lived caching headers. The browser needs to notice that you changed it.
 
 ## Pitfalls I ran into, or nearly did
 
-- **Caching opaque or error responses.** Check `res.ok` before putting a response in the cache, or you'll happily serve a cached 500 forever.
-- **Unbounded caches.** Notes and images add up. Cap entries or age, and remember the browser can evict your storage under pressure.
-- **Caching authenticated data on shared devices.** Clear user-specific caches on logout.
-- **Writes while offline.** Reads are the easy half. For edits, queue them locally (IndexedDB) and sync when back online. Background Sync helps where supported, but don't rely on it everywhere; retry on app open as well.
-- **Testing only on fast Wi-Fi.** Chrome DevTools has offline and slow-network throttling. Use them constantly, and test on a real low-end phone.
+- **Caching failed responses.** Check `res.ok`. Otherwise you can accidentally save a server error and keep showing it long after the server is fine.
+- **Letting caches grow forever.** PDFs, notes and images aren't free. Set limits, and remember the browser can throw stored data away when space gets tight.
+- **Leaving someone's private notes in a shared device's cache.** Clear user-specific data when they log out.
+- **Forgetting about offline edits.** Reading cached notes is easy compared to editing them. Queue changes in IndexedDB and sync later. Background Sync isn't supported consistently enough to be your only plan, so retry when the app opens too.
+- **Only testing at home on good Wi-Fi.** Use DevTools' offline and throttling modes. Then try a genuinely slow phone. It exposes problems your laptop won't.
 
-## What I'd tell my past self
+## What I'd do differently from day one
 
-Decide upfront which content must work offline, then pick a strategy per request type: cache-first for build assets, network-first with a short timeout for live data, stale-while-revalidate for everything that can be a little old. Version your caches, handle the waiting worker deliberately, and test with the network switched off. The bus is the real user.
+I'd start by writing down exactly which screens a student should be able to open with zero signal. Then choose the caching strategy for each one. Cache static files aggressively, give live data a short network timeout, and let less urgent content load from storage first. Version your caches and make the update prompt work. Most importantly, actually turn the internet off while testing. If your offline app has only ever been tested online, you don't really know if it works.

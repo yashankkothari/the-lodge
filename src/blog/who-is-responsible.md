@@ -4,54 +4,54 @@ date: 2026-07-25
 tags: ["post", "essays", "ai-philosophy"]
 ---
 
-A model gives a wrong answer. Someone acts on it. Something goes badly. Then comes the question every organisation eventually has to answer: whose fault was that?
+A model makes something up, an employee trusts it, and a customer gets hurt. Now everyone involved wants to explain why it was technically somebody else's fault.
 
-The easy answers are all partly true and all incomplete. The model maker trained it. The team that built the product chose how to use it. The user clicked accept. The organisation decided to deploy it. Responsibility gets spread so thin across these parties that it can end up resting nowhere, or resting entirely on whoever happened to be standing closest.
+The model company points at the product team. The product team points at the employee who clicked approve. Management points at the policy that says "human in the loop". Somehow we end up with a long chain of people who had a hand in the system and nobody who wants to own the outcome.
 
 ## The usual suspects
 
-**The model maker** shapes the general behaviour: what the model knows, how it handles uncertainty, what it refuses. But it can't see how its model will be used, on what data, for which decisions. Holding it solely responsible for every downstream use is like blaming a compiler for every bug in a program.
+**The company that trains the model** determines a lot of its behaviour: what it knows, when it refuses and how confidently it answers. But it doesn't control every product built on top. Blaming the model provider for every downstream mistake is a bit like blaming the compiler for every bad decision in your code.
 
-**The builder** (the team integrating the model into a product) makes most of the decisions that matter in practice: what context goes in, what checks run, what the user sees, whether a human reviews the output. This is often where the real design choices sit, and often where they're least documented.
+**The team building the product** chooses the prompt, the documents the model sees, the checks and what the user is shown. They decide whether somebody gets a chance to catch a bad answer. To me, that's where a lot of responsibility sits, even if nobody bothered to document those choices.
 
-**The user** acts on the output. Sometimes they should have known better. Often they were given a tool that looked authoritative, under time pressure, with no way to tell a confident right answer from a confident wrong one.
+**The person using it** might make the final decision. Sometimes they were careless. Sometimes the interface made a wrong recommendation look official and gave them thirty seconds to approve it. I don't think those situations deserve the same blame.
 
-**The organisation** decides the system is good enough to deploy, sets the incentives, and decides how much time people have to check its work. Those decisions rarely get recorded as decisions, but they shape everything below them.
+**Management** decided to deploy this thing in the first place. They set the review targets and decide whether employees are rewarded for checking carefully or punished for being slow. Those choices don't look technical, but they shape the entire failure.
 
 ## Moral crumple zones
 
-The researcher Madeleine Clare Elish described a **moral crumple zone**: in a complex automated system, the human operator absorbs the blame for failures, much as a car's crumple zone absorbs the force of a crash. The automation is protected; the person takes the hit.
+Madeleine Clare Elish has a term for this: the **moral crumple zone**. In a car, the crumple zone absorbs the impact. In a badly designed automated system, the human operator absorbs the blame. The technology stays in place; the person closest to the failure gets crushed.
 
-Her examples came from aviation and other automated systems, where operators were held responsible for failures in systems they had limited control over. The pattern transfers neatly to AI. A reviewer approves a model's recommendation. The recommendation was wrong. The reviewer gets blamed, even though the system was designed so that reviewing hundreds of outputs a day made careful checking unrealistic.
+She was writing about automation in fields such as aviation, where operators were blamed for systems they couldn't fully control. It's difficult not to see the same pattern with AI. Suppose somebody has to approve hundreds of model-generated decisions per day. One is wrong. Suddenly everyone asks why they didn't catch it, as if the workload had been designed to make careful review possible.
 
 ## Human-in-the-loop as a liability sponge
 
-"Human in the loop" is usually presented as a safety feature. Sometimes it is. Sometimes it's mainly a way to move liability.
+I get suspicious whenever somebody says "there's a human in the loop" as though that sentence automatically makes the system safe. Sometimes it means a real person can stop a bad decision. Sometimes it means a person is there so somebody can be blamed afterwards.
 
-A human check only means something if the human has:
+A real review needs more than a checkbox with somebody's name on it:
 
-- **Enough time** to actually evaluate each case.
-- **Enough information** to see why the model produced its output.
-- **Real authority** to disagree without being penalised for slowing things down.
-- **Feedback** on whether their past decisions were right.
+- Time to read the case instead of racing through a queue.
+- Access to the context and evidence behind the recommendation.
+- Permission to say no, without being punished for slowing down the process.
+- Feedback when their previous approvals turned out to be wrong.
 
-Take any of these away and the human becomes a rubber stamp with a name attached. The loop exists on paper, the accountability lands on a person, and the system keeps making the same mistakes because nobody upstream hears about them.
+Take those away and you've built a rubber stamp that happens to have an employee ID. The company gets to say a human approved it. The human gets the blame. The flawed workflow gets to continue untouched.
 
-Automation bias makes this worse. People tend to trust automated suggestions, especially when they're usually right. A system that is correct most of the time trains its reviewers to stop looking closely, which is exactly when the rare error slips through.
+There's also automation bias. The more often the machine is right, the easier it becomes to approve its suggestions without thinking. A system that's correct 99 times can train a reviewer to stop checking just in time for the hundredth case to be disastrous.
 
 ## A data engineer's view: lineage is accountability
 
-My day job is moving and shaping data, so I tend to see this through the lens of **lineage**: the record of where a piece of data came from and what was done to it on the way.
+I work with data pipelines, so the comparison that makes sense to me is **data lineage**. When somebody asks where a number came from, I want to know which source, transformation and job run produced it. Otherwise we're guessing.
 
-In a well-run data platform, if a number on a report is wrong, you can trace it back. Which source table, which transformation, which job run, which version of the code. That trace doesn't assign blame by itself, but it makes the question answerable. Without it, every incident turns into an argument.
+If a report shows the wrong figure, a decent data platform should let you trace it through source tables, transformations and code versions. That doesn't tell you whose fault it was. It does stop five teams from spending the entire incident meeting arguing over what happened.
 
-AI systems need the same thing, and mostly don't have it. For any decision a model influenced, you'd want to know:
+I'd want exactly that kind of trail for a consequential AI decision. At minimum, log:
 
-- Which model and which version produced the output.
-- What prompt and what retrieved context it saw.
-- What checks ran, and what they decided.
-- Who saw it, what they did, and how long they spent.
-- What the final action was, and who authorised it.
+- The specific model version, not just the provider's marketing name.
+- The prompt and any retrieved documents that shaped its answer.
+- The validation and safety checks, including which ones failed.
+- The reviewer, their decision and how much time they had.
+- The action that ultimately happened and who approved it.
 
 ```text
 decision_id        -> 7f3c...
@@ -63,17 +63,17 @@ reviewer           -> user_id, time_on_screen=14s
 final_action       -> approved
 ```
 
-That fourteen-second review tells you more about where responsibility sits than any policy document. If the system routinely gets fourteen seconds of human attention, the organisation has decided, in practice, that the model is making the call.
+Fourteen seconds. That's how long the supposed safety check took. You can write fifty pages of AI governance policy, but if your reviewers are being given fourteen seconds per decision, the model is making the call. Let's at least be honest about that.
 
 ## Responsibility follows control
 
-The principle I keep coming back to is simple: **responsibility should follow control**. Whoever had the power to prevent a failure, and the information to see it coming, carries the most responsibility for it.
+My rule is that **responsibility should follow control**. Who could actually change the system? Who knew what it was doing? Who set the targets and decided how much review time was enough? Start there, not with the last person who clicked a button.
 
-That usually points upstream, to the builders and the organisation, rather than to the last person to click a button. It also means responsibility can be designed. If you want users to be responsible for their decisions, give them the time, context and authority that responsibility requires. If you can't, be honest that the system is making the decision and own it at the level that built it.
+Often the trail leads upstream, to the people who designed the workflow and approved its deployment. If you want the reviewer to own the decision, give them the information, time and authority to make it. If you won't, stop hiding behind "human oversight" and admit you've automated the decision.
 
 ## If you're building one of these
 
-- Log enough to reconstruct any decision: model version, inputs, context, checks, reviewer and action.
-- Measure how long humans actually spend reviewing, and treat very short review times as a design problem.
-- Give reviewers a clear way to disagree, and feed their disagreements back into evaluation.
-- Write down who owns each part of the system, so the question "whose fault was that" has an answer before anyone needs to ask it.
+- Make a decision trace part of the design, not something you wish you had after the incident.
+- Look at how long people spend reviewing outputs. If every review lasts a few seconds, investigate the workflow.
+- Give reviewers a way to reject the suggestion and use those rejections to improve testing.
+- Decide who owns model behaviour, checks and deployment *before* a customer is harmed. Incident response is a terrible time to invent an ownership chart.
