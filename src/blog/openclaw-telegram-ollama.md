@@ -4,9 +4,9 @@ date: 2026-10-08
 tags: ["post", "genai", "agents", "ollama", "omarchy", "guides"]
 ---
 
-I message a Telegram bot from my phone, and an agent running on my [Omarchy](/blog/omarchy-setup/) laptop answers, using a model served locally by [Ollama](/blog/ollama-local-llms/). No cloud model, no open ports, and the agent can use tools on the machine I gave it.
+I wanted to message my own AI assistant from my phone without sending every prompt to a cloud model. So I wired a Telegram bot to an agent on my [Omarchy](/blog/omarchy-setup/) laptop, with [Ollama](/blog/ollama-local-llms/) serving the model locally. The agent can use tools on the machine, and I don't have to open a port to the public internet.
 
-The piece in the middle is **OpenClaw**, an open-source assistant that connects chat apps to AI agents through a local gateway. Here's the exact setup, with real terminal output from each step.
+The thing holding it together is **OpenClaw**. It connects chat apps to local agents through a gateway. Below is how I set it up, including the terminal output and the security decisions I don't want to forget next time.
 
 <figure><img src="/img/blog/diagram-openclaw-arch.png" alt="Phone, Telegram, OpenClaw gateway, agent loop, Ollama" loading="lazy"><figcaption>The gateway polls Telegram over HTTPS, so nothing on the laptop is exposed to the internet.</figcaption></figure>
 
@@ -125,9 +125,9 @@ This is where most local setups fall over:
 
 ## Guardrails I'd keep
 
-- Pairing on, and only your Telegram user ID allowed.
+- Keep pairing on and allow only your own Telegram user ID. A bot that can touch your laptop should not respond to random strangers.
 - Gateway on loopback, no port forwarding.
 - Run `openclaw security audit` after changing tools or skills, and keep risky tools behind approvals.
 - Keep the bot token and gateway token out of screenshots and git. None of the ones here show either.
 
-The agent loop running behind all this is the one from my [AI agents guide](/blog/ai-agents-guide/), just with a phone on the other end.
+Underneath the Telegram interface, this is still the same loop from my [AI agents guide](/blog/ai-agents-guide/). Giving it a chat app doesn't make it smarter or safer. The tool permissions and approvals are what matter.

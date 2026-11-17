@@ -4,9 +4,9 @@ date: 2025-03-29
 tags: ["post", "genai", "llms", "guides"]
 ---
 
-"Prompt engineering" sounds like a bag of tricks: magic phrases, threats, tipping the model. Some of those tricks worked once, on some model, for some task. What keeps working is far more boring. A good prompt is a **specification**: it says what the input is, what the output must look like, what's out of scope, and how you'll know it's right.
+I can't take half of the "prompt engineering" advice online seriously. People are still posting magic phrases and pretending they've discovered a secret language for talking to AI. A prompt that works consistently is usually just a decent **specification**: here's the input, here's what I need back, here are the constraints, here's what to do when things go wrong.
 
-If you've ever written a ticket that a stranger could pick up and finish without asking you anything, you already know how to write most of a good prompt.
+It's the same thing as writing a good engineering ticket. If another developer would have to ask you six questions before starting, the model is going to fill those gaps with guesses.
 
 ## Treat the prompt as a contract
 
@@ -36,17 +36,17 @@ Return a JSON object with:
 If the email is not a complaint, return {"category": "other", "summary": "", "needs_human": false}.
 ```
 
-The second one is longer, but every extra line removes a decision the model would otherwise make for you.
+Yes, the second prompt is longer. That's fine. I'd rather write ten more lines now than spend an afternoon wondering why half the outputs have the wrong shape.
 
 ## Roles are context, not magic
 
-"You are a senior data engineer" doesn't make a model smarter. What a role line does is set **context**: vocabulary, assumed audience, level of detail. That's useful, but it's a small lever. A role with no task description is still a vague prompt.
+Typing "you are a senior data engineer" does not magically hire a senior data engineer inside the model. It mostly changes the vocabulary and level of detail. That can help, but it doesn't rescue a task you've barely described.
 
 I find it more reliable to describe the situation directly: who will read the output, what they already know, and what they'll do with it. "The reader is a support agent who has 30 seconds to decide whether to escalate" tells the model more than any job title.
 
 ## Constraints do the heavy lifting
 
-Most bad outputs aren't wrong, they're unbounded: too long, too chatty, padded with caveats, or inventing details. Constraints fix that.
+A lot of annoying model output is technically on topic. It's just five times too long, full of unnecessary disclaimers, or confidently adding details nobody asked for. That's why I specify limits instead of hoping the model understands what "concise" means.
 
 - Length: "under 25 words", "at most three bullet points".
 - Scope: "use only the information in the provided text".
@@ -112,7 +112,7 @@ For outputs that can't be checked with equality, such as summaries, you can chec
 
 ## Iterate like you'd debug
 
-When a prompt fails, resist the urge to add another sentence in capital letters. Look at the failing case and ask what the spec left open. Usually it's one of these:
+When a prompt fails, don't add "IMPORTANT!!!" for the seventh time. Look at the actual failure. Usually you've left something ambiguous, contradicted yourself or stuffed two separate jobs into one request.
 
 - An edge case nobody described.
 - Two instructions that conflict.
@@ -121,7 +121,7 @@ When a prompt fails, resist the urge to add another sentence in capital letters.
 
 Change one thing, rerun the eval set, compare. It's slower than vibes but you'll know whether you made it better.
 
-## What to keep in mind
+## The rules I keep coming back to
 
 - Write the prompt so a capable stranger could do the task from it alone.
 - Define the output shape exactly, and validate it in code.
@@ -129,4 +129,4 @@ Change one thing, rerun the eval set, compare. It's slower than vibes but you'll
 - Use a couple of varied examples instead of adjectives.
 - Keep a small test set and rerun it on every change.
 
-Most of what gets called prompt engineering is just being precise about what you want. That skill was useful before LLMs and it'll stay useful after the current tricks stop working.
+There's no mystical art here. You describe the task clearly, you test it, and when it breaks you debug it. Calling it "prompt engineering" doesn't exempt you from basic engineering.

@@ -5,15 +5,15 @@ description: "How I used adb and tv-detox to make my TCL Android TV feel faster,
 tags: ["post", "essays", "android-tv", "tcl", "adb", "guides"]
 ---
 
-My TCL TV had become painfully slow. It's an Android 11 set with only about 940 MB of RAM, and when I started, around 300 MB of that was free. Menus lagged, apps took ages to open, and the home screen was full of sponsored rows and ads.
+My TCL TV had reached the point where opening an app felt like asking it a personal favour. It's running Android 11 with roughly 940 MB of RAM. When I checked, only about 300 MB was free. The menus lagged, apps crawled, and the home screen still somehow had enough resources to show me ads.
 
-I fixed most of it in one evening using an open-source project called [tv-detox](https://github.com/Ansub/tv-detox) and Claude Code to drive the whole process from my laptop. Here's what I did, what worked, and the mistakes worth knowing about before you try it.
+I spent an evening fixing it with [tv-detox](https://github.com/Ansub/tv-detox) and Claude Code helping me run through the steps from my laptop. It worked, but I also ran into storage errors, broke my launcher setup once and had to undo part of my own cleanup. So I'm writing down the whole thing, including the stupid parts.
 
 > **Disclaimer:** This is what worked on my TV, not professional advice. Everything below changes system settings on your device. Use it at your own risk, and read the "undo" section before you start.
 
 ## The idea
 
-Android TVs ship with a lot of apps you never asked for: manufacturer account apps, analytics services, ad feeds, demo-mode helpers, and Google's own sponsored home screen row. You can't uninstall most of them, but you *can* turn them off over `adb`, Android's debugging bridge. Turned-off apps stop using RAM and CPU, and they stay on the device, so everything is reversible.
+Android TVs ship with an incredible amount of stuff nobody asked for: manufacturer accounts, analytics, ad feeds, demo-mode helpers and Google's sponsored home screen. Much of it can't be uninstalled normally, but you can disable packages using `adb`, Android's debugging bridge. That's what I wanted: stop the junk from running without permanently ripping system packages out of the TV.
 
 tv-detox packages that approach: a planner script that classifies every installed app, a tiny replacement home screen, and an undo script.
 
@@ -78,7 +78,7 @@ The installer also turns off Google's stock launcher so that pressing Home opens
 
 The first install failed with `Requested internal only, but not enough space`. The TV had 3.4 GB of storage and only about 450 MB free. Android needs more headroom than the size of the app. Clearing the app caches (`pm trim-caches 2G`) freed enough to get it through.
 
-This turned out to be the theme of the whole evening.
+I thought I'd fixed the storage problem. I had not. It came back repeatedly.
 
 ## Speed tweaks and a reboot test
 
@@ -88,7 +88,7 @@ After the home screen, I applied a few more settings:
 - The screensaver turned off
 - A cap on background processes: `device_config put activity_manager max_cached_processes 4` (this survived a reboot)
 
-Then I waited 30 seconds for Android to flush its settings to disk, rebooted, and confirmed the TV booted normally and Home still opened the new launcher. Don't skip the reboot test. It's the safest way to catch a bad change while you can still undo it.
+Then I waited 30 seconds for Android to flush its settings to disk, rebooted, and confirmed the TV booted normally and Home still opened the new launcher. Don't skip that reboot. A clean-looking launcher means very little if Home stops working the next time you turn the TV on.
 
 ## Finding what else was eating resources
 
@@ -114,7 +114,7 @@ I cleared them with `pm clear` and reverted their updates with `pm uninstall-sys
 
 ## Hiccup #3: a cleanup command that undid my work
 
-This one is worth highlighting. `pm uninstall-system-updates` **re-enabled** most of the apps I'd disabled, including Google's stock launcher, and Home went back to opening it. I had to disable them all again and re-set my launcher as the default.
+Here's where I undid my own work. `pm uninstall-system-updates` **re-enabled** most of the apps I'd just disabled, including Google's stock launcher. Suddenly Home was opening the old ad-filled screen again. I had to go back through the packages and set my replacement launcher as the default. Not my proudest moment.
 
 If you try this: run the cleanup, then check `pm list packages -d` and which app currently handles Home, and fix anything that changed.
 
@@ -166,6 +166,6 @@ for p in $(adb shell pm list packages -d | tr -d '\r' | sed 's/package://'); do 
 
 ## Result
 
-The TV is noticeably snappier. The home screen is clean, with no ads, sponsored rows or manufacturer promos. Animations are instant, around 125 MB more RAM is free after a fresh boot, and the disk went from 88% full to 76% full. Most of that came from about an hour of careful, reversible changes.
+It actually feels like a usable TV again. No sponsored rows, no manufacturer promos, and the home screen responds straight away. After a fresh boot I saw roughly 125 MB more free RAM, and storage use dropped from 88% to 76%. Some of the RAM gain is from the reboot itself, so I'm not claiming every megabyte was saved by debloating. But the difference in day-to-day use is obvious. I wish I'd done this before putting up with the lag for so long.
 
 Thanks to [Ansub Khan](https://github.com/Ansub/tv-detox) for the tv-detox project that made this safe and simple to try.

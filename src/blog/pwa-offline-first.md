@@ -4,9 +4,9 @@ date: 2025-02-15
 tags: ["post", "backend", "guides"]
 ---
 
-The real test for a study app isn't a fast laptop on college Wi-Fi. It's someone on a packed bus, one bar of signal, trying to open their notes ten minutes before an exam. If the app shows a spinner and then a dinosaur, it has failed at the one moment it mattered.
+I don't care how fast a study app loads on a developer's laptop with perfect Wi-Fi if it falls apart the second a student tries opening notes on a crowded bus. Picture ten minutes before an exam, one bar of signal, and all you get is a spinner followed by Chrome's dinosaur. That's a terrible study app, no matter how nice the landing page looks.
 
-That's the problem I've been working on for NotesAid, a notes app for my classmates that's launching soon. It's a **progressive web app (PWA)**, and most of the effort has gone into making it behave well with bad or no network. Here's what I've learned.
+That was on my mind while building [NotesAid](/work/notesaid/), a notes app for my classmates. I wanted it to behave like a proper **progressive web app (PWA)**: something you can actually use when the connection disappears. The offline work turned out to be less glamorous and more important than a lot of the visible features.
 
 ## What makes something a PWA
 
@@ -139,7 +139,7 @@ In practice I'd use **Workbox** rather than hand-writing all of this; it impleme
 
 ## The update flow
 
-This is the part that surprised me most. When you deploy a new service worker, the browser installs it, but it sits in a **waiting** state until every tab using the old one is closed. Users with the app open all day may never get the update.
+This part annoyed me more than I expected. You deploy a new service worker, but the browser leaves it **waiting** until the old version isn't being used by any tabs. Someone can leave your app open all day and never see the update you just shipped.
 
 You can call `self.skipWaiting()` to activate immediately, but then the new worker may serve new assets to a page that loaded old ones, which can break things. The safer pattern is to detect the waiting worker, show a small "New version available, refresh" prompt, and only then tell it to skip waiting and reload the page.
 
@@ -153,6 +153,6 @@ Also: serve `sw.js` itself with no long-lived caching headers, so the browser ca
 - **Writes while offline.** Reads are the easy half. For edits, queue them locally (IndexedDB) and sync when back online. Background Sync helps where supported, but don't rely on it everywhere; retry on app open as well.
 - **Testing only on fast Wi-Fi.** Chrome DevTools has offline and slow-network throttling. Use them constantly, and test on a real low-end phone.
 
-## What I'd tell my past self
+## What I'd do differently from day one
 
-Decide upfront which content must work offline, then pick a strategy per request type: cache-first for build assets, network-first with a short timeout for live data, stale-while-revalidate for everything that can be a little old. Version your caches, handle the waiting worker deliberately, and test with the network switched off. The bus is the real user.
+I'd decide which screens must work offline *before* building them. Static assets can be cache-first, live data should try the network with a short timeout, and things that can be a little old can use stale-while-revalidate. Version the caches, handle updates properly, and actually switch off the network while testing. A fast connection will hide half your mistakes.

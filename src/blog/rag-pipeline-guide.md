@@ -4,9 +4,9 @@ date: 2026-09-28
 tags: ["post", "genai", "rag", "guides"]
 ---
 
-Retrieval-augmented generation (RAG) means: find the passages that answer a question, put them in the prompt, and ask the model to answer **from those passages**. It's the standard way to give an LLM knowledge it wasn't trained on, without fine-tuning.
+I've seen RAG explained as though putting embeddings in a vector database makes a chatbot intelligent. It doesn't. **Retrieval-augmented generation** just means finding relevant passages, putting them in the prompt and asking the model to answer from those passages.
 
-When a RAG system gives a bad answer, the generation step usually isn't the culprit. Retrieval handed the model the wrong text. So treat RAG as a data pipeline first.
+The unglamorous truth is that a lot of bad RAG answers start with bad search. The model gets two irrelevant chunks, writes a very convincing paragraph about them, and everyone starts changing prompts. I'd debug the retrieval pipeline first.
 
 
 <figure><img src="/img/blog/diagram-rag.png" alt="RAG indexing and query pipelines" loading="lazy"><figcaption>Two pipelines: one offline, one per question.</figcaption></figure>
@@ -51,7 +51,7 @@ the answer, say you don't know.
 Question: {user question}
 ```
 
-"Say you don't know" plus visible citations does more against hallucination than any amount of clever wording.
+I want an actual way for the model to say "I don't know" and citations I can open. A prompt that simply says "be accurate" is not a substitute for either.
 
 ## Measure retrieval and answers separately
 
@@ -65,7 +65,7 @@ If recall@k is low, fix chunking, hybrid search or reranking. Tweaking the promp
 
 ## Keep the index fresh
 
-Treat the index like a warehouse table: load incrementally, re-embed changed documents, delete removed ones, and re-embed everything when you change the embedding model, because vectors from different models aren't comparable.
+The index is another data pipeline. Documents change, get deleted and sometimes change permissions. Update the vectors accordingly. And when you switch embedding models, re-embed the collection; vectors from different models don't belong in the same search space.
 
 ## Try it: a 30-line RAG on your laptop
 
@@ -80,4 +80,4 @@ python rag_demo.py
 
 <figure><img src="/img/blog/term-rag.png" alt="RAG demo output: two retrieved chunks with scores, then a cited answer" loading="lazy"><figcaption>Real output. Retrieval picked the right chunk first (0.679), but the second chunk (0.530) was irrelevant and the model used it anyway.</figcaption></figure>
 
-That last part is the lesson. The answer is correct and cited, but it also rambles about warehouse auto-suspend because a weak second chunk made the cut. Two fixes: drop chunks below a score threshold, and tell the model to ignore sources that don't answer the question. Then measure retrieval on its own, as described above.
+Look at that second chunk. It's irrelevant, but the model still drags warehouse auto-suspend into an otherwise correct answer. That's exactly how a RAG system can sound informed while giving you junk. I'd try a score threshold and clearer instructions to ignore irrelevant sources, then check retrieval recall again. Don't mistake a citation for proof that the source was useful.

@@ -1,31 +1,31 @@
 ---
-title: "Will AI Replace Junior Developers? A Student's Honest View"
+title: "Will AI Replace Junior Developers? I'm About to Find Out"
 date: 2025-05-10
 tags: ["post", "essays", "ai-philosophy"]
 ---
 
-I'm about to start the final year of a computer engineering degree, which means I'm about to enter the job market that everyone online says is disappearing. Every few weeks there's a new post claiming AI will write all the code and nobody needs to hire juniors any more. Every few weeks there's a reply saying that's nonsense.
+I'm about to enter my final year of computer engineering and apparently the job I'm studying for is supposed to be dead by the time I graduate. According to my feed, AI has already replaced every junior developer. Then I open another post explaining why it absolutely hasn't. Both get thousands of likes.
 
-I don't think either side is quite right, and I'd rather think it through than pick a team.
+I'm not interested in choosing the comforting side. I'm interested in whether companies will still want to hire someone like me.
 
 ## What's actually getting automated
 
-Be honest about what coding assistants are good at. They're very good at the work that used to be a junior's first few months:
+Let's not pretend the tools are bad just because the implications are uncomfortable. They can already do a lot of the work juniors were traditionally given:
 
 - Boilerplate: CRUD endpoints, config files, data classes, test scaffolding.
 - Translating between things: one language to another, a spec into a function, an error message into a likely fix.
 - Looking things up: the right library call, the argument order, the regex you'd otherwise search for.
 - First drafts of SQL, scripts and documentation.
 
-That's real. A task that took me an afternoon in my second year can take twenty minutes now. If a company measured juniors purely by lines of working code produced, the maths would look bad for us.
+I've seen things that took me an afternoon in second year take twenty minutes with an assistant. That's not a hypothetical productivity gain. If you're hiring juniors just to crank out boilerplate, I can see why you're reconsidering.
 
 But that was never really what juniors were for.
 
 ## What a junior is actually for
 
-Teams hire juniors because juniors become seniors. The first year is an **apprenticeship**: you do small, low-risk work, someone reviews it, you learn how the system and the team actually work, and slowly you're trusted with more.
+Here's what gets lost in the "AI replaced my intern" victory laps: juniors aren't supposed to stay juniors. You hire someone inexperienced, give them small tasks, review their work and gradually trust them with bigger ones. It's an **apprenticeship**, not a code-generation subscription.
 
-The output in that first year was always modest. The value was in what the person turned into. If companies stop hiring juniors because AI covers the modest output, they'll find in a few years that there's nobody to promote. I expect some will make that mistake anyway, because hiring is often decided quarter by quarter. That's a real risk for people my age, and I don't want to wave it away.
+If companies stop doing that because a model can ship the small tasks, who's going to be the senior engineer in five years? I suspect plenty of companies will ignore that question because this quarter's headcount is easier to measure than a future skills gap. That's an actual problem for people graduating now.
 
 ## What doesn't get automated
 
@@ -41,9 +41,9 @@ An assistant can help with each of these. It can't do them for you, because they
 
 ## The real risk: skipping the learning
 
-The thing I actually worry about isn't replacement. It's that students and juniors use these tools to skip the part where you learn.
+What scares me just as much is what we're doing to ourselves with the tools.
 
-If an assistant writes my code and I paste it in without understanding it, I've shipped something, but I haven't got any better. Do that for a year and I'm a person who can prompt but can't reason about what comes back. That person is genuinely replaceable, because the only skill they've built is the one the tool already has.
+If Claude writes an entire feature and I paste it in without understanding any of it, what exactly did I learn? I can say I shipped a feature. Great. Next week I'm still just as lost when something breaks. Repeat that for a year and I've basically trained myself to be a middleman between a prompt box and a repo.
 
 The uncomfortable truth is that struggling with a bug for an hour is often where the learning happens. Tools that remove the struggle also remove the lesson, unless you're deliberate about it.
 
@@ -63,7 +63,7 @@ Some of them, probably. I think the number of roles that consist of turning clea
 
 I don't think the junior role disappears, because the need for people who grow into seniors doesn't disappear. What changes is what a junior needs to bring: less raw typing speed, more understanding, more ability to check and question what a tool produces, and more of the communication and ownership that used to come later.
 
-That's a harder start than the one people a few years ahead of me had. It's also, honestly, a more interesting one.
+I'm not going to pretend that's exciting for every student staring at a hiring freeze. It's a worse entry point than the one we were promised, and I think we should be allowed to say that.
 
 ## Where this leaves me
 
@@ -72,6 +72,6 @@ That's a harder start than the one people a few years ahead of me had. It's also
 - Put real effort into fundamentals and reading code; that's where judgment comes from.
 - Look for teams that still invest in reviewing and mentoring juniors. An apprenticeship is worth more than a slightly higher first salary.
 
-I'd rather be the person who knows when the generated code is wrong than the person who can only generate it.
+I'd much rather be the annoying person in a code review who spots why the generated solution will fail than the guy who can produce ten more versions of it.
 
 *Update, October 2026: I revisited this after Claude Opus 5.5 came out, in [Opus 5.5 and the Junior Question, Seventeen Months Later](/blog/opus-5-5-and-the-junior-question/).*

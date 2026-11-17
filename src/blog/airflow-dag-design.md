@@ -4,7 +4,7 @@ date: 2026-09-21
 tags: ["post", "data-engineering", "airflow", "guides"]
 ---
 
-Airflow is a scheduler and orchestrator, not a processing engine. The DAGs that cause the fewest incidents keep the heavy lifting in the warehouse and use Airflow to decide **what runs, when, and in what order**.
+Airflow gets blamed for a lot of problems that really come from how people write DAGs. It isn't supposed to be your processing engine. It's supposed to tell other systems **what to run, when to run it and what depends on what**. If your DAG is dragging huge datasets through Python tasks, you've probably made life harder than it needs to be.
 
 
 <figure><img src="/img/blog/diagram-airflow.png" alt="Airflow DAG: sensor, extract, load, transform, checks" loading="lazy"><figcaption>The shape I aim for: each task owns one step and one data interval.</figcaption></figure>
@@ -23,7 +23,7 @@ def list_tables():
     return get_tables_from_db()
 ```
 
-Slow parsing is the most common reason a scheduler "feels stuck".
+If the scheduler feels randomly stuck, look here first. A database call at the top of a DAG file is not a harmless bit of setup code when the scheduler keeps importing that file.
 
 ## 2. One task, one job, safe to retry
 
@@ -59,11 +59,11 @@ claims_daily()
 
 ## 3. Use the run's window, never `now()`
 
-Every DAG run has a `data_interval_start` and `data_interval_end`. Use them, and reruns and backfills just work. `datetime.now()` inside a task means a rerun on Tuesday processes Tuesday, not the Monday it was meant for.
+Every run already has a `data_interval_start` and `data_interval_end`. Use them. Calling `datetime.now()` from inside a task is how you end up rerunning Monday's failed job on Tuesday and accidentally loading Tuesday's data instead. Green task, wrong numbers. Lovely.
 
 ## 4. Decide on catchup on purpose
 
-`catchup=True` with an old `start_date` schedules every missed interval the moment you unpause. Leave it `False` unless you actually want a backfill, and run backfills deliberately.
+`catchup=True` plus an old `start_date` can queue every missed interval the moment you unpause the DAG. That's fine if you're deliberately backfilling. It's not fine if you just wanted today's run and accidentally queued six months of work.
 
 ## 5. Pass references, not data
 
@@ -75,7 +75,7 @@ Sensors that poke in `mode="poke"` hold a worker slot the whole time. Use `mode=
 
 ## 7. Let the warehouse do the work
 
-Pulling a million rows into a Python task to transform them is slower and more fragile than one SQL statement. Trigger the transform (a stored procedure, a `dbt build`, a MERGE) and let Snowflake run it.
+Please don't pull a million rows into an Airflow worker just to do something Snowflake could do in one query. Trigger the `MERGE`, stored procedure or `dbt build` and let the system built for processing data process the data.
 
 ## A pre-merge checklist
 
@@ -97,4 +97,4 @@ time python dags/load_orders.py
 airflow dags test load_orders 2026-09-21
 ```
 
-If the first command takes more than a second or two, something at the top of the file is calling a database or an API. Move it inside a task.
+If importing the DAG takes ages, inspect the top-level code before touching scheduler settings. A stray API or database call there can slow down far more than this one DAG.

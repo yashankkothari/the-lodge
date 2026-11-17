@@ -4,7 +4,7 @@ date: 2025-10-18
 tags: ["post", "genai", "llms"]
 ---
 
-Every LLM project I start hits the same fork early: call a hosted API, or run an open-weight model myself. It's a trade-off across a handful of dimensions, and once you list them the answer for a given project is usually obvious.
+Every time I start messing with an LLM project, I end up asking the same thing: do I pay for an API or run a model myself? The internet turns this into a weird ideological war about open source and the future of AI. I'm mostly interested in what works, what it costs and whether I'm going to spend my weekend fixing GPU drivers.
 
 ## What the two camps actually are
 
@@ -12,11 +12,11 @@ Every LLM project I start hits the same fork early: call a hosted API, or run an
 
 **Open-weight models** publish their weights so you can download and run them: the Llama, Qwen, Mistral and Gemma families, among others. "Open-weight" is the honest term. Most of them don't release training data or the full training recipe, so they aren't open source in the sense the term usually carries for software.
 
-Neither group is uniformly better. The best closed models tend to lead on the hardest reasoning tasks, but the gap on everyday work like classification, extraction and summarisation is often small, and a well-chosen open model can be the better tool.
+People get unnecessarily tribal about this. A strong closed model will usually be easier to work with on difficult reasoning tasks. But if I'm extracting fields from documents or classifying messages, paying frontier-model prices may be a complete waste. It depends on the job.
 
 ## Privacy and data residency
 
-This is usually the first filter, and sometimes the only one that matters.
+This is the first thing I'd ask before looking at benchmark charts.
 
 With a closed API, your prompts leave your infrastructure. Providers offer enterprise terms, zero-retention options and regional hosting, and for many teams that's enough. For others, particularly anything touching financial, health or customer records, the policy answer is simply "data does not leave our network". In that case an open-weight model running on your own hardware or a private cloud deployment isn't a preference, it's the requirement.
 
@@ -27,7 +27,7 @@ The cost models are different in shape, not just size.
 - **Closed APIs** charge per token. Zero cost when idle, cost grows linearly with use.
 - **Self-hosted open models** cost roughly the same whether you send one request or a million, because you're paying for GPUs by the hour. Cheap per request at high, steady volume; expensive if the machine sits idle.
 
-A rough way to think about it: estimate monthly tokens, multiply by the API price, and compare that with the cost of the smallest GPU setup that can serve the model at the latency you need. At low volume the API almost always wins. At high, predictable volume, self-hosting starts to look attractive, provided someone is going to run it.
+Do the boring maths before saying self-hosting is cheaper. Estimate monthly tokens and the API bill. Then price the hardware, power, capacity and somebody's time to keep the thing alive. For a side project with sporadic traffic, an API is usually cheaper. If you're hammering a narrow task all day, the calculation can flip.
 
 ## Latency
 
@@ -37,7 +37,7 @@ Self-hosting gives you control: you can put a small model next to your applicati
 
 ## Quality
 
-Measure it on your task, not on a leaderboard. Build a small evaluation set (fifty to a few hundred real examples with known good answers) and run every candidate against it.
+Please stop choosing models from leaderboard screenshots. Give each candidate fifty to a few hundred real examples of *your* task and look at where it fails. A model that wins a reasoning benchmark might still be worse at reading your messy PDFs.
 
 What I usually find:
 
@@ -67,7 +67,7 @@ This is the dimension people underestimate. Running a model means:
 - handling scaling, monitoring, failover and upgrades
 - managing quantisation trade-offs between memory and quality
 
-An API call is one line of code and someone else's pager. If there's no one on the team who wants to own inference infrastructure, that's a strong vote for closed.
+An API call is a few lines of code and someone else's operational headache. That has value. If nobody wants to own the serving infrastructure, admit it before volunteering the whole team for a new side quest.
 
 ## How it plays out
 
@@ -84,9 +84,9 @@ No one to run infra?              -> closed API, or a managed host for open mode
 
 The last line matters: there's a middle path. Several providers host open-weight models behind an API, so you get the model choice and licence of open weights with per-token pricing and no GPUs to babysit.
 
-## The practical bit
+## What I'd do for a new project
 
-- Start with a closed API to prove the feature is worth building. It's the fastest way to learn what "good" looks like.
+- Start with a hosted API unless privacy rules or the workload say otherwise. First prove the feature is useful.
 - Build an evaluation set from day one, so switching models is a measurement rather than a debate.
 - Keep the model behind a thin interface in your code. Swapping providers or moving to a self-hosted model should be a config change, not a rewrite.
-- Revisit the choice when volume, data sensitivity or the model landscape changes. It isn't a decision you make once.
+- Revisit the choice when usage, privacy requirements or model quality changes. This isn't a lifelong commitment to a model family.

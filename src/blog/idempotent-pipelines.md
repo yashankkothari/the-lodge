@@ -4,9 +4,9 @@ date: 2026-08-14
 tags: ["post", "data-engineering", "guides"]
 ---
 
-A pipeline is **idempotent** when running it once or five times for the same input gives the same result. It is the single most useful property a batch job can have, because every job eventually gets rerun: a retry after a timeout, a backfill after a bug fix, someone clicking "Clear" in Airflow at 3 a.m.
+A data pipeline is going to get rerun. Maybe a task times out, maybe a backfill is needed, maybe someone clears an Airflow task at 3 a.m. If running the same input twice doubles your numbers, the pipeline was broken before anyone pressed that button.
 
-If a rerun doubles your revenue numbers, the pipeline is broken even when every task is green.
+That's why I care so much about **idempotency**: the same input should give the same result, whether the job runs once or five times. A green DAG means nothing if the report now shows twice the revenue.
 
 
 <figure><img src="/img/blog/diagram-idempotent.png" alt="Append vs delete-insert on a retry" loading="lazy"><figcaption>A retry is only safe when the write replaces the partition instead of adding to it.</figcaption></figure>
@@ -15,7 +15,7 @@ If a rerun doubles your revenue numbers, the pipeline is broken even when every 
 
 ### 1. Process a window, not "whatever is new"
 
-Bad: `WHERE loaded_at > (SELECT MAX(loaded_at) FROM target)`. The answer changes every time you run it.
+Bad: `WHERE loaded_at > (SELECT MAX(loaded_at) FROM target)`. Now the input depends on whatever happened in the previous run. Good luck reproducing a failure from last Tuesday.
 
 Good: every run owns a fixed, explicit window, such as one day, passed in from the scheduler. In Airflow that is the run's `data_interval_start` and `data_interval_end`. Rerunning the 7 October run always processes 7 October.
 
@@ -49,7 +49,7 @@ WHEN NOT MATCHED THEN INSERT (policy_id, status, premium, updated_at)
      VALUES (s.policy_id, s.status, s.premium, s.updated_at);
 ```
 
-`INSERT INTO ... SELECT` with no delete or key is the classic source of duplicates. Avoid it for anything that can be rerun.
+Blind `INSERT INTO ... SELECT` is fine until somebody retries the job and you get two copies of every row. If there's any chance of a rerun, think about the write semantics before celebrating a successful load.
 
 ### 3. Deduplicate the source before you merge
 
@@ -71,7 +71,7 @@ QUALIFY ROW_NUMBER() OVER (
 - Side effects (emails, API calls, file drops) live in their own task, so retrying the load doesn't resend them.
 - You've actually tested it: run the same day twice and compare row counts.
 
-Make this the default and backfills stop being scary.
+I'd much rather spend a little time getting the write pattern right now than be the person manually cleaning duplicate rows out of a production report later.
 
 ## Try it: break it, then fix it
 
@@ -85,4 +85,4 @@ python idempotent_demo.py idempotent
 
 <figure><img src="/img/blog/term-idem.png" alt="Terminal output: append doubles rows, idempotent load keeps 1,000" loading="lazy"><figcaption>Real output. The append run doubles to 2,000 rows on the retry; the idempotent run stays at 1,000.</figcaption></figure>
 
-Swap SQLite for Snowflake and the pattern is the same: `DELETE ... WHERE order_date = :ds` and `INSERT` inside one transaction, or a `MERGE` on the business key.
+The demo uses SQLite because it's easy to run locally. On Snowflake, the same principle applies: `DELETE ... WHERE order_date = :ds` and `INSERT` in one transaction, or `MERGE` using a real business key. Different database, same requirement: a retry shouldn't rewrite history by accident.

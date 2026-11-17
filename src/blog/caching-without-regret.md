@@ -4,9 +4,9 @@ date: 2026-06-13
 tags: ["post", "backend", "guides"]
 ---
 
-Caching is the fastest way to make a slow system feel quick, and one of the fastest ways to make a correct system wrong. The speed-up is immediate. The bugs show up weeks later, when someone asks why the dashboard still shows yesterday's number.
+Caching is one of those things that looks like a free performance win right up until someone asks why your app is showing yesterday's data. Redis makes a slow page fast. It can also make an incorrect answer really fast, which is somehow worse.
 
-This is the set of patterns I reach for with Redis, and the questions I try to answer before adding a cache at all.
+Here's how I think about caching with Redis, including the part everyone likes to skip: how that cached value eventually stops being true.
 
 ## Start with the question
 
@@ -16,7 +16,7 @@ Before writing any code, answer three things:
 - **How expensive is a miss?** A cache in front of a 5 ms query buys you little. A cache in front of a heavy aggregation or a slow third-party API buys a lot.
 - **How is it read?** Lots of reads of the same keys is ideal. Every request hitting a unique key means your hit rate will be poor.
 
-If the answers aren't good, a cache adds complexity without much benefit.
+If you don't have good answers to those questions, you probably don't need Redis yet. "We added a cache" isn't a performance metric.
 
 ## Cache-aside: the default pattern
 
@@ -39,11 +39,11 @@ def get_user(user_id: int) -> dict:
     return user
 ```
 
-It's simple, the cache only holds data that's actually requested, and if Redis goes down the application can still fall back to the database. The downside is that the first request after expiry always pays the full cost.
+This is why I like cache-aside as a starting point. You're only caching things people actually ask for. The application can also fall back to the database if Redis is unavailable, assuming you've built that fallback. The trade-off is that the first request after expiry still has to do the slow work.
 
 ## TTLs are your safety net
 
-Always set a **TTL** (time to live). Even if you have an explicit invalidation path, a TTL bounds how long a bug can keep wrong data alive. A missed invalidation with a 10-minute TTL is an annoyance. A missed invalidation with no TTL is a support ticket next month.
+Set a **TTL**. Even if you swear you've handled every invalidation path, set one. A missed deletion with a ten-minute TTL is an irritating bug. A missed deletion with no expiry is the kind of bug that quietly survives until somebody compares two reports a month later.
 
 ## Invalidation
 
@@ -62,7 +62,7 @@ def update_user(user_id: int, fields: dict) -> None:
 
 Update the database first, then delete. If you delete first, a concurrent read can repopulate the cache with the old value before your write lands.
 
-The hard part of invalidation is knowing **which keys** depend on a piece of data. A user's profile might be cached under `user:42`, inside a team listing, and inside a search result. Keep key naming consistent and the dependency map written down, or you'll miss one.
+The horrible part is remembering everywhere that data appears. A user profile can be cached as `user:42`, buried in a team listing and copied into a search response. If you can't explain which keys depend on a write, you haven't solved invalidation just because you added `r.delete()` once.
 
 ## Stampedes
 
@@ -142,11 +142,11 @@ Combine this with the lock so only one background refresh runs per key.
 - **Huge values.** Large blobs slow down Redis and the network. Cache an ID or a summary instead.
 - **Errors**, unless deliberately. Caching a failed lookup for a few seconds can protect a struggling dependency, but caching it for an hour hides recovery.
 
-Also set a memory limit and an eviction policy (`maxmemory` and `maxmemory-policy`, such as `allkeys-lru`), so Redis degrades predictably when it fills up.
+Set `maxmemory` and an eviction policy such as `allkeys-lru`, too. Redis filling up should be something you planned for, not a surprise incident.
 
 ## Before you ship the cache
 
 - Write down the acceptable staleness for each cached thing, and set TTLs from it.
 - Update the source first, then delete the key.
 - Add jitter to TTLs and a lock or stale-while-revalidate for expensive, popular keys.
-- Track hit rate and miss latency. If the hit rate is low, the cache is probably costing more than it saves.
+- Track hit rate and miss latency. If almost everything misses, congratulations, you've added an extra network call to a slow endpoint.

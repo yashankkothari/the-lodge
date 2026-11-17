@@ -4,15 +4,15 @@ date: 2026-01-24
 tags: ["post", "essays", "ai-philosophy"]
 ---
 
-We have spent most of history using confidence as a shortcut for knowledge. The doctor who speaks without hesitating, the senior engineer who says "that'll never scale" and turns out to be right, the friend who knows the way without checking a map. We can't verify everything ourselves, so we read the signals people give off, and certainty is one of the strongest.
+We're embarrassingly easy to impress with confidence. Someone says something in a calm, authoritative voice and half the room decides they must know what they're talking about. Usually there's at least a chance that confidence came from experience.
 
-Large language models have broken that shortcut, and I don't think we've fully adjusted.
+LLMs have made that shortcut almost useless. And I don't think people have caught up.
 
 ## Fluency is not evidence
 
 An LLM generates text by predicting likely next tokens. The tone of its answer comes from the same process as the content. It sounds confident because confident, well-structured prose is what most of its training text looks like, not because it has checked anything.
 
-So a correct answer and an invented one arrive in the same voice. Same tidy paragraphs, same reasonable caveats in the same places, same "Here's how it works." A fabricated citation is formatted as carefully as a real one. A function that doesn't exist in the library is called with the right-looking arguments.
+That's the problem. A real citation and a completely made-up one get the same formatting. A library function that doesn't exist comes with plausible arguments and a friendly explanation. The answer can be nonsense and still look like it belongs in documentation.
 
 With people, tone and accuracy are at least loosely linked. Someone who is bluffing often gives it away. With a model, the link is much weaker, and the signal we've relied on for centuries becomes noise.
 
@@ -36,11 +36,11 @@ Neither is calibrated trust. Calibrated trust would mean knowing *which kinds* o
 
 ## What it does to expertise
 
-There's a quieter effect on how expertise works.
+This bothers me even more when it comes to learning.
 
 An expert using an LLM can spot a wrong answer quickly, because they already know roughly what right looks like. For them the model is a fast first draft. A beginner can't do that. They get the same confident output and have no way to tell good from bad, which is exactly the situation where confidence used to be the only signal they had.
 
-So the tool is most reliable in the hands of people who need it least, and riskiest for the people who lean on it most. As a student, I've felt this directly: it is very easy to accept a plausible explanation of something I don't yet understand, and much harder to notice when it's subtly wrong.
+The annoying irony is that the people who can check an LLM's work are usually the people who already know the subject. When I was studying something new, I could read a perfectly convincing explanation and have absolutely no clue which sentence was wrong. That's not learning. That's being handed confidence on credit.
 
 There's also the question of how expertise gets built in the first place. A lot of it comes from struggling with problems, being wrong and working out why. If a machine always supplies a fluent answer, it's easy to skip the struggle and never build the judgement needed to check the machine. I don't think that's inevitable, but it's a habit I watch for in myself.
 
@@ -54,8 +54,8 @@ Users can learn to be sceptical, but I don't think the burden should sit mainly 
 - **Match the stakes.** A wrong film recommendation costs nothing. A wrong dosage, legal claim or financial figure costs a lot. Put human review and hard checks where the cost of a confident mistake is high.
 - **Evaluate on hard cases.** Average accuracy hides the confident failures. Test specifically on the out-of-distribution questions where the model is likely to bluff.
 
-## A different habit of reading
+## What I trust instead
 
-The old instinct says: it sounds sure, so it probably knows. The new habit has to be: it sounds sure, and that tells me nothing on its own. What tells me something is a source I can open, a test that passes, a number I can recompute, or my own understanding of the subject.
+When a model tells me something, I want the documentation link, the failing test, the query result or a number I can check myself. "It sounded confident" is not evidence. We wouldn't accept that from a junior engineer in a code review. Why are we accepting it from software?
 
-That's more work. But confidence was always a proxy. These machines have just made it obvious how much we were leaning on it.
+Yes, checking takes more time. So does cleaning up after a decision you made because a chatbot wrote it in a reassuring tone.

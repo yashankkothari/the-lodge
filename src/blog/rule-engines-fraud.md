@@ -4,15 +4,15 @@ date: 2025-07-26
 tags: ["post", "backend", "guides"]
 ---
 
-When people hear "fraud detection" they usually picture a machine learning model scoring every transaction. Models are a big part of it. But in most real payment systems there's also a **rule engine** sitting in the path of every transaction, and it isn't going away.
+You'd think fraud detection had become entirely an ML problem from the way people talk about it. Train a model, score transactions, call it intelligent. But payment systems still rely heavily on plain old **rule engines**, and after looking into them I understand why.
 
-I spent this summer as an AI/ML intern at Card91, where I researched fraud detection and evaluated the open-source **Tazama** fraud engine. Reading through its rule logic made it much clearer to me why rules and models end up working side by side.
+During my AI/ML internship at Card91, I researched fraud detection and evaluated the open-source **Tazama** engine. Digging through its rules made me appreciate just how much value there is in logic that a human can actually read, test and explain.
 
 ## What a rule engine does
 
 A rule engine evaluates each transaction against a set of explicit conditions: "more than five transactions from this card in ten minutes", "amount far above this customer's usual spend", "card used in two distant cities within an hour". Each rule produces a result, the results are combined, and the system decides whether to allow, block, or flag the transaction for review.
 
-The logic is written by people, readable by people, and changed by people. That's both the point and the limitation.
+You can point to the exact rule that fired and explain it to another human. That matters a lot when someone's card has just been declined. Of course it also means you need people to maintain the rules as fraud patterns change.
 
 ## Why rules haven't been replaced by ML
 
@@ -76,7 +76,7 @@ Keeping rules pure (no database calls inside, context passed in) makes them easy
 
 ## False positives are the real cost
 
-A rule that blocks all fraud is easy: decline everything. The hard part is **false positives**, legitimate customers getting blocked. Each one is a frustrated customer, a support call, and sometimes a lost customer.
+Want a fraud system that never allows a fraudulent payment? Decline every transaction. Obviously that isn't a business. The difficult part is controlling **false positives**: actual customers getting blocked because your system thought their perfectly normal purchase looked suspicious.
 
 Some things that help:
 
@@ -109,11 +109,11 @@ def test_velocity_ignores_old_txns():
 
 Beyond unit tests, the useful habit is **backtesting**: run a new or changed rule over historical transactions before deploying it, and see how many it would have flagged. When porting rules between languages, comparing outputs from the old and new implementations on the same inputs is the quickest way to catch behaviour that drifted in translation.
 
-## The short version
+## Where I landed
 
 - Use rules for what must be certain, fast and explainable; use models for subtle patterns.
 - Write each rule as a small pure function that returns a reason, not just a boolean.
 - Prefer graduated outcomes and combined signals over single hard blocks.
 - Test boundaries explicitly, and backtest before every rule change.
 
-Rules aren't the old way of doing fraud detection. They're the part of the system you can read, and that matters more than it sounds.
+I don't see rules and ML as competing approaches anymore. Models can catch complicated patterns. Rules give you direct control over the cases where you need a clear, auditable reason. Dismissing the second one because it isn't fashionable AI would be a mistake.

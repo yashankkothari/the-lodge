@@ -4,9 +4,9 @@ date: 2024-10-19
 tags: ["post", "essays", "ai-philosophy"]
 ---
 
-I first came across the Chinese Room as a neat puzzle from 1980. Then I spent two years watching chatbots get good enough that my classmates now argue about whether they "understand" anything, and the puzzle stopped feeling academic.
+I used to think the Chinese Room was one of those philosophy problems you read for an exam and promptly forget. Then ChatGPT got good enough that people around me started arguing about whether it actually *understands* anything. Suddenly the thought experiment didn't feel so pointless.
 
-This post is me working through the argument again, with a large language model open in another tab. I don't reach a verdict. I'm not sure anyone honestly can yet.
+I went back to Searle's argument with an LLM open in the next tab. I still don't have a neat answer, which is annoying, but probably more honest than pretending this was settled in 1980.
 
 ## The argument
 
@@ -18,11 +18,11 @@ The target was what he called **strong AI**: the claim that a suitably programme
 
 ## The systems reply
 
-The most common response, and the one I find most tempting, is the **systems reply**. Of course the person doesn't understand Chinese. Neither does a single neuron in your head understand English. Understanding, if it exists, belongs to the whole system: the person, the rulebook, the paper, the process.
+The response I keep coming back to is the **systems reply**. Fine, the person doesn't understand Chinese. A single neuron in my brain doesn't understand English either. Maybe understanding belongs to the whole setup: person, rulebook, paper, process. Why are we insisting the person alone has to be the one who understands?
 
 Searle's answer was blunt. Let the person memorise the entire rulebook and do everything in their head. Now they *are* the whole system, and they still don't understand Chinese. So the systems reply fails.
 
-I've never found that fully convincing. Someone who had genuinely internalised a rulebook capable of fluent Chinese conversation would be running something very unlike "following instructions" as we normally picture it. Our intuitions about what that person would or wouldn't understand are built for small, slow cases. The thought experiment asks us to trust them at a scale where they may simply not apply.
+This is where he loses me a bit. Someone who has memorised a rulebook sophisticated enough to hold any conversation in Chinese isn't really the person I was imagining at the start. We take an intuition that works for following a few rules on paper and stretch it to a ridiculously complicated system. I'm not convinced that intuition survives the trip.
 
 But "your intuition might be wrong" is not the same as "you are wrong".
 
@@ -36,7 +36,7 @@ A few things feel different, though.
 
 **The behaviour generalises.** These models handle prompts nobody has written before. They translate, explain jokes, write code for problems that don't appear in their training data verbatim. That makes the room harder to dismiss as a trick.
 
-**The failures are strange.** The same model that explains a subtle proof will confidently invent a citation or fumble a simple counting task. To me that looks less like a mind and more like a very powerful pattern engine with no stable sense of what is true.
+**The failures are ridiculous.** It can explain an obscure proof and then invent a paper with a perfectly formatted citation. It can write a program and mess up a trivial count. I find it hard to call something that behaves like that a reliable knower of facts, however good the prose sounds.
 
 ## What doesn't change
 
@@ -52,8 +52,8 @@ Some honest positions I hold loosely:
 - **"It obviously understands" is also too fast.** Fluency is what these systems are optimised for. Being impressed by fluency is the one test they were built to pass.
 - **The word "understand" is doing too much work.** It bundles together reliable use of concepts, grounding in the world, and subjective experience. LLMs may have some of the first, little of the second, and we have no idea how to measure the third.
 
-Splitting the word apart is the most useful thing I've taken from rereading Searle. The question "does it understand?" is almost unanswerable. Questions like "does it track the truth?", "does it connect words to the world?", and "is there anything it is like to be it?" are at least ones we can argue about separately.
+That's the part of the argument I find useful now. "Does it understand?" gets us a thousand hot takes and very little clarity. "Can it tell what's true?" and "Does it connect its words to anything outside text?" are questions we can actually test or disagree about without talking past each other.
 
-## The short version
+## What I actually take from it
 
-If you build things with these models, the practical stance is simple: treat the output as fluent text that needs checking, not as the words of something that knows what it's saying. That holds whichever side of the philosophy turns out to be right. The philosophical question is still open, and I'd be suspicious of anyone, on either side, who tells you it's settled.
+For now, if I'm building with one of these models, I treat its output as something to verify. Not because I've proved it has no understanding, but because a beautifully phrased wrong answer is still wrong. I'm equally suspicious of people declaring LLMs conscious and people confidently declaring the entire question stupid. Neither camp has earned that certainty.

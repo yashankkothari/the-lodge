@@ -4,7 +4,9 @@ date: 2026-09-02
 tags: ["post", "data-engineering", "dbt", "guides"]
 ---
 
-A `table` model rebuilds everything on every run. That's simple and correct, and it's the right default until the table gets big. An **incremental** model processes only new or changed rows and merges them into what's already there. It's faster and cheaper, and it's also where most dbt bugs live.
+I like a boring dbt `table` model. Every run rebuilds the result, so you don't have to wonder whether yesterday's logic is still sitting in some old row. Then the table gets big, runs get expensive, and someone says "let's make it incremental". Fair enough. Just know you're trading that simplicity for a bunch of ways to silently miss data.
+
+An **incremental** model only processes new or changed rows and merges them into the existing table. This is how I'd set one up on Snowflake without making reruns a nightmare.
 
 
 <figure><img src="/img/blog/diagram-dbt-incr.png" alt="dbt incremental flow on Snowflake" loading="lazy"><figcaption>What <code>dbt run</code> does on every run after the first.</figcaption></figure>
@@ -41,7 +43,7 @@ What each piece does:
 - **`unique_key`** tells dbt how to match incoming rows to existing ones. Without it, the merge becomes a plain append and reruns create duplicates.
 - **`incremental_strategy = 'merge'`** is the default on Snowflake. It's written out here so nobody has to wonder.
 - **`is_incremental()`** is false on the first run and on `--full-refresh`, so the filter only applies once the table exists.
-- **The 3-day lookback** catches late-arriving rows. Filtering on exactly `> max(updated_at)` silently drops any record that lands after a later one has already been loaded.
+- **The 3-day lookback** is there because real data doesn't arrive neatly in order. Filtering on exactly `> max(updated_at)` will miss late updates. The window has to be wide enough for your actual source, not just the example here.
 
 ## Things that bite
 
@@ -62,11 +64,11 @@ models:
           - not_null
 ```
 
-A `unique` test on the `unique_key` is the cheapest insurance you can buy for an incremental model. It fails the build the first time a duplicate slips through.
+That `unique` test is not optional decoration. If you're merging on `claim_id`, you'd better know when `claim_id` stops being unique. The test is much cheaper than finding duplicate claims downstream.
 
 ## When to go incremental
 
-Stay on `table` until a full rebuild is noticeably slow or expensive. Incremental models trade simplicity for speed, so make the trade only when you need to.
+If a full rebuild still finishes quickly and costs next to nothing, leave it alone. You don't win anything by making your data pipeline more complicated just because incremental models sound more advanced.
 
 ## Try it locally with DuckDB
 
@@ -82,4 +84,4 @@ Add a two-line `dbt_project.yml` (name and profile) and a `profiles.yml` with `t
 
 <figure><img src="/img/blog/term-dbt.png" alt="Two dbt runs: 1,000 rows, then 1,200 rows with 10 refunded" loading="lazy"><figcaption>Real output from the two runs. Changed rows were merged in place and new rows appended, with no duplicates.</figcaption></figure>
 
-Open `target/compiled/.../fct_events.sql` after the second run and you'll see the `where updated_at > (select max(updated_at) - interval 3 day ...)` filter that `is_incremental()` switched on. When you move to Snowflake, only the profile changes.
+Open `target/compiled/.../fct_events.sql` after the second run. You'll actually see the `where updated_at > (select max(updated_at) - interval 3 day ...)` filter switched on by `is_incremental()`. I find looking at the SQL dbt generated more useful than guessing what a config option did. The example uses DuckDB; the Snowflake version needs its own profile and adapter settings.

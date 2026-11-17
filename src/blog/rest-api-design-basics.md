@@ -4,9 +4,9 @@ date: 2024-11-23
 tags: ["post", "backend", "guides"]
 ---
 
-Most APIs I've written for college projects worked. Few of them were pleasant to use. The difference is a handful of conventions that cost nothing to follow once you know them, and a lot to retrofit once a frontend depends on your mistakes.
+I wrote plenty of APIs in college that technically worked and were still horrible to use. Routes with random names, errors that always returned `200`, and response shapes that changed depending on which endpoint I'd written that week. The frontend eventually has to deal with all of that nonsense.
 
-This is the checklist I now run through before writing a single route.
+Most of the fixes aren't complicated. They're just much easier to get right before people start depending on the API.
 
 ## Model resources, not actions
 
@@ -21,7 +21,7 @@ DELETE /notes/42         delete it
 GET    /notes/42/comments  comments belonging to note 42
 ```
 
-Avoid `/getNotes`, `/createNote`, `/deleteNoteById`. They duplicate what the method already says and make the surface area grow with every feature.
+Please don't create `/getNotes`, `/createNote` and `/deleteNoteById` if the HTTP method is already doing that job. You end up inventing a naming convention for something HTTP already has one for.
 
 Some operations genuinely aren't CRUD, like "publish this note" or "send a password reset". It's fine to model those as a sub-resource or an action endpoint (`POST /notes/42/publish`). Just keep them the exception.
 
@@ -45,7 +45,7 @@ Status codes let clients handle results without parsing your message strings. Th
 | `429 Too Many Requests` | Rate limited; send `Retry-After` |
 | `500 Internal Server Error` | Your bug, not theirs |
 
-The one rule I'd enforce above all: **never return `200` with `"success": false` in the body.** It breaks every HTTP client, proxy and monitoring tool that trusts the status line.
+My pet peeve: returning **`200` with `"success": false`**. You've told every HTTP client, proxy and monitoring system that the request succeeded, and hidden the failure in a JSON field. Just send the correct status code.
 
 ## Make error bodies consistent
 
@@ -110,7 +110,7 @@ Content-Type: application/json
 { "amount": 49900, "currency": "INR" }
 ```
 
-The server stores the key with the result. If the same key arrives again, it returns the stored response instead of doing the work twice. A few details matter: scope keys per user, expire them after a reasonable window, and reject a reused key that comes with a *different* body.
+The server stores the key with the result. If the same request arrives again, it returns the stored response instead of charging the customer twice. Scope keys per user, expire them after a sensible period and reject a reused key with a different request body. This is the kind of detail that looks unnecessary until a flaky connection charges somebody twice.
 
 ## Version deliberately
 
@@ -129,4 +129,4 @@ Whichever you choose, the bigger discipline is **not breaking things inside a ve
 - Accept an `Idempotency-Key` on any `POST` that moves money or sends messages.
 - Put `/v1` in the URL now, and treat every field you ship as a promise.
 
-None of this is clever. That's the point: a boring, predictable API is the one people enjoy integrating with.
+I don't want an API to be clever. I want to know what it'll return without opening the backend code every time. Predictability is underrated when somebody else has to integrate with your work.

@@ -4,9 +4,9 @@ date: 2026-04-25
 tags: ["post", "essays", "ai-philosophy"]
 ---
 
-"Helpful, honest, harmless" is a good slogan. It is also useless to a compiler. Nobody writes `if harmful: don't()`. What engineers actually write are prompts, filters, thresholds, test sets and fallback paths, and every one of those is a small, concrete guess about what the slogan means.
+AI companies love saying their models are "helpful, honest and harmless". Nice words. Completely useless when you're the engineer who has to make the actual product behave. You can't ship `if harmful: don't()` and call it alignment.
 
-I've been thinking about this while working on data pipelines that sit near language models. The interesting part of alignment, for most of us, isn't the research on how models are trained. It's the layer we own: the code that decides what the model sees, what it's allowed to say back, and how we know whether it's behaving.
+In the code you write prompts, filters, thresholds, tests and fallback paths. Each one is your interpretation of what "safe" should mean. I've been thinking about that while working around data pipelines and LLMs. Most of us aren't training frontier models. We still have to answer for the behaviour of the systems we put in front of users.
 
 ## Values are not specs
 
@@ -14,7 +14,7 @@ A value is something like "don't mislead the user". A spec is something a test c
 
 The gap between those two is where most of the work happens. The value is broad and the spec is narrow. Every spec you write covers some of the value and misses the rest, and the bits you miss are exactly the ones nobody tested.
 
-This isn't a new problem. Requirements documents have always been lossy translations of what a business actually wants. The difference with language models is that the system will happily fill the gaps with plausible behaviour, so the missing parts don't fail loudly. They just quietly do something you didn't intend.
+Bad requirements aren't new. The difference is that an ordinary program often throws an error when you haven't accounted for something. An LLM will happily improvise and make the mistake sound intentional. I'd much rather have a loud failure than a plausible lie in production.
 
 ## Refusals are a product decision
 
@@ -29,11 +29,11 @@ So refusal logic deserves the same scrutiny as any other branch in your code:
 - Is there a path to a human or a different tool?
 - How often does it fire on legitimate requests?
 
-That last question is the one teams forget to measure.
+That last question tends to disappear from the dashboard. It's easy to report how many dangerous requests you blocked. It's less flattering to report how many legitimate customers you made miserable.
 
 ## Guardrails are just code
 
-A **guardrail** is a check before or after the model call. Input checks catch things you never want sent (personal data, credentials, prompt injection patterns). Output checks catch things you never want shown (unsupported numbers, leaked system text, malformed JSON).
+A **guardrail** is code around a model call. Before the call, you might catch personal data, credentials or obvious prompt-injection attempts. After it, you might catch unsupported numbers, leaked system text or broken JSON. Calling it a guardrail doesn't make it infallible.
 
 ```python
 def answer(question: str, docs: list[str]) -> str:
@@ -81,7 +81,7 @@ None of this solves Goodhart. It just makes it slower and easier to notice.
 
 It's tempting to treat alignment as someone else's job: the model provider trained it, so it's aligned. But the provider can't know your users, your data or your failure modes. Whatever general behaviour a model has, the system you ship is a combination of that model and your choices about context, checks and fallbacks.
 
-That's the part I find motivating. You don't need to understand every detail of how a model was trained to make the system around it more honest. You need clear specs, measured guardrails and evals that test the uncomfortable cases.
+I actually like that part of the work. I can't change how the provider trained its model. I can decide what my application does when the model makes up a number, refuses a legitimate request or ignores the context. Those are engineering problems. We should stop treating them like PR statements.
 
 ## What I'd actually do on Monday
 

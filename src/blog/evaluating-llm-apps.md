@@ -4,7 +4,9 @@ date: 2026-10-08
 tags: ["post", "genai", "llms", "guides"]
 ---
 
-A data pipeline without tests breaks quietly. An LLM feature without evaluations breaks quietly *and* changes behaviour whenever someone edits a prompt or the provider ships a new model version. The fix is the same discipline data engineers already use: a fixed dataset, automated checks and a number you watch.
+I wouldn't ship a data pipeline with zero tests and then act surprised when the numbers go wrong. Yet people will put an LLM into production, test three prompts by hand, and call it good. Then somebody changes one sentence or the model gets updated and the whole feature behaves differently.
+
+If it's part of a real product, it needs **evals**. Not a fancy benchmark leaderboard. Your actual inputs, expected behaviour and a test that runs when something changes.
 
 
 <figure><img src="/img/blog/diagram-evals.png" alt="Evals in CI: golden set, run, graders, scores, gate" loading="lazy"><figcaption>Evals as a pipeline step that can fail the build.</figcaption></figure>
@@ -13,7 +15,7 @@ A data pipeline without tests breaks quietly. An LLM feature without evaluations
 
 Collect 50–200 real inputs: actual user questions, real documents, messy edge cases. For each, write down what a good output looks like. That could be an exact label, a required fact, or a short rubric. Version it in git next to the prompts.
 
-Start small. Thirty well-chosen examples beat none.
+Don't get stuck designing the perfect benchmark. Thirty ugly real-world examples are a better start than another week of prompt tweaking.
 
 ## 2. Use the cheapest check that works
 
@@ -25,7 +27,7 @@ In order of preference:
 
 ## 3. Score the parts separately
 
-For a RAG app, a single "quality" number hides the cause. Track retrieval (did the right chunk come back?), faithfulness (does the answer stick to the sources?) and answer quality on their own. For an agent, track task success, steps and cost per task.
+One "AI quality" score tells you almost nothing when something breaks. For RAG, I want to know whether retrieval found the right document *before* I blame the model for its answer. For agents, I care whether the task finished, how many steps it needed and what it cost.
 
 ## 4. Run evals like CI
 
@@ -55,7 +57,7 @@ Every prompt edit, model upgrade or retrieval change runs the suite. A drop in a
 
 Quality is one axis. A change that improves accuracy by two points but doubles latency or cost per request is a trade-off, not a win. Put all three on the same dashboard.
 
-The teams that ship reliable GenAI features aren't the ones with the cleverest prompts. They're the ones that can tell, within minutes, whether a change made things better or worse.
+If someone asks "did the new prompt actually improve anything?" and your answer is "it feels better", you don't have an evaluation process yet.
 
 ## Try it: a five-question eval that fails
 
@@ -69,4 +71,4 @@ python eval_demo.py
 
 <figure><img src="/img/blog/term-evals.png" alt="Eval output: 2 of 5 pass, gate fails" loading="lazy"><figcaption>Real output. The small model scored 2/5 and the gate blocked the merge.</figcaption></figure>
 
-This is the eval working, not breaking. It caught a model inventing a port number, contradicting a basic SQL fact, and running past the length budget. Swap in a bigger model or a better prompt, rerun, and you have a number to compare instead of a feeling.
+The model got 2/5. Good. The test caught it inventing a port number, getting a basic SQL fact wrong and ignoring the length limit. Now I can try a better prompt or a bigger model and see if it actually helps. That's a lot more useful than posting the one good answer it happened to generate.

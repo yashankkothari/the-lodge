@@ -4,16 +4,16 @@ date: 2026-03-14
 tags: ["post", "genai", "llms", "guides"]
 ---
 
-When an LLM doesn't do what you want, there are three main levers: change the prompt, give it better context with retrieval, or change the model itself with fine-tuning. They get discussed as if they compete. They don't. They fix different problems, and picking the wrong one is an expensive way to not solve yours.
+Every time an LLM gives a bad answer, somebody suggests fine-tuning. Somebody else says RAG. Half the time the prompt just wasn't clear. These aren't rival technologies. They're three different fixes for three different kinds of problems, and reaching for the fanciest one first is an excellent way to waste money.
 
 ## The one distinction that matters
 
-Before anything else, ask whether the problem is about **knowledge** or **behaviour**.
+Before installing another framework, ask one question: is the model missing **information**, or is it behaving badly with information it already has?
 
 - **Knowledge**: the model doesn't know something. Your internal docs, last week's policy change, a customer's order history.
 - **Behaviour**: the model knows enough but responds the wrong way. Wrong format, wrong tone, ignores a rule, too verbose, inconsistent at a narrow task.
 
-Retrieval mostly fixes knowledge. Fine-tuning mostly fixes behaviour. Prompting can help with both, a bit, and it's nearly free, so it always comes first.
+If it doesn't have your internal policy document, tweaking its personality won't help. If it has the right document but keeps ignoring your output format, building a vector database won't fix that either. I'd try a better prompt first because it costs almost nothing.
 
 ## Prompting
 
@@ -59,7 +59,7 @@ Cost: an embedding model, a vector store (or a search engine you already run), a
 
 Data needed: your documents. No labelled examples required to get started, though you'll want some question–answer pairs to evaluate retrieval quality.
 
-Where it struggles: most RAG failures are retrieval failures. If the right chunk isn't found, the model can't use it. Bad chunking, weak queries and missing metadata cause more trouble than the choice of model. Hybrid search (keyword plus embeddings) and reranking help a lot.
+Where it falls apart: retrieval gets the wrong chunk and everyone blames the LLM. I've seen people spend ages tuning the generator while their search step is feeding it irrelevant paragraphs. Fix the chunking, queries and metadata first. Hybrid search and reranking are often worth more than a model swap.
 
 ## Fine-tuning
 
@@ -85,11 +85,11 @@ Why it matters in practice:
 
 Cost: preparing data is usually the biggest cost, followed by training runs, evaluation and hosting the tuned model. Data needed: hundreds to thousands of good input–output examples, consistent and representative. Fifty sloppy examples will teach the model to be sloppy.
 
-The hidden cost is maintenance. When a better base model comes out, you retrain. When requirements change, you rebuild the dataset.
+And now you own a training dataset forever. New base model? Retrain. Requirements changed? Update the examples. Fine-tuning isn't a one-off command you get to forget about.
 
 ## They combine
 
-These aren't exclusive. A common mature setup is a model fine-tuned for format and domain behaviour, fed by RAG for current facts, with a solid prompt holding it together. But each layer should earn its place.
+You can use all three together. Sometimes that's the right design. But if you're adding RAG, fine-tuning and an elaborate agent workflow to answer a question that fits in one prompt, you've built yourself a problem.
 
 ## A decision checklist
 
@@ -103,9 +103,9 @@ Work through these in order:
 6. **Is cost or latency the problem at high volume on a narrow task?** A small model fine-tuned with LoRA may beat a large one.
 7. **Do I have an evaluation set to prove each change helped?** Without it, none of these decisions are measurable.
 
-## In short
+## My default order
 
-- Prompt first. It's cheap and fast, and often enough.
+- Fix the prompt before spending money on infrastructure or training.
 - Knowledge problem: retrieve. Behaviour problem: fine-tune.
 - Spend effort on retrieval quality before blaming the model.
-- Fine-tune only with good data and an eval set, and prefer LoRA unless you have a reason not to.
+- Don't fine-tune without good examples and a way to measure the result. Start with LoRA unless you have a reason not to.

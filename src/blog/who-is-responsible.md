@@ -4,9 +4,9 @@ date: 2026-07-25
 tags: ["post", "essays", "ai-philosophy"]
 ---
 
-A model gives a wrong answer. Someone acts on it. Something goes badly. Then comes the question every organisation eventually has to answer: whose fault was that?
+A model makes something up, an employee trusts it, and a customer gets hurt. Now everyone involved wants to explain why it was technically somebody else's fault.
 
-The easy answers are all partly true and all incomplete. The model maker trained it. The team that built the product chose how to use it. The user clicked accept. The organisation decided to deploy it. Responsibility gets spread so thin across these parties that it can end up resting nowhere, or resting entirely on whoever happened to be standing closest.
+The model company points at the product team. The product team points at the employee who clicked approve. Management points at the policy that says "human in the loop". Somehow we end up with a long chain of people who had a hand in the system and nobody who wants to own the outcome.
 
 ## The usual suspects
 
@@ -26,7 +26,7 @@ Her examples came from aviation and other automated systems, where operators wer
 
 ## Human-in-the-loop as a liability sponge
 
-"Human in the loop" is usually presented as a safety feature. Sometimes it is. Sometimes it's mainly a way to move liability.
+I get suspicious whenever somebody says "there's a human in the loop" as though that sentence automatically makes the system safe. Sometimes it means a real person can stop a bad decision. Sometimes it means a person is there so somebody can be blamed afterwards.
 
 A human check only means something if the human has:
 
@@ -35,7 +35,7 @@ A human check only means something if the human has:
 - **Real authority** to disagree without being penalised for slowing things down.
 - **Feedback** on whether their past decisions were right.
 
-Take any of these away and the human becomes a rubber stamp with a name attached. The loop exists on paper, the accountability lands on a person, and the system keeps making the same mistakes because nobody upstream hears about them.
+Take those away and you've built a rubber stamp that happens to have an employee ID. The company gets to say a human approved it. The human gets the blame. The flawed workflow gets to continue untouched.
 
 Automation bias makes this worse. People tend to trust automated suggestions, especially when they're usually right. A system that is correct most of the time trains its reviewers to stop looking closely, which is exactly when the rare error slips through.
 
@@ -63,11 +63,11 @@ reviewer           -> user_id, time_on_screen=14s
 final_action       -> approved
 ```
 
-That fourteen-second review tells you more about where responsibility sits than any policy document. If the system routinely gets fourteen seconds of human attention, the organisation has decided, in practice, that the model is making the call.
+Fourteen seconds. That's how long the supposed safety check took. You can write fifty pages of AI governance policy, but if your reviewers are being given fourteen seconds per decision, the model is making the call. Let's at least be honest about that.
 
 ## Responsibility follows control
 
-The principle I keep coming back to is simple: **responsibility should follow control**. Whoever had the power to prevent a failure, and the information to see it coming, carries the most responsibility for it.
+My rule is that **responsibility should follow control**. Who could actually change the system? Who knew what it was doing? Who set the targets and decided how much review time was enough? Start there, not with the last person who clicked a button.
 
 That usually points upstream, to the builders and the organisation, rather than to the last person to click a button. It also means responsibility can be designed. If you want users to be responsible for their decisions, give them the time, context and authority that responsibility requires. If you can't, be honest that the system is making the decision and own it at the level that built it.
 

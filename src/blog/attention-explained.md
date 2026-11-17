@@ -4,15 +4,15 @@ date: 2025-01-11
 tags: ["post", "genai", "llms", "guides"]
 ---
 
-Every explanation of transformers I found while studying either stopped at "attention lets the model focus on relevant words" or jumped straight into a wall of matrix notation. The first is too vague to reason with. The second hides a fairly simple idea.
+When I was trying to understand transformers, every explanation seemed to be one of two extremes. Either "attention helps the model focus on words" (thanks, that explains nothing) or three pages of matrix equations before anyone tells you what problem we're even solving.
 
-This is the middle version: enough to understand why models behave the way they do, and why long prompts cost what they cost, with code you can run.
+I wanted something in the middle. Enough maths to know what's happening, not so much that the actual idea gets buried. I'll also connect it to the very practical question of why large context windows eat memory and money.
 
 ## Text becomes tokens
 
 A model never sees characters or words directly. A **tokenizer** splits text into **tokens**, chunks from a fixed vocabulary that are often whole common words, word pieces, or punctuation. "Unbelievably" might become `un`, `believ`, `ably`. Each token maps to an integer ID.
 
-This is why models are oddly bad at counting letters in a word: they never saw the letters, only the chunks.
+This is part of why asking a language model to count letters can get embarrassingly weird. We're seeing a word; the model is processing token IDs. Those are not the same view of the text.
 
 ## Tokens become embeddings
 
@@ -107,11 +107,11 @@ There's a second cost during generation. To avoid recomputing everything for eac
 
 Plenty of engineering goes into softening this, from memory-efficient attention kernels to sparse and sliding-window attention patterns. But the basic shape holds: more context means more compute and memory, and providers price accordingly.
 
-## The short version
+## What I want you to remember
 
 - Text becomes tokens, tokens become vectors.
 - Attention scores every token against every other with `Q · K`, softmaxes the scores, and blends the values.
 - Multiple heads learn different relationships; position has to be added separately.
 - The `n × n` score matrix and the KV cache are why long contexts are expensive.
 
-If you remember one thing, make it the fuzzy dictionary lookup. Most transformer behaviour, good and odd, makes more sense once you picture every token asking every other token "are you relevant to me?" at every layer.
+The fuzzy dictionary lookup is the mental picture that finally made this click for me. Every token is looking at other tokens and working out what information to pull in. The equations are important, but once you get that part, they stop looking like random symbols.

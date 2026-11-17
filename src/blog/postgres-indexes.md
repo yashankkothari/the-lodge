@@ -4,7 +4,9 @@ date: 2025-12-13
 tags: ["post", "backend", "sql", "guides"]
 ---
 
-Most slow Postgres queries I've debugged came down to one of two things: a missing index, or an index that existed but couldn't be used. This is the mental model and the handful of patterns that cover most real cases.
+When a Postgres query is slow, the first instinct is usually "add an index". Sometimes that's exactly right. Other times there's already an index and the query planner has a perfectly good reason to ignore it. I've found it's worth understanding *why* before creating five more indexes and hoping one works.
+
+This is the model I use for B-trees, composite indexes and reading the actual query plan.
 
 ## What a B-tree index is
 
@@ -17,7 +19,7 @@ Because it's sorted, a B-tree is good at:
 - sorting: `ORDER BY created_at`
 - prefix matches: `WHERE name LIKE 'Yas%'` (with the right collation or operator class)
 
-It does not help `LIKE '%shank'`, because there's no sorted prefix to search on.
+It doesn't magically speed up `LIKE '%shank'` because the useful sorted prefix is missing. This is why "but the column is indexed" isn't a convincing performance argument.
 
 ```sql
 CREATE TABLE orders (
@@ -130,7 +132,7 @@ A sequential scan isn't automatically wrong. On a small table, or when the query
 
 ## When indexes hurt
 
-Every index is a cost on writes. Each `INSERT` updates every index on the table; an `UPDATE` that changes an indexed column does too, and it can prevent Postgres's HOT optimisation, which avoids index updates when no indexed column changes. Indexes also take disk space, compete for memory and add vacuum work.
+Indexes aren't free. Every `INSERT` has to maintain them, and an `UPDATE` that changes an indexed column has work to do too. It can also prevent Postgres's HOT optimisation, which avoids index updates when the indexed values stay the same. Then there's disk space, memory and vacuum overhead. This is why indexing everything "just in case" is a bad habit.
 
 So:
 
@@ -141,8 +143,8 @@ So:
 
 ## What to remember
 
-- Start from the slow query, run `EXPLAIN (ANALYZE, BUFFERS)`, and let the plan tell you what's missing.
+- Start with the slow query and `EXPLAIN (ANALYZE, BUFFERS)`. Look at what Postgres actually did before deciding what it should have done.
 - Composite index: equality columns first, then range or sort.
 - Use partial indexes for hot subsets, expression indexes for transformed lookups, `INCLUDE` for index-only scans.
 - Index foreign keys yourself.
-- Treat every index as a write cost and remove the ones nobody uses.
+- Every extra index has a write cost. If nobody uses it, ask why you're still maintaining it.

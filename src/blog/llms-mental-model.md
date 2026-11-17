@@ -4,14 +4,14 @@ date: 2026-09-10
 tags: ["post", "genai", "llms", "guides"]
 ---
 
-You don't need to train a large language model to build good things with one. You do need an accurate picture of what it does, because most bad LLM features come from expecting it to behave like a database or a search engine.
+I keep seeing people build LLM apps as though the model is a database that happens to speak English. Then they're shocked when it confidently invents an answer. You don't need to know how to train an LLM to use one, but you do need to know what it is actually doing.
 
 
 <figure><img src="/img/blog/diagram-llm.png" alt="Tokenizer, transformer, probabilities, sampling" loading="lazy"><figcaption>Generation is this loop, one token at a time.</figcaption></figure>
 
 ## It predicts the next token
 
-An LLM reads a sequence of **tokens** (chunks of text, often parts of words) and predicts a probability for every possible next token. It picks one, appends it, and repeats. Everything else (answering, summarising, writing SQL) emerges from doing that very well.
+An LLM reads **tokens** (chunks of text, often pieces of words) and assigns probabilities to what comes next. It selects a token, adds it to the sequence and does the same thing again. That loop is how you get everything from a decent SQL query to a completely fabricated historical fact.
 
 Two consequences:
 
@@ -20,7 +20,7 @@ Two consequences:
 
 ## The context window is its only working memory
 
-The model knows nothing about your conversation, your company or your data except what's in the **context window** for this request: the system prompt, the chat history, any documents you pasted. Close the request and it's gone.
+The model doesn't magically know your project, your database or what you told it last Tuesday. It only has the **context window** for the current request: the prompt, conversation history and whatever documents your application included. If an app remembers you, the app is storing and supplying that information.
 
 That's why "chat with your docs" products don't retrain anything. They find the relevant text and put it in the context. That pattern has a name: retrieval-augmented generation, or RAG.
 
@@ -55,7 +55,7 @@ Most providers now offer a structured-output or JSON mode. Use it, and still val
 
 ## Where LLMs fit in a data stack
 
-They're good at messy-text-to-structure jobs: classifying free-text claim notes, extracting fields from PDFs, writing a first draft of a SQL query, summarising incident logs. They're bad at arithmetic over large tables and at being the source of truth. Let the warehouse compute; let the model read and write language.
+I like models for turning messy language into something a program can use: claim notes into categories, PDF text into fields, incident logs into summaries. I don't want one doing arithmetic over a million rows when Snowflake or Postgres can give me an exact answer. Let the database count. Let the model handle language.
 
 ## Try it with a local model
 
@@ -71,4 +71,4 @@ python sampling_demo.py && python structured_demo.py
 
 <figure><img src="/img/blog/term-llm.png" alt="Temperature 0 gives the same answer four times; 1.2 varies. JSON output matches the schema." loading="lazy"><figcaption>Real output. At temperature 0 all four answers are identical; at 1.2 they wander. The <code>format</code> schema forces valid JSON.</figcaption></figure>
 
-The token counts are worth a look too: a 20-word prompt came to 32 tokens once the chat template was added. That's the number you pay for and the number that fills the context window.
+Look at the token counts as well. My 20-word prompt turned into 32 tokens once the chat template was included. It's an easy detail to miss until you wonder why the context window or API bill is bigger than you expected.

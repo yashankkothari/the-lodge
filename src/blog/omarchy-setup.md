@@ -4,9 +4,9 @@ date: 2026-10-08
 tags: ["post", "linux", "omarchy", "guides"]
 ---
 
-Omarchy is DHH's opinionated Arch Linux setup: Hyprland as a tiling window manager, a themed terminal and Neovim, and every keyboard shortcut already decided for you. It's what my laptop runs, and it's where my local AI stack ([Ollama](/blog/ollama-local-llms/) and [OpenClaw over Telegram](/blog/openclaw-telegram-ollama/)) lives.
+I run Omarchy on my laptop. It's DHH's very opinionated Arch Linux setup with Hyprland, a terminal, Neovim and a bunch of shortcuts already chosen for you. Some people hate that kind of setup. I actually like having someone make those decisions so I can get on with using the machine.
 
-This is the setup as I'd do it again, in order.
+It's also where my local AI stuff lives: [Ollama](/blog/ollama-local-llms/) and [OpenClaw over Telegram](/blog/openclaw-telegram-ollama/). If I were reinstalling the laptop tomorrow, this is the order I'd follow.
 
 <figure><img src="/img/blog/diagram-omarchy-stack.png" alt="The Omarchy stack: Arch Linux, Hyprland, apps" loading="lazy"><figcaption>What you actually get: Arch underneath, Hyprland on top, and a curated set of apps.</figcaption></figure>
 
@@ -15,7 +15,7 @@ This is the setup as I'd do it again, in order.
 - **Use a dedicated drive.** The installer wipes the disk you pick and sets up full-disk encryption. Dual-booting on one drive needs the manual install route.
 - **Turn off Secure Boot (and TPM if your BIOS ties them together).** The installer won't boot otherwise.
 - **Have a wired or 2.4 GHz keyboard.** You type the disk password before Bluetooth exists, so a Bluetooth-only keyboard can't unlock the machine.
-- **Back up anything on that drive.** It will be gone.
+- **Back up anything on that drive.** Seriously. The installer is not asking whether you meant to keep your files.
 
 ## 1. Flash the ISO and install
 
@@ -65,7 +65,7 @@ git config --global user.email "you@example.com"
 yay -S --needed ollama
 ```
 
-The `omarchy` command is worth a look too. Run it with no arguments to see every helper the menu uses (themes, fonts, screenshots, debug info). It's also what makes Omarchy easy for an AI agent to configure.
+Run `omarchy` with no arguments at least once. You'll find the helpers behind the menu: themes, fonts, screenshots and debug commands. Knowing they exist also makes it easier to get an agent to change your setup without randomly rewriting config files.
 
 ## 5. Make it yours, safely
 
@@ -75,7 +75,7 @@ The `omarchy` command is worth a look too. Run it with no arguments to see every
 
 ## What I'd tell myself before installing
 
-1. Give it a week. Tiling feels slow for two days and then you can't go back.
+1. Give tiling a proper week. The first couple of days are annoying because your muscle memory is wrong. Then going back to dragging windows around starts feeling silly.
 2. Learn `Super + K`. It answers most questions.
-3. Update through the menu, and trust the snapshots.
+3. Update through the menu, and know how the snapshots work before you need them.
 4. Put local AI on it. Next up: [running models with Ollama](/blog/ollama-local-llms/).

@@ -4,9 +4,9 @@ date: 2026-10-08
 tags: ["post", "genai", "ollama", "linux", "guides"]
 ---
 
-Ollama runs open-weight models on your own machine behind a small HTTP server. No API key, no per-token bill, and your prompts never leave the laptop. It's the model backend for my [OpenClaw Telegram assistant](/blog/openclaw-telegram-ollama/), and the easiest way I know to learn how LLMs behave.
+One of my favourite things about messing with local LLMs is that I can break things without watching a token bill climb. **Ollama** lets me run open-weight models through a local HTTP server. No API key, and prompts sent to that local server don't have to leave the laptop. It's what I use behind my [OpenClaw Telegram assistant](/blog/openclaw-telegram-ollama/).
 
-Every screenshot here is real terminal output, captured while writing this guide.
+The screenshots aren't mockups. I ran these commands and captured the output while putting this guide together.
 
 <figure><img src="/img/blog/diagram-ollama-arch.png" alt="Ollama architecture: client, server, scheduler, llama.cpp runner" loading="lazy"><figcaption>One server process on port 11434 loads models on demand and runs them on your GPU or CPU.</figcaption></figure>
 
@@ -21,7 +21,7 @@ yay -S ollama-rocm     # AMD
 sudo systemctl enable --now ollama
 ```
 
-On any other Linux, the official script does the same: `curl -fsSL https://ollama.com/install.sh | sh`.
+On other Linux distributions, Ollama also provides `curl -fsSL https://ollama.com/install.sh | sh`. As always, read a script before piping it into your shell if you want to know what it's installing.
 
 ## 2. Pull and run a model
 
@@ -105,7 +105,7 @@ Environment="OLLAMA_HOST=127.0.0.1:11434"   # don't expose it to the network
 sudo systemctl restart ollama
 ```
 
-Keep the server on `127.0.0.1`. The API has no authentication, so anyone who can reach the port can use your GPU.
+Please keep the server on `127.0.0.1` unless you deliberately secure it. Ollama's API doesn't have built-in authentication. Exposing it to the internet because you wanted to chat with a model from your phone is a great way to let strangers use your GPU.
 
 ## Cheat sheet
 
@@ -118,4 +118,4 @@ Keep the server on `127.0.0.1`. The API has no authentication, so anyone who can
 | `ollama create <name> -f Modelfile` | Build a custom model |
 | `ollama launch openclaw` | Set up OpenClaw on top of Ollama |
 
-Next: [hooking Ollama up to Telegram with OpenClaw](/blog/openclaw-telegram-ollama/).
+If you want to take it further, I wrote up [how I connected it to Telegram with OpenClaw](/blog/openclaw-telegram-ollama/). It's much more fun once you can actually use the thing away from your desk.

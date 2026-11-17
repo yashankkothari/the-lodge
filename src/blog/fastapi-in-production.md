@@ -4,9 +4,9 @@ date: 2025-09-06
 tags: ["post", "backend", "python", "guides"]
 ---
 
-FastAPI makes the first version of an API very pleasant. You write a typed function, add a decorator, and get validation and interactive docs for free. The trouble starts later, when real traffic arrives and something that worked fine on your laptop starts timing out.
+FastAPI is almost suspiciously pleasant when you're starting out. Write a typed function, add a decorator, and suddenly you have an API with validation and docs. Then it meets real traffic and the endpoint that worked perfectly on your laptop starts timing out.
 
-Most of those problems come from a handful of things the getting-started guide doesn't dwell on. Here's what I'd check before calling a FastAPI service production-ready.
+The tutorial isn't lying to you. It's just not preparing you for all the boring things that make a service stay up. These are the things I'd look at before trusting a FastAPI app in production.
 
 ## async def vs def, and blocking calls
 
@@ -15,7 +15,7 @@ FastAPI lets you write endpoints as either `async def` or plain `def`, and the d
 - An **`async def`** endpoint runs on the event loop. While it's awaiting something, other requests can run. But if it does anything blocking, such as a synchronous database driver, `requests.get`, or heavy CPU work, it blocks the entire loop and every other request on that worker waits.
 - A plain **`def`** endpoint is run in a thread pool, so blocking calls inside it don't freeze the loop.
 
-The classic mistake:
+This is the classic footgun:
 
 ```python
 import requests
@@ -71,7 +71,7 @@ def create_payment(body: PaymentIn) -> PaymentOut:
     ...
 ```
 
-Setting a **`response_model`** isn't just for docs. It filters the output, so an internal field you accidentally return doesn't leak to the client. Bad input gets a 422 with a clear error before your code runs, which keeps endpoint bodies free of defensive checks.
+Don't treat **`response_model`** as a nice-to-have for Swagger. It filters what leaves your endpoint. That's the difference between returning the fields you intended and accidentally exposing some internal value because your database object had it. Request validation also saves you from writing the same defensive checks everywhere.
 
 ## Dependency injection for shared resources
 
@@ -111,7 +111,7 @@ def signup(user: UserIn, tasks: BackgroundTasks):
     return {"ok": True}
 ```
 
-But it runs inside the same worker process. If the worker restarts, the task is lost. There are no retries, no visibility, and long tasks tie up the worker. For anything that must happen, takes a while, or needs retrying, use a real **task queue** (Celery, RQ, Arq, or a managed queue) with separate workers.
+Here's the catch: it still runs in the same worker process. Restart the worker and you can lose the task. You don't get a proper retry system or job tracking for free. If this is something that absolutely must happen, use an actual **task queue** such as Celery, RQ, Arq or a managed queue.
 
 My rough test: if losing the task would mean a support ticket, it doesn't belong in `BackgroundTasks`.
 
@@ -134,7 +134,7 @@ Uvicorn can also run multiple workers on its own with `--workers`. In containers
 
 ## Timeouts everywhere
 
-A service without timeouts will eventually hang on a slow dependency and pile up requests until it falls over. Set them at every layer:
+No timeout is basically a decision to let one slow dependency hold your service hostage. Put sensible time limits at every layer:
 
 - **Outbound HTTP**: always pass a timeout to your client. httpx has a default; `requests` waits forever unless you set one.
 - **Database**: set connection and statement timeouts in the driver or pool.
@@ -178,4 +178,4 @@ Libraries like structlog make this neater. Don't log request bodies blindly; the
 - Keep `BackgroundTasks` for small, losable work; use a queue for the rest.
 - Run multiple workers, set timeouts at every layer, and log JSON with request IDs.
 
-None of this is exotic. It's just the difference between an API that works and one that keeps working.
+None of this makes for a very exciting "I built an API in five minutes" video. It's the stuff that matters after those five minutes are over.

@@ -4,7 +4,7 @@ date: 2026-08-29
 tags: ["post", "genai", "llms", "guides"]
 ---
 
-Most people meet embeddings as the retrieval step in a RAG pipeline and never look further. That's a shame, because they're one of the most useful tools in applied machine learning, and they're far simpler than the models that generate text.
+Embeddings get treated as some magical ingredient you throw into a vector database because every RAG tutorial told you to. They're actually worth understanding on their own. They're useful well beyond chatbots, and the basic idea isn't nearly as intimidating as the terminology makes it sound.
 
 ## What an embedding is
 
@@ -12,7 +12,7 @@ An **embedding** is a list of numbers (a vector) that represents a piece of inpu
 
 "How do I reset my password?" and "I forgot my login" share almost no words, but a good text embedding model places them close together. "How do I reset my router?" lands somewhere nearby but noticeably further away.
 
-That's the whole trick. Once meaning is geometry, you can compare, group and search things using basic linear algebra.
+That's the useful bit. You can compare two pieces of text without requiring them to share the same words. Underneath all the vector-database branding, you're comparing numbers.
 
 ## Cosine similarity
 
@@ -95,7 +95,7 @@ Swap the toy vectors for output from a real embedding model and the same code wo
 
 ## Choosing dimensions
 
-More dimensions can capture more nuance, but cost more to store and compare. A million 1,536-dimensional float32 vectors is roughly 6 GB before any index overhead.
+More dimensions can represent more detail, but you're paying for them in storage and search. A million 1,536-dimensional float32 vectors is roughly 6 GB before adding an index. "Just use the largest embedding model" becomes expensive advice pretty quickly.
 
 Some newer models are trained so you can truncate vectors to fewer dimensions with modest quality loss. If yours supports that, test a smaller size on your own retrieval eval before defaulting to the largest. Re-normalise after truncating.
 
@@ -107,9 +107,9 @@ Some newer models are trained so you can truncate vectors to fewer dimensions wi
 - **Domain mismatch.** A general model may not separate terms that matter in your field, like insurance policy types. Test on your own data.
 - **Exact matches.** Embeddings are weak at IDs, numbers and rare names. Keep keyword search around.
 
-## Where to start
+## What I'd try first
 
 - Pick one embedding model, record its name with every vector, and normalise at write time.
 - Build a small labelled set of similar and dissimilar pairs from your own data, and use it to choose thresholds and dimensions.
-- Try deduplication or clustering before RAG. They're simpler, easier to evaluate and often more immediately useful.
+- Try deduplication or clustering before building another chatbot. They're easier to test and often genuinely useful.
 - Use hybrid search when exact terms matter.
