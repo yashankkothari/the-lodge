@@ -13,30 +13,30 @@ The unglamorous truth is that a lot of bad RAG answers start with bad search. Th
 
 ## The two halves
 
-**Indexing (offline, like any ETL job)**
+First is **indexing**, which looks a lot like any other ETL job:
 
-1. Load documents and clean them: strip boilerplate, keep titles and section headings.
-2. Split them into chunks.
-3. Embed each chunk and store the vector with its text and metadata (source, section, date, permissions).
+1. Read the files and remove noise without throwing away useful headings and titles.
+2. Split the content into pieces that still make sense on their own.
+3. Generate embeddings and store each one with the original text and metadata: source, section, date and access permissions.
 
-**Query time**
+Then every user question goes through a second pipeline:
 
-1. Embed the user's question.
-2. Retrieve the top candidate chunks.
-3. Optionally rerank them.
-4. Build a prompt with the best few chunks and generate an answer with citations.
+1. Embed the question using the same compatible embedding setup.
+2. Find chunks that might contain the answer.
+3. Rerank those candidates if the first search isn't selective enough.
+4. Give the best passages to the model and ask for an answer grounded in them.
 
 ## Chunking decides most of your quality
 
-- Split on structure (headings, paragraphs) before falling back to a fixed size.
-- A few hundred tokens per chunk with a small overlap is a sensible starting point. Tune it against real questions.
-- Prepend the document title and section heading to each chunk before embedding, so "Section 4.2: Exclusions" still knows which policy it belongs to.
+- Don't blindly cut every document at the 500-token mark. Try heading and paragraph boundaries first so the retrieved text isn't missing half a sentence.
+- A few hundred tokens with a little overlap is a starting point, not a universal rule. Test different sizes against questions people actually ask.
+- Carry the document title and section name into the chunk. "Section 4.2: Exclusions" is useless if you've thrown away the name of the policy it belongs to.
 
 ## Retrieve with more than one signal
 
-Pure vector search misses exact terms such as policy numbers, error codes and product names. **Hybrid search** combines keyword search (BM25) with vector search and merges the two result lists. Then a **reranker** (a cross-encoder that scores each question-chunk pair) reorders the top 20–50 candidates so the best five go in the prompt.
+Embeddings are not great at exact IDs, error codes or rare product names. If someone asks for policy `POL-123456`, I don't want the system returning a semantically similar but completely different policy. **Hybrid search** mixes keyword matching such as BM25 with vector results. A **reranker** can then score the best twenty or fifty candidates against the actual question before you select the few passages the generator will see.
 
-Filter on metadata before ranking: date ranges, document type and, above all, the user's access permissions.
+Permissions belong in the retrieval step, not in a hopeful instruction telling the model to ignore forbidden documents. Filter by access, dates and document type before ranking.
 
 ## Prompt for grounded answers
 
@@ -55,13 +55,13 @@ I want an actual way for the model to say "I don't know" and citations I can ope
 
 ## Measure retrieval and answers separately
 
-Build a small evaluation set of 30–50 real questions, each labelled with the chunk or document that answers it. Then track:
+For testing, I'd write down thirty to fifty genuine questions and the documents that should answer them. Then measure three things separately:
 
-- **Retrieval:** is the right chunk in the top k (recall@k)?
-- **Faithfulness:** does the answer only claim what the sources say?
-- **Answer quality:** is it correct and does it actually answer the question?
+- **Retrieval recall:** did the right passage appear in the top `k` results?
+- **Faithfulness:** did the model stick to what those passages actually support?
+- **Usefulness:** did it answer the user's question correctly instead of rambling about a related topic?
 
-If recall@k is low, fix chunking, hybrid search or reranking. Tweaking the prompt won't help.
+If the relevant passage isn't being retrieved, the generation model never had a fair chance. Stop changing the prompt and investigate chunking, search and ranking.
 
 ## Keep the index fresh
 
@@ -69,7 +69,7 @@ The index is another data pipeline. Documents change, get deleted and sometimes 
 
 ## Try it: a 30-line RAG on your laptop
 
-No vector database needed to learn the moving parts. This uses Ollama's `nomic-embed-text` for embeddings, plain cosine similarity, and `qwen3:1.7b` to answer:
+You don't even need a vector database for the demo. I used Ollama's `nomic-embed-text` to make vectors, plain cosine similarity to rank passages and `qwen3:1.7b` for the final answer. It's intentionally small enough that you can see what each stage does:
 
 ```bash
 ollama pull nomic-embed-text && ollama pull qwen3:1.7b

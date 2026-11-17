@@ -13,31 +13,31 @@ I keep seeing people build LLM apps as though the model is a database that happe
 
 An LLM reads **tokens** (chunks of text, often pieces of words) and assigns probabilities to what comes next. It selects a token, adds it to the sequence and does the same thing again. That loop is how you get everything from a decent SQL query to a completely fabricated historical fact.
 
-Two consequences:
+Two things follow from that loop that I wish more people understood:
 
-- **It generates plausible text, not retrieved facts.** If the right answer wasn't in its training data or in the prompt, it will still produce something that sounds right. That's a hallucination, and it's the default behaviour, not a bug.
-- **Cost and speed scale with tokens.** You pay for input and output tokens, and long outputs are slow because they're generated one token at a time.
+- **A fluent answer isn't a database lookup.** When the model lacks the relevant fact, it may still produce a plausible answer. That's one reason hallucinations happen; confident writing doesn't prove the claim was checked.
+- **Every token has a cost.** The longer the input and generated output, the more work the system has to do. Output tokens also arrive sequentially, which affects latency.
 
 ## The context window is its only working memory
 
 The model doesn't magically know your project, your database or what you told it last Tuesday. It only has the **context window** for the current request: the prompt, conversation history and whatever documents your application included. If an app remembers you, the app is storing and supplying that information.
 
-That's why "chat with your docs" products don't retrain anything. They find the relevant text and put it in the context. That pattern has a name: retrieval-augmented generation, or RAG.
+So when a product claims you can "chat with your documents", it probably isn't retraining a model every time you upload a PDF. It retrieves relevant text and includes it in the next request. That's **RAG**, and understanding that distinction saves a lot of confusion.
 
 ## Sampling controls variety
 
-- **Temperature** near 0 makes the output close to deterministic. Use it for extraction, classification and SQL.
-- **Higher temperature** gives more varied wording. Use it for brainstorming and creative text.
+- With **low temperature**, the sampler favours the most likely next tokens. I usually want that for structured or repetitive tasks.
+- Turn **temperature** up and the model explores less probable options more often. That's useful when generating ideas, less useful when extracting a payment amount.
 
-Even at temperature 0, don't assume byte-identical output across runs or model versions. Validate the result instead.
+Low temperature still isn't a promise that every run will produce exactly the same bytes, especially if the serving setup or model version changes. If your application needs a specific value, test the value.
 
 ## Embeddings: meaning as numbers
 
-An **embedding model** turns text into a vector, a list of numbers, where texts with similar meaning land close together. Search "getting fit" and you can find a post about a workout routine that never uses those words. Embeddings power semantic search, deduplication, clustering and the retrieval step of RAG.
+An **embedding model** turns text into numerical vectors. Ideally, pieces of text that mean similar things end up near each other in that vector space. So a query about "getting fit" might retrieve a workout article that never uses that exact phrase. That's useful for semantic search, clustering, deduplication and RAG. The numbers aren't magic; you still need to test whether the model captures the similarities your application cares about.
 
 ## Ask for structure
 
-When the output feeds code, ask for JSON that matches a schema, and validate it:
+If I'm passing model output to another piece of code, I don't want to parse an essay. I'd ask for a known JSON shape and validate it at the boundary:
 
 ```python
 from pydantic import BaseModel
@@ -51,7 +51,7 @@ class Claim(BaseModel):
 claim = Claim.model_validate_json(raw)   # fails loudly on bad output
 ```
 
-Most providers now offer a structured-output or JSON mode. Use it, and still validate.
+Structured-output features are useful, but my application should still check the response before trusting it. The schema is a contract, not a suggestion.
 
 ## Where LLMs fit in a data stack
 
@@ -59,7 +59,7 @@ I like models for turning messy language into something a program can use: claim
 
 ## Try it with a local model
 
-Everything above is easy to see on a laptop with [Ollama](/blog/ollama-local-llms/). This script asks `qwen3:1.7b` for a product name four times at two temperatures, then asks for a log classification that has to match a JSON schema:
+You can watch most of this happen on your own laptop using [Ollama](/blog/ollama-local-llms/). I used `qwen3:1.7b` for a small experiment: ask for a product name four times at different temperatures, then try a log-classification request that must follow a JSON schema.
 
 ```bash
 ollama pull qwen3:1.7b

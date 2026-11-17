@@ -13,17 +13,17 @@ If it's part of a real product, it needs **evals**. Not a fancy benchmark leader
 
 ## 1. Build a golden dataset
 
-Collect 50–200 real inputs: actual user questions, real documents, messy edge cases. For each, write down what a good output looks like. That could be an exact label, a required fact, or a short rubric. Version it in git next to the prompts.
+I'd start by saving 50–200 inputs that resemble what the feature actually receives. Not polished examples invented for a demo—real questions, incomplete messages, awkward documents. Then write down what a correct response would need to contain. Sometimes that's an exact category. Sometimes it's a fact or a short grading rubric. Commit the dataset beside the prompt so changes are reviewable.
 
 Don't get stuck designing the perfect benchmark. Thirty ugly real-world examples are a better start than another week of prompt tweaking.
 
 ## 2. Use the cheapest check that works
 
-In order of preference:
+Don't pay another LLM to judge something a few lines of code can check. My order would be:
 
-1. **Deterministic checks.** Valid JSON? Matches the schema? Contains the required field? Correct label? These are fast, free and unambiguous.
-2. **Reference comparisons.** Does the extracted amount equal the labelled amount? Did retrieval return the labelled document?
-3. **LLM-as-judge.** A second model grades the output against a rubric ("Is every claim supported by the sources? yes/no, and why"). Useful for open-ended text, but spot-check the judge against human ratings before you trust it.
+1. **Code checks first.** Is it valid JSON? Does it follow the schema? Did it return an allowed label? These tests are cheap and easy to understand.
+2. **Compare against labelled results.** If you're extracting a payment amount, check it against the known amount. For retrieval, check whether the correct document came back.
+3. **Use another model only when you need judgement.** It can grade a summary against a rubric, but the judge can be wrong too. Compare its decisions with human-reviewed examples before trusting the score.
 
 ## 3. Score the parts separately
 
@@ -45,23 +45,23 @@ regression? ── yes ──► block the change
      ship it
 ```
 
-Every prompt edit, model upgrade or retrieval change runs the suite. A drop in any metric beyond a small tolerance blocks the change, just as a failing dbt test blocks a deploy.
+I'd wire this into CI. Change the prompt? Run the cases. Swap models? Run them again. Replace the retriever? Same thing. Decide beforehand how much regression you're willing to tolerate and fail the build when it crosses that line. We already do this for code and data pipelines; the fact that the component generates text isn't a reason to stop.
 
 ## 5. Keep watching in production
 
-- Log inputs, outputs, latency, token cost and the model version for every call.
-- Sample production traffic for review each week and add interesting failures to the golden set.
-- Collect cheap user signals such as thumbs up or down, and whether the user retried or edited the answer.
+- Record the model version, inputs, outputs, timing and token usage, with sensitive data handled appropriately.
+- Review real production cases regularly and move the surprising failures into the test set.
+- Pay attention to what users actually do. If they keep retrying or rewriting the answer, a happy-looking model response might not be helping them.
 
 ## 6. Don't forget cost and latency
 
-Quality is one axis. A change that improves accuracy by two points but doubles latency or cost per request is a trade-off, not a win. Put all three on the same dashboard.
+An improved score isn't a win if the feature becomes painfully slow or three times more expensive to operate. I want accuracy, latency and cost next to each other. A two-point accuracy gain is only useful when you know what you're paying for it.
 
 If someone asks "did the new prompt actually improve anything?" and your answer is "it feels better", you don't have an evaluation process yet.
 
 ## Try it: a five-question eval that fails
 
-Here's a tiny golden set with cheap graders (substring, exact match, regex) run against a 1.7B local model:
+For a concrete example, I ran five questions against a small local 1.7B model. The checks are deliberately simple—exact matches, substrings and regex. There's no complicated evaluation platform involved:
 
 ```bash
 curl -O https://www.yashank.site/files/demos/ollama_client.py

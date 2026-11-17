@@ -10,34 +10,34 @@ During my AI/ML internship at Card91, I researched fraud detection and evaluated
 
 ## What a rule engine does
 
-A rule engine evaluates each transaction against a set of explicit conditions: "more than five transactions from this card in ten minutes", "amount far above this customer's usual spend", "card used in two distant cities within an hour". Each rule produces a result, the results are combined, and the system decides whether to allow, block, or flag the transaction for review.
+The basic idea isn't complicated. A transaction comes in and you check explicit conditions: has the card been used six times in ten minutes? Is the amount wildly different from the customer's normal behaviour? Has the same card appeared in two distant cities almost simultaneously? The engine combines those signals and decides whether the payment should proceed, be blocked or go for review.
 
 You can point to the exact rule that fired and explain it to another human. That matters a lot when someone's card has just been declined. Of course it also means you need people to maintain the rules as fraud patterns change.
 
 ## Why rules haven't been replaced by ML
 
-**Explainability.** When a transaction is declined, someone will ask why: the customer, a support agent, an auditor, a regulator. "Rule 14: transaction amount exceeded the per-day limit for a new account" is an answer. "The model scored it 0.91" usually isn't, at least not without extra tooling.
+**You can actually explain the decision.** If a customer's payment gets declined, "this new account exceeded its daily limit" is a reason a support agent can communicate. "Our model gave it a risk score of 0.91" doesn't mean much to the customer, and it often isn't enough for an auditor either.
 
-**Latency.** Payment authorisation has a tight time budget. Many rules are simple lookups and comparisons that run in microseconds once the right counters are in memory. They don't need a feature pipeline or a model server.
+**They're fast when implemented properly.** Payment authorisation doesn't have unlimited time to think. A counter lookup and threshold comparison can be extremely cheap when the necessary state is already in memory. You don't need to call a model endpoint to enforce a fixed limit.
 
-**Speed of response.** When a new fraud pattern appears, a team can write and deploy a rule the same day. Retraining a model needs labelled examples of the new pattern, which by definition you don't have much of yet.
+**You can react before you have a training dataset.** A new attack pattern appears this morning. A team might be able to write and deploy a targeted rule today. Training a model on the new behaviour requires examples, labels, evaluation and deployment work. There are cases where waiting isn't acceptable.
 
-**Hard requirements.** Some checks aren't predictions at all. Sanctions lists, blocked merchants, regulatory limits: these are policies, and policies should be code, not probabilities.
+**Some things are policy, not prediction.** A blocked merchant or sanctions match isn't something I'd want a probabilistic model to "sort of" enforce. Certain rules exist because the business or regulator requires them, regardless of the model's score.
 
-Models are better at catching subtle patterns across many weak signals. Rules are better at being certain, fast and auditable. Most systems use rules as a first line and a model score as one more input, sometimes literally as a rule: "block if model score > threshold and amount > X".
+I'm not arguing that models are useless. They're good at combining weak, messy signals that would make a handwritten ruleset enormous. In practice I'd expect the two approaches to work together: explicit policies and thresholds, plus a model score that can influence what happens next. Even the model score might appear inside a rule like "high risk and amount above X requires review".
 
 ## Common rule types
 
-Most transaction rules fall into a few families.
+Once you start reading through transaction rules, the same categories keep showing up:
 
-- **Velocity rules** count events in a time window: transactions per card per minute, new payees per account per day, failed PIN attempts per hour. Fraudsters testing stolen cards tend to move fast.
-- **Geolocation rules** look at where the transaction happens: a country the customer has never used, or "impossible travel" where two transactions are too far apart for the time between them.
-- **Amount threshold rules** compare the amount to fixed limits or to the customer's own history: a first transaction far above the account's average, or many transactions just under a reporting threshold.
-- **Behavioural rules** look at changes: a new device followed immediately by a password reset and a large transfer.
+- **Velocity:** a sudden burst of transactions, new payees or failed PIN attempts. Someone testing stolen credentials often moves quickly.
+- **Location:** activity from an unfamiliar country, or two payments so far apart that the travel time makes no sense.
+- **Amounts:** transactions far above an account's usual pattern, or repeated amounts clustered just below a threshold.
+- **Behaviour changes:** a new device appears, the password changes and a large transfer follows. Each event alone might be fine; the sequence is suspicious.
 
 ## A simple rule in Python
 
-Here's a generic sketch. It isn't how any particular engine is built, but it shows the shape: each rule is a small, pure function that takes a transaction plus some context and returns a result with a reason.
+To make this concrete, here's a deliberately small Python example. It's not copied from Tazama or any bank's production system. I just want to show what I like about this design: each rule accepts a transaction plus the context it needs and returns a decision *with a reason*.
 
 ```python
 from dataclasses import dataclass
@@ -72,24 +72,24 @@ def amount_rule(txn: Txn, avg_amount: float, factor=10) -> RuleResult:
     return RuleResult("AMT-01", False)
 ```
 
-Keeping rules pure (no database calls inside, context passed in) makes them easy to test and easy to reason about. The engine around them handles fetching history and combining the results.
+Notice that the rule functions aren't reaching into databases themselves. They receive the recent history and compute a result. That separation makes the logic easier to test. The larger engine can handle fetching context, running rules and deciding how their results combine.
 
 ## False positives are the real cost
 
 Want a fraud system that never allows a fraudulent payment? Decline every transaction. Obviously that isn't a business. The difficult part is controlling **false positives**: actual customers getting blocked because your system thought their perfectly normal purchase looked suspicious.
 
-Some things that help:
+That changes how I'd think about the response to a triggered rule:
 
-- **Graduated outcomes.** Not every triggered rule needs a block. Many should flag for review or ask for extra authentication.
-- **Combine signals.** One weak rule firing alone may mean little; three firing together means more. Weighted scoring across rules is common.
-- **Personal baselines.** "Ten times this customer's average" is usually better than a single fixed amount for everyone.
-- **Watch the rates.** Track how often each rule fires and how often its alerts turn out to be real fraud. A rule that fires constantly and is almost never right is noise.
+- **Don't block everything automatically.** Some suspicious payments deserve an extra authentication step or manual review rather than a hard decline.
+- **Look at combinations.** One weak signal might be harmless. Several at once can be much more meaningful.
+- **Use the customer's history.** A fixed threshold for everybody is crude compared with asking what's unusual for this particular account.
+- **Measure false positives per rule.** If one rule triggers constantly and almost never catches fraud, it's creating work and annoying customers for very little benefit.
 
 ## Testing rules properly
 
-Rules look simple, which is why they're easy to get subtly wrong. Off-by-one errors at window boundaries, time zones, currency conversions, and `>` versus `>=` all matter.
+The scary part is that the code can look trivial while hiding important bugs. Does "five transactions in ten minutes" include the current transaction? Is the boundary inclusive? Are timestamps in UTC? What happens when the amount is in another currency? That difference between `>` and `>=` is suddenly somebody's declined card.
 
-Treat rules like any other code:
+I'd test the thresholds and the edges explicitly:
 
 ```python
 from datetime import datetime, timedelta
@@ -107,13 +107,13 @@ def test_velocity_ignores_old_txns():
     assert not velocity_rule(Txn("c1", 100, "IN", now), recent).triggered
 ```
 
-Beyond unit tests, the useful habit is **backtesting**: run a new or changed rule over historical transactions before deploying it, and see how many it would have flagged. When porting rules between languages, comparing outputs from the old and new implementations on the same inputs is the quickest way to catch behaviour that drifted in translation.
+Unit tests aren't enough when the real question is how many legitimate customers you'll annoy. I'd **backtest** a new rule against historical data before deploying it to see what it would have flagged. And if I'm translating the rule to another language, I'd compare the old and new implementations on identical inputs. That's much more convincing than reading both functions and saying they look equivalent.
 
 ## Where I landed
 
-- Use rules for what must be certain, fast and explainable; use models for subtle patterns.
-- Write each rule as a small pure function that returns a reason, not just a boolean.
-- Prefer graduated outcomes and combined signals over single hard blocks.
-- Test boundaries explicitly, and backtest before every rule change.
+- Explicit policies and predictable checks belong in rules. Complex behavioural patterns can benefit from ML.
+- I want each rule to return a reason alongside its result, so investigators aren't left guessing.
+- I'd combine signals and use reviews or extra authentication where a hard block would be excessive.
+- I'd test time windows, thresholds and historical impact before trusting a new rule with real transactions.
 
 I don't see rules and ML as competing approaches anymore. Models can catch complicated patterns. Rules give you direct control over the cases where you need a clear, auditable reason. Dismissing the second one because it isn't fashionable AI would be a mistake.

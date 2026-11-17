@@ -12,16 +12,16 @@ It's also where my local AI stuff lives: [Ollama](/blog/ollama-local-llms/) and 
 
 ## Before you start
 
-- **Use a dedicated drive.** The installer wipes the disk you pick and sets up full-disk encryption. Dual-booting on one drive needs the manual install route.
-- **Turn off Secure Boot (and TPM if your BIOS ties them together).** The installer won't boot otherwise.
-- **Have a wired or 2.4 GHz keyboard.** You type the disk password before Bluetooth exists, so a Bluetooth-only keyboard can't unlock the machine.
+- **Give it its own drive if you can.** The installer erases the selected disk and sets up encryption. If you want to dual-boot on one disk, you're looking at a more manual process.
+- **Check Secure Boot before trying to boot the installer.** You may need to disable it, and some BIOS configurations tie the relevant settings to TPM.
+- **Don't rely on a Bluetooth-only keyboard at boot.** The disk unlock prompt happens before your Bluetooth devices are paired. Keep something wired or using a 2.4 GHz dongle available.
 - **Back up anything on that drive.** Seriously. The installer is not asking whether you meant to keep your files.
 
 ## 1. Flash the ISO and install
 
-Download the ISO from [omarchy.org](https://omarchy.org/), write it to a USB stick (balenaEtcher on Windows/Mac, `caligula` on Linux), and boot from it.
+Get the ISO from [omarchy.org](https://omarchy.org/). Flash it to USB using balenaEtcher on Windows or macOS, or `caligula` on Linux, then boot the laptop from that USB. Double-check which disk you're about to select before continuing.
 
-The installer asks a handful of questions: keyboard layout, username, password, hostname, timezone. Confirm them, pick the drive, and wait 2 to 10 minutes.
+The setup asks for things like keyboard layout, username, password, hostname and timezone. After that you choose the target drive and let it run. On a normal setup, the installation itself should take only a few minutes, but I'd rather wait than rush through the destructive confirmation screen.
 
 <figure><img src="/img/blog/omarchy-installer.png" alt="Omarchy installer confirmation screen" loading="lazy"><figcaption>The installer's confirmation step. Screenshot: The Omarchy Manual.</figcaption></figure>
 
@@ -29,21 +29,21 @@ The installer asks a handful of questions: keyboard layout, username, password, 
 
 ## 2. Learn these shortcuts on day one
 
-Everything in Omarchy is a keystroke. You don't need all of them; you need these, and `Super + K` shows the rest whenever you forget.
+The shortcuts are the bit that initially makes a tiling setup feel hostile. You don't need to memorise the entire cheat sheet on day one. Start with the few below, and use `Super + K` whenever you forget what something does.
 
 <figure><img src="/img/blog/diagram-omarchy-hotkeys.png" alt="Omarchy hotkey cheat sheet" loading="lazy"><figcaption>My cheat sheet. Rebind anything in <code>~/.config/hypr/bindings.conf</code>.</figcaption></figure>
 
-The two that change how you work: `Super + Alt + Space` opens the Omarchy menu (install apps, change themes, update), and `Super + 1–4` jumps between workspaces. I keep the editor on 1, browser on 2, terminals on 3 and chat on 4.
+The two I rely on constantly are `Super + Alt + Space` for the Omarchy menu and `Super + 1–4` for switching workspaces. My usual layout is editor on 1, browser on 2, terminal on 3 and chat on 4. It sounds fussy when you describe it; in practice it saves me a ridiculous amount of window juggling.
 
 ## 3. Update the Omarchy way
 
-Don't reach for `pacman -Syu` out of habit. Use **Update > Omarchy** in the menu (or `omarchy update` in a terminal). It pulls new configs and runs migrations together with the package upgrade, so a new library version doesn't arrive without the config change it needs.
+Coming from plain Arch, the instinct is to run `pacman -Syu`. Omarchy has its own update flow for a reason. Use **Update > Omarchy** or `omarchy update` so the package upgrades arrive alongside the project's configuration changes and migrations. You don't want half of an update.
 
-Every update takes a Btrfs snapshot first. If something breaks, reboot, pick the pre-update snapshot in the Limine boot menu, and restore.
+One thing I appreciate is the Btrfs snapshot before updates. If a new configuration breaks the system, you can boot into a pre-update snapshot from Limine and recover instead of spending your evening reconstructing the previous setup.
 
 <figure><img src="/img/blog/omarchy-limine-snapshots.png" alt="Limine boot menu listing Omarchy snapshots" loading="lazy"><figcaption>Rolling back a bad update is a reboot away. Screenshot: The Omarchy Manual.</figcaption></figure>
 
-One catch: snapshots restore the system, not `/home`. They won't bring back a deleted file, so keep real backups too. You can take one by hand before a risky change:
+But don't confuse snapshots with backups. They cover the system state, not everything in `/home`. Accidentally delete your notes and a system rollback won't magically put them back. Before a risky experiment you can also create a snapshot yourself:
 
 ```bash
 omarchy-snapshot create
@@ -51,7 +51,7 @@ omarchy-snapshot create
 
 ## 4. Set up the dev tools
 
-Omarchy already ships Neovim (LazyVim), Docker, `mise` for language runtimes, and AI coding CLIs (`c` opens OpenCode, `cx` opens Claude Code). What I add on top:
+The default install already includes a lot of what I would otherwise spend an afternoon setting up: Neovim with LazyVim, Docker, `mise`, and shortcuts for coding assistants (`c` for OpenCode and `cx` for Claude Code). I mostly add my preferred runtimes and local model setup:
 
 ```bash
 # Language runtimes through mise
@@ -69,13 +69,13 @@ Run `omarchy` with no arguments at least once. You'll find the helpers behind th
 
 ## 5. Make it yours, safely
 
-- Configs live in `~/.config` (Hyprland, Waybar, terminal, Neovim). Edit there, not in the Omarchy source.
-- Try themes with `Super + Ctrl + Shift + Space` before you start editing colours by hand.
-- If you wreck your configs, `omarchy reinstall` resets them to the current release. It overwrites your changes, so commit `~/.config` to a dotfiles repo first.
+- Most of your customisation belongs in `~/.config`: Hyprland, Waybar, terminal and editor settings. Don't start modifying Omarchy's own source just to change a keybinding.
+- Cycle themes with `Super + Ctrl + Shift + Space` before spending hours hand-editing a colour scheme.
+- `omarchy reinstall` can reset configs if you've really broken them, but it overwrites your changes. Keep those files in a dotfiles repo before getting experimental.
 
 ## What I'd tell myself before installing
 
 1. Give tiling a proper week. The first couple of days are annoying because your muscle memory is wrong. Then going back to dragging windows around starts feeling silly.
-2. Learn `Super + K`. It answers most questions.
+2. Keep `Super + K` in muscle memory. It's much easier than searching for a shortcut every ten minutes.
 3. Update through the menu, and know how the snapshots work before you need them.
-4. Put local AI on it. Next up: [running models with Ollama](/blog/ollama-local-llms/).
+4. Once the machine feels comfortable, try [Ollama](/blog/ollama-local-llms/). Having local models available alongside the rest of my development setup is one of the reasons I enjoy this laptop.

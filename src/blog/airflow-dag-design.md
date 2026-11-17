@@ -11,7 +11,7 @@ Airflow gets blamed for a lot of problems that really come from how people write
 
 ## 1. Keep top-level code cheap
 
-The scheduler re-parses every DAG file every few seconds. Anything at module level runs on every parse:
+One thing that's easy to forget is that the scheduler imports your DAG files repeatedly. Code at the top level isn't some harmless startup step that runs once when you deploy. It runs again and again while Airflow parses the file:
 
 ```python
 # Bad: hits the database on every parse
@@ -27,7 +27,7 @@ If the scheduler feels randomly stuck, look here first. A database call at the t
 
 ## 2. One task, one job, safe to retry
 
-Each task should do one thing and be idempotent (same window in, same result out), so retries are harmless:
+I want each task to own one clear piece of work and be safe to retry. If I give it the same date window twice, I should get the same result twice, not duplicate records or another email sent to a customer. Here's the kind of structure I mean:
 
 ```python
 from datetime import datetime, timedelta
@@ -67,11 +67,11 @@ Every run already has a `data_interval_start` and `data_interval_end`. Use them.
 
 ## 5. Pass references, not data
 
-XCom is for small values: a file path, a row count, a table name. Don't push DataFrames through it. Write to object storage or a staging table and pass the location.
+XCom isn't where I'd pass an entire pandas DataFrame between tasks. It's for small bits of information: which file got created, which table to read, how many rows were processed. Put the actual dataset in storage or a staging table and pass a reference. Otherwise Airflow's metadata database starts doing a job it was never designed for.
 
 ## 6. Make waiting cheap
 
-Sensors that poke in `mode="poke"` hold a worker slot the whole time. Use `mode="reschedule"`, or a deferrable sensor, so waiting costs nothing.
+A sensor that sits in `mode="poke"` occupies a worker slot while it waits. That's a silly way to spend capacity when the task is literally doing nothing. Use rescheduling or deferrable sensors where appropriate so your workers can do useful work in the meantime.
 
 ## 7. Let the warehouse do the work
 
@@ -79,15 +79,15 @@ Please don't pull a million rows into an Airflow worker just to do something Sno
 
 ## A pre-merge checklist
 
-- No database or API calls at module level.
-- `catchup`, `retries`, and `max_active_runs` set explicitly.
-- Every task uses the data interval, not wall-clock time.
-- Only small values in XCom.
-- Alerts (`on_failure_callback` or email) wired to someone who will read them.
+- Can the scheduler import this file without hitting a database or external API?
+- Did I set `catchup`, retry behaviour and `max_active_runs` deliberately?
+- Does every data task use the run's interval instead of asking what time it is now?
+- Am I passing small references through XCom, rather than the actual dataset?
+- Will a failure alert reach somebody who can do something about it?
 
 ## Try it: lint your DAGs before they hit the scheduler
 
-Two commands catch most of the problems above before they reach production:
+Before merging a DAG, these two commands give me a quick sanity check. They're much easier than finding the problem after the scheduler has picked it up:
 
 ```bash
 # Fails fast on import errors and slow top-level code

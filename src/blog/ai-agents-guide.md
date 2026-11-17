@@ -26,14 +26,14 @@ for step in range(MAX_STEPS):              # always cap it
 raise RuntimeError("step limit reached")
 ```
 
-Model providers support **tool calling** (also called function calling): you describe each tool with a name, a description and a JSON schema, and the model returns a structured call instead of prose.
+That code is basically the whole loop. Most model APIs support **tool calling**: you describe available functions with names, descriptions and argument schemas. Instead of replying with normal text, the model can ask your application to execute one of them. Your code runs it and passes the result back. That's the difference between generating an instruction and actually attempting the action.
 
 ## Design tools like an API for a junior engineer
 
-- **Few, clear tools beat many vague ones.** `get_policy(policy_id)` is better than `run_sql(query)`.
-- **Write the description for the model.** Say when to use the tool, what it returns and what it can't do.
-- **Return compact, useful results.** Twenty relevant rows, not a 10,000-row dump that fills the context window.
-- **Return errors as text the model can act on**: "policy_id must look like POL-123456", not a stack trace.
+- Give it specific tools. `get_policy(policy_id)` is a lot safer to reason about than a giant `run_sql(query)` escape hatch.
+- Describe the tools like you're explaining an unfamiliar API to another engineer. Include when they're appropriate and what they return.
+- Don't dump 10,000 database rows into the context window because the tool technically can. Return the useful subset.
+- Make failures readable. "Expected policy ID like POL-123456" gives the model something it can correct; a raw stack trace usually doesn't.
 
 ## Start with a workflow, not an agent
 
@@ -41,11 +41,11 @@ If you already know the steps (extract, validate, load), please just write a pip
 
 ## Guardrails that matter
 
-1. **Step and cost limits** on every run.
-2. **Least privilege.** Read-only tools by default; separate, narrow tools for writes.
-3. **A human approves anything irreversible**: sending an email, paying, deleting, deploying.
-4. **Treat tool output as untrusted data.** A web page or document can contain text that tries to give the agent instructions (prompt injection). Never let retrieved content grant new permissions.
-5. **Validate tool arguments** against the schema before running anything.
+1. Put a hard cap on iterations and spend. A model stuck in a loop shouldn't be able to keep burning tokens indefinitely.
+2. Start with read-only access. Give write tools narrow permissions instead of handing an agent your whole machine.
+3. Require approval before sending messages, moving money, deleting files or deploying. If the action can't easily be undone, I want a person involved.
+4. Assume the content it reads may be malicious. A web page saying "ignore your instructions" is data, not a new system prompt.
+5. Check every tool argument in code. A schema in the prompt is not a security boundary.
 
 ## Make it observable
 
@@ -57,7 +57,7 @@ Give the agent real tasks with known outcomes and rerun them when you change any
 
 ## Try it: a tool-calling agent in 25 lines
 
-This runs the loop above against a local model through Ollama's tool calling. One tool, an allowlist of paths, and a four-step budget:
+I wrote a tiny version you can actually break. It uses Ollama tool calling, allows one disk-usage tool to inspect only approved paths, and stops after four steps. That's enough to see both the useful behaviour and the limits:
 
 ```bash
 curl -O https://www.yashank.site/files/demos/ollama_client.py

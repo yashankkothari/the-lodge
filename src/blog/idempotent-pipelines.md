@@ -17,11 +17,11 @@ That's why I care so much about **idempotency**: the same input should give the 
 
 Bad: `WHERE loaded_at > (SELECT MAX(loaded_at) FROM target)`. Now the input depends on whatever happened in the previous run. Good luck reproducing a failure from last Tuesday.
 
-Good: every run owns a fixed, explicit window, such as one day, passed in from the scheduler. In Airflow that is the run's `data_interval_start` and `data_interval_end`. Rerunning the 7 October run always processes 7 October.
+Better: make the input interval explicit. A daily run should know that it owns the 7 October window regardless of whether it runs on the seventh, eighth or a month later. Airflow gives you `data_interval_start` and `data_interval_end` for exactly this reason. The scheduler's clock should not change what historical data you're replaying.
 
 ### 2. Overwrite the window, don't append to it
 
-Two safe ways to write:
+The write strategy is the other half. I generally want one of these two patterns instead of a blind append:
 
 **Delete-then-insert inside one transaction**
 
@@ -53,7 +53,7 @@ Blind `INSERT INTO ... SELECT` is fine until somebody retries the job and you ge
 
 ### 3. Deduplicate the source before you merge
 
-MERGE fails (or behaves unpredictably) when the source has two rows for the same key. Keep only the latest:
+`MERGE` isn't a substitute for knowing your source data. If there are two versions of the same business key in one batch, the result can fail or depend on the database's merge rules. Resolve that ambiguity before writing. Here I keep the newest row:
 
 ```sql
 SELECT *
@@ -65,17 +65,17 @@ QUALIFY ROW_NUMBER() OVER (
 
 ## A quick checklist
 
-- Every run is parameterised by a date window from the scheduler, never by `CURRENT_DATE` inside the SQL.
-- Writes are overwrite-by-partition or MERGE on a key, never blind appends.
-- The source is deduplicated on that key first.
-- Side effects (emails, API calls, file drops) live in their own task, so retrying the load doesn't resend them.
-- You've actually tested it: run the same day twice and compare row counts.
+- Does the job get a specific date window rather than relying on `CURRENT_DATE`?
+- Can I explain what happens when the same window is written a second time?
+- Have I removed duplicate business keys from the incoming data before the merge?
+- Are emails, file drops and other side effects separated from the data write so retries don't repeat them?
+- Have I actually run the same window twice and compared the results, instead of assuming the SQL is idempotent?
 
 I'd much rather spend a little time getting the write pattern right now than be the person manually cleaning duplicate rows out of a production report later.
 
 ## Try it: break it, then fix it
 
-Here's the whole idea in 25 lines of Python and SQLite. The script loads the same 1,000 orders twice, once with a blind append and once with delete-then-insert inside a single transaction.
+I put together a tiny SQLite demo so you can see the failure without needing a warehouse. It loads 1,000 orders, then retries the exact same batch. First with a naive append, then with delete-and-insert wrapped in a transaction. Watch what happens to the row count:
 
 ```bash
 curl -O https://www.yashank.site/files/demos/idempotent_demo.py
