@@ -1,5 +1,6 @@
 import { skillLogos, skillsConfig, skillsSectionConfig } from "@/config/skills";
 import Image from "next/image";
+import Link from "next/link";
 import type { SkillIcon, SkillItem } from "@/config/types";
 import { cn } from "@/lib/utils";
 import type { ComponentType } from "react";
@@ -171,6 +172,16 @@ export function Skills() {
       <h2 className="no-js-visible section-heading">
         {skillsSectionConfig.title}
       </h2>
+      <div className="px-6 py-3 sm:hidden">
+        <div className="flex flex-wrap gap-1.5">
+          {skills.filter((skill) => skillsSectionConfig.mobileIds.includes(skill.id)).map((skill) => (
+            <SkillChip key={skill.id} skill={skill} />
+          ))}
+        </div>
+        <Link href="/resume#skills" className="inline-flex min-h-11 items-center text-xs text-primary underline underline-offset-4">
+          {skillsSectionConfig.fullStackLabel}
+        </Link>
+      </div>
       {categories.map((category, groupIndex) => {
         const categorySkills = skills.filter(
           (skill) => skill.category === category.id,
@@ -182,7 +193,7 @@ export function Skills() {
           <div
             key={category.id}
             className={cn(
-              "flex flex-col gap-2.5 border-b px-6 py-3.5 sm:flex-row sm:items-center sm:gap-6",
+              "hidden flex-col gap-2.5 sm:flex border-b px-6 py-3.5 sm:flex-row sm:items-center sm:gap-6",
               groupIndex === categories.length - 1 ? "border-none" : "",
             )}
           >

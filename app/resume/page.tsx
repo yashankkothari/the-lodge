@@ -146,7 +146,7 @@ export default function ResumePage() {
           </ul>
         </section>
 
-        <section aria-label="Skills" className="border-t border-dashed px-6 py-6">
+        <section id="skills" aria-label="Skills" className="scroll-mt-20 border-t border-dashed px-6 py-6">
           <p className="font-mono text-xs tracking-wider text-muted-foreground">
             Skills and tools
           </p>

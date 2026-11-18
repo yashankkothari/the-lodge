@@ -22,6 +22,8 @@ export const skillLogos: Partial<Record<SkillIcon, string>> = {
 
 export const skillsSectionConfig = {
   title: "Stack",
+  mobileIds: ["python", "plsql", "airflow", "snowflake", "dbt", "oracle"],
+  fullStackLabel: "See all skills",
   categories: [
     { id: "language", label: "Language" },
     { id: "data", label: "Data" },

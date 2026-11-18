@@ -6,6 +6,7 @@ export const projectsSectionConfig = {
   liveTooltip: "Open project",
   description: "Things I build to make the everyday more useful, or more fun.",
   allProjectsLabel: "All projects",
+  featuredActions: { savory: "Try Savory", pixopoly: "Visit Pixonomy" } as Record<string, string>,
   caseStudyLabel: "Case study",
   statusLabels: { building: "In development", new: "New", shipped: "Live" },
 };
@@ -13,7 +14,7 @@ export const projectsSectionConfig = {
 export const homeProjectsConfig = {
   ids: ["savory", "pixopoly"],
   previews: {
-    savory: { src: "/img/projects/savory-library.jpg", alt: "Savory's bookmark library with folders, tags, and search" },
+    savory: { src: "/img/projects/savory-search.jpg", alt: "Savory finding saved posts with semantic search" },
     pixopoly: { src: "/img/projects/pixopoly-og.jpg", alt: "Pixonomy's pixel-art game board and logo" },
   } as Record<string, { src: string; alt: string }>,
 };

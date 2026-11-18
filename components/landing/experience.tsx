@@ -26,10 +26,11 @@ export function Experience() {
               {item.company} ·{" "}
               <span className="font-mono text-xs">{item.period}</span>
             </p>
-            <p className="mt-2 text-sm text-muted-foreground"><ExperienceText>{item.summary}</ExperienceText></p>
-            {item.highlights?.length ? (
+            <p className="mt-2 text-sm font-medium text-foreground"><ExperienceText>{item.highlights?.[0] ?? item.summary}</ExperienceText></p>
+            {item.highlights?.length ? <p className="mt-1 text-sm text-muted-foreground"><ExperienceText>{item.summary}</ExperienceText></p> : null}
+            {item.highlights && item.highlights.length > 1 ? (
               <ul className="mt-2 list-disc pl-4 text-sm text-muted-foreground space-y-1">
-                {item.highlights.map((highlight) => (
+                {item.highlights.slice(1).map((highlight) => (
                   <li key={highlight}><ExperienceText>{highlight}</ExperienceText></li>
                 ))}
               </ul>

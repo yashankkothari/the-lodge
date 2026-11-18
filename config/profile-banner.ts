@@ -3,7 +3,7 @@ export const profileBannerConfig = {
   profileLabel: "Animate my profile sticker",
   profileSoundSrc: "/profile-pop.mp3",
   photo: {
-    src: "/images/steve-jobs-banner.png",
+    src: "/images/steve-jobs-banner.webp",
     alt: "Steve Jobs seated at home with the original Macintosh on his lap in 1984",
     credit: "Photograph by Norman Seeff, 1984",
     sourceUrl: "https://time.com/3781555/behind-the-cover-steve-jobs/",

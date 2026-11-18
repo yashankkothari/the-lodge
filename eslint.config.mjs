@@ -22,6 +22,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     ".workbuddy-ai/**",
+    "plans/**",
+    "dithered-isometric-scenes/**",
     // Scratch artifacts from local registry install tests and debug dumps.
     ".tmp-registry-consumer-*/**",
     ".lint*.out",

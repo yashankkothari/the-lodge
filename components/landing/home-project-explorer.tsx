@@ -35,8 +35,11 @@ export function HomeProjectExplorer({ projects = [], title }: ProjectExplorerPro
                     </span>
                   </div>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{project.description}</p>
+                  <span className="mt-2 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary">
+                    {projectsSectionConfig.featuredActions[project.id]}<ArrowUpRight aria-hidden="true" className="size-4" />
+                  </span>
                 </a>
-                <Link href={`/project/${project.id}`} className="micro-transition mt-3 inline-flex min-h-9 items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                <Link href={`/project/${project.id}`} className="micro-transition inline-flex min-h-11 items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
                   {projectsSectionConfig.caseStudyLabel}<ArrowUpRight aria-hidden="true" className="size-3" />
                 </Link>
               </article>

@@ -12,7 +12,7 @@
   pointer-events: none;
   background:
     linear-gradient(160deg, color-mix(in oklch, var(--glass-shine) 28%, transparent), transparent 40%, color-mix(in oklch, var(--glass-shine) 8%, transparent)),
-    color-mix(in oklch, var(--background) 58%, transparent);
+    color-mix(in oklch, var(--background) 86%, transparent);
   -webkit-backdrop-filter: blur(14px) saturate(150%);
   backdrop-filter: blur(14px) saturate(150%);
   box-shadow:

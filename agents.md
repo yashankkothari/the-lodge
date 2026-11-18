@@ -354,7 +354,8 @@ Deliberately **excluded**, leave these as authored:
   blur and saturation; reduced transparency uses an opaque surface. Keep the
   text and controls outside the distortion pass and retain 44px click targets.
 - Stack appears directly before Projects and keeps its technology logos in
-  their original colors. Home Projects shows only Savory and Pixonomy as visual
+  their original colors. On phones, Stack shows six featured tools and links
+  to Skills and tools on the Experience page. Home Projects shows only Savory and Pixonomy as visual
   preview cards; the full collection stays on `/portfolio`. The selection and
   previews are configured in `config/projects.ts`.
 - Now uses the book, vinyl sleeve, and game-disc treatments adapted from the
