@@ -106,15 +106,15 @@ export function Hero() {
 
   return (
     <motion.section
-      className="relative z-20 space-y-4 px-6 pt-4"
+      className="relative z-20 space-y-4 px-4 pt-4 sm:px-6"
       initial="hidden"
       animate="visible"
     >
-      <div className="flex items-start gap-3 sm:gap-5">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-2 sm:flex sm:items-start sm:gap-5">
         <div className={bannerStyles.profile}>
           <InteractiveSticker src={siteConfig.personal.avatar.src} alt={siteConfig.personal.avatar.alt} label={profileBannerConfig.profileLabel} tilt={-5} sizes="(max-width: 640px) 56px, 88px" soundSrc={profileBannerConfig.profileSoundSrc} />
         </div>
-        <div className="w-full min-w-0 space-y-2">
+        <div className="contents sm:block sm:w-full sm:min-w-0 sm:space-y-2">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <div className="flex min-w-0 items-center gap-1 text-xl  font-mono font-semibold tracking-wide sm:text-2xl">
             <VerseText
@@ -183,7 +183,7 @@ export function Hero() {
 
           <motion.h1
             data-reveal=""
-            className="no-js-visible text-base font-medium leading-snug tracking-tight text-balance"
+            className="no-js-visible col-span-full text-base font-medium leading-snug tracking-tight text-balance"
             variants={textVariants}
             custom={0.1}
           >
@@ -209,7 +209,7 @@ export function Hero() {
 
           <motion.p
             data-reveal=""
-            className="no-js-visible mt-2 text-sm text-muted-foreground max-sm:text-xs"
+            className="no-js-visible col-span-full text-sm text-muted-foreground sm:mt-2"
             variants={textVariants}
             custom={0.18}
           >

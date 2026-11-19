@@ -99,7 +99,7 @@ export function HeaderActions() {
                 setPaletteMounted(true);
                 setPaletteOpen(true);
               }}
-              className={`${styles.utility} ${styles.searchUtility} cursor-pointer`}
+              className={`${styles.utility} cursor-pointer`}
             >
               <span className={styles.utilityFace}><Search className="size-4" /></span>
             </button>

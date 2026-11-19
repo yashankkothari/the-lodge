@@ -407,7 +407,7 @@ export function CommandPalette({
                 // positioner's `pointer-events: none` intact and backdrop
                 // clicks reach the overlay instead of the positioner.
                 onClick={() => setOpen(false)}
-                className="fixed inset-0 z-50 bg-black/10 supports-backdrop-filter:backdrop-blur-xs"
+                className="fixed inset-0 z-[70] bg-black/10 supports-backdrop-filter:backdrop-blur-xs"
               />
             </DialogPrimitive.Overlay>
 
@@ -437,7 +437,7 @@ export function CommandPalette({
                 onPointerDown={(event) => {
                   if (event.target === event.currentTarget) setOpen(false);
                 }}
-                className="pointer-events-none fixed inset-0 z-50 grid place-items-center p-4 max-sm:place-items-end max-sm:p-0"
+                className="pointer-events-none fixed inset-0 z-[70] grid place-items-center p-4 max-sm:place-items-end max-sm:p-0"
               >
               <motion.div
                 initial={{ opacity: 0, scale: 0.98, y: 4 }}
@@ -449,7 +449,7 @@ export function CommandPalette({
                 }}
                 className={cn(
                   "pointer-events-auto flex max-h-[min(56vh,432px)] w-full max-w-[27.5rem] flex-col overflow-hidden rounded-xl bg-muted text-foreground shadow-xl ring-1 ring-inset ring-border",
-                  "max-sm:rounded-b-none max-sm:rounded-t-xl",
+                  "max-sm:max-h-[min(65dvh,432px)] max-sm:rounded-b-none max-sm:rounded-t-xl max-sm:pb-[env(safe-area-inset-bottom)]",
                   className,
                 )}
               >
@@ -498,7 +498,7 @@ export function CommandPalette({
                       }
                     }}
                     placeholder={currentPage?.placeholder ?? placeholder}
-                    className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
+                    className="h-12 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground/60 sm:text-sm"
                   />
                   {query ? (
                     <button

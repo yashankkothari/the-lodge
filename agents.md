@@ -342,7 +342,8 @@ Deliberately **excluded**, leave these as authored:
   Desktop uses the yk logo for Home, with consistently spaced text links and
   one focus target per destination. Small paper-cut icons are integrated beside
   the desktop labels. Search and theme use matching 16px icons on 44px targets
-  with transparent faces. Do not show an open-source or GitHub header button.
+  with transparent faces on desktop and mobile. Do not show an open-source or
+  GitHub header button.
   Mobile navigation is a fixed six-destination glass bar in
   `components/landing/bottom-nav.tsx`, with icons, readable labels, safe-area
   spacing, and an animated active pill. Navigation copy and destinations live in
