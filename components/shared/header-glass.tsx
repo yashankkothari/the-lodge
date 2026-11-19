@@ -25,7 +25,7 @@ function makeLens(width: number, height: number) {
       const length = Math.hypot(ox, oy);
       const distance = length + Math.min(Math.max(qx, qy), 0) - radius;
       const depth = Math.max(0, -distance);
-      const bend = Math.exp(-Math.pow(depth / (radius * 0.55), 2)) * 0.44;
+      const bend = Math.exp(-Math.pow(depth / (radius * 0.36), 2)) * 0.44;
       const nx = length > 0 ? (ox / length) * Math.sign(px) : 0;
       const ny = length > 0 ? (oy / length) * Math.sign(py) : Math.sign(py);
       const i = (y * canvas.width + x) * 4;
@@ -62,11 +62,11 @@ export function HeaderGlass({ className = "" }: { className?: string }) {
         <defs>
           <filter id={id} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
             {lens && <feImage href={lens.src} width="100%" height="100%" preserveAspectRatio="none" result="lens" />}
-            <feDisplacementMap in="SourceGraphic" in2="lens" scale="10" xChannelSelector="R" yChannelSelector="G" />
+            <feDisplacementMap in="SourceGraphic" in2="lens" scale="18" xChannelSelector="R" yChannelSelector="G" />
           </filter>
         </defs>
       </svg>
-      <div ref={ref} className={`${styles.glass} ${className}`} data-refractive={lens ? "true" : undefined} style={lens ? { backdropFilter: `url(#${id}) blur(3px) saturate(1.45)`, WebkitBackdropFilter: `url(#${id}) blur(3px) saturate(1.45)` } : undefined} aria-hidden="true" />
+      <div ref={ref} className={`${styles.glass} ${className}`} data-refractive={lens ? "true" : undefined} style={lens ? { backdropFilter: `url(#${id}) blur(4px) saturate(1.25)`, WebkitBackdropFilter: `url(#${id}) blur(4px) saturate(1.25)` } : undefined} aria-hidden="true" />
     </>
   );
 }
