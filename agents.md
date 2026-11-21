@@ -130,15 +130,13 @@ All types live in `config/types.ts`.
   `appleIcon`, `googleVerification`, `manifest`, `robots`, `sitemap`.
 - **`PersonalInfo`**: `fullName`, `firstName`, `avatar` (`src`, `alt`,
   `fallback`), `location` (`label`, `timeZone`), `githubUsername`.
-- **`HeroConfig`**: `greeting`, `waveEmoji`, `headlineBefore`,
-  `highlightedPhrases`, `headlineAfter`, `description`, `descriptionHighlight`.
-  The hero template always renders the word "in" between the two highlighted
-  phrases, so phrase two should read as a place or a state ("production").
+- **`HeroConfig`**: `greeting`, `waveEmoji`, `headline`, and `description`.
+  The hero's GitHub, LinkedIn, and email links reuse `socialsConfig`.
 - **`AboutConfig`**: fallback `title` and plain-text `body`. `config/site.ts`
   also exports `aboutGreetings` and typed `aboutItems` for the illustrated
   introduction. `body` is derived from those items so the text stays in sync.
 - **`SkillItem`**: `id`, `name`, `icon` (a `SkillIcon` key), `category`
-  (`language`, `data`, `backend`, `tools`), `order`, `enabled`.
+  (`language`, `data`, `backend`, `frontend`, `tools`), `order`, `enabled`.
 - **`SocialLink`**: `id`, `platform`, `handle`, `href`, `icon`, `order`,
   `enabled`, `action` (`copy`, `external`, `mailto`), `copyValue`,
   `shortcutKey`, `tooltipDefault`.
@@ -171,8 +169,8 @@ The home page is a loop, not a hand-written layout.
 - `github` is special: it is server-fetched, wrapped in React Suspense with
   `components/skeletons/github-skeleton.tsx`, and only rendered when
   `GITHUB_TOKEN` is present.
-- The current order is skills, projects, writing, socials, about, github, experience,
-  bookshelf, bookmarks, certifications. Services, workflow and contact exist but
+- The current order is projects, writing, socials, about, github, experience,
+  skills, bookshelf, bookmarks, certifications. Services, workflow and contact exist but
   are flagged off.
 
 To add a section:
@@ -356,7 +354,7 @@ Deliberately **excluded**, leave these as authored:
   highlights. Avoid RGB separation, which creates edge fringes. Its fallback uses translucent
   blur and saturation; reduced transparency uses an opaque surface. Keep the
   text and controls outside the distortion pass and retain 44px click targets.
-- Stack appears directly before Projects and keeps its technology logos in
+- Stack appears after Experience and keeps its technology logos in
   their original colors. On phones, Stack shows six featured tools and links
   to Skills and tools on the Experience page. Home Projects shows only Savory and Pixonomy as visual
   preview cards; the full collection stays on `/portfolio`. The selection and

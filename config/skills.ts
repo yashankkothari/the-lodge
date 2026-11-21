@@ -7,7 +7,6 @@ export const skillLogos: Partial<Record<SkillIcon, string>> = {
   cpp: "/images/stack/cplusplus.svg",
   airflow: "/images/stack/apacheairflow.svg",
   snowflake: "/images/uses/snowflake.svg",
-  oracle: "/images/stack/oracle.svg",
   postgres: "/images/stack/postgresql.svg",
   pandas: "/images/stack/pandas.svg",
   fastapi: "/images/stack/fastapi.svg",
@@ -28,6 +27,7 @@ export const skillsSectionConfig = {
     { id: "language", label: "Language" },
     { id: "data", label: "Data" },
     { id: "backend", label: "Backend" },
+    { id: "frontend", label: "Frontend" },
     { id: "tools", label: "Tools" },
   ] as SkillCategoryConfig[],
 };
@@ -52,10 +52,12 @@ export const skillsConfig: SkillItem[] = [
   // Backend
   { id: "fastapi", name: "FastAPI", icon: "fastapi", category: "backend", order: 13, enabled: true },
   { id: "nodejs", name: "Node.js", icon: "nodejs", category: "backend", order: 14, enabled: true },
-  { id: "react", name: "React", icon: "react", category: "backend", order: 15, enabled: true },
-  { id: "docker", name: "Docker", icon: "docker", category: "backend", order: 16, enabled: true },
+
+  // Frontend
+  { id: "react", name: "React", icon: "react", category: "frontend", order: 15, enabled: true },
 
   // Tools
+  { id: "docker", name: "Docker", icon: "docker", category: "tools", order: 16, enabled: true },
   { id: "aws", name: "AWS", icon: "aws", category: "tools", order: 17, enabled: true },
   { id: "git", name: "Git", icon: "git", category: "tools", order: 18, enabled: true },
   { id: "linux", name: "Linux", icon: "linux", category: "tools", order: 19, enabled: true },

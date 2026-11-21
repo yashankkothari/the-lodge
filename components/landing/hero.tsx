@@ -2,8 +2,10 @@
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { VerseText } from "@/components/verse-text";
-import { WritingUnderline } from "./writing-underline";
-import { heroConfig } from "@/config/hero";
+import { heroConfig, heroContactLinks } from "@/config/hero";
+import { ListTodo, Message } from "@/components/shared/site-icons";
+import Link from "next/link";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { siteConfig } from "@/config/site";
 import { trackEvent } from "@/lib/analytics";
 import { MOTION_EASE } from "@/lib/motion";
@@ -14,6 +16,13 @@ import { useHaptic } from "react-haptic";
 import { profileBannerConfig } from "@/config/profile-banner";
 import { InteractiveSticker } from "./interactive-sticker";
 import bannerStyles from "./profile-banner.module.css";
+
+const contactIcons = {
+  github: FaGithub,
+  linkedin: FaLinkedin,
+  email: Message,
+  resume: ListTodo,
+};
 
 // Keep blur on the text itself, so the banner and section shell stay sharp.
 const textVariants: Variants = {
@@ -50,15 +59,6 @@ export function Hero() {
   const [isLocationHovered, setIsLocationHovered] = useState(false);
   const [isLocationTooltipOpen, setIsLocationTooltipOpen] = useState(false);
   const [locationTime, setLocationTime] = useState<string | null>(null);
-
-  const [beforeHighlight, afterHighlight] = heroConfig.description.split(
-    heroConfig.descriptionHighlight,
-  );
-  const headlineAfter = heroConfig.headlineAfter
-    ? /^[.,!?;:]/.test(heroConfig.headlineAfter)
-      ? heroConfig.headlineAfter
-      : ` ${heroConfig.headlineAfter}`
-    : "";
 
   const handleWaveAudio = (play: boolean, interactionType: "hover" | "touch" = "hover") => {
     const audio = vibrateAudio.current;
@@ -134,7 +134,8 @@ export function Hero() {
               className="no-js-visible inline-block"
             >
               <span
-                className="inline-block text-xl hover:animate-wave"
+                aria-hidden="true"
+                className="inline-block text-base text-primary/70 motion-safe:hover:animate-wave"
                 onMouseEnter={() => {
                   vibrate();
                   handleWaveAudio(true, "hover");
@@ -187,24 +188,7 @@ export function Hero() {
             variants={textVariants}
             custom={0.1}
           >
-            <span className="whitespace-nowrap">
-              {heroConfig.headlineBefore}{" "}
-              <span className="underline decoration-border/50 underline-offset-4 sm:hidden">
-                {heroConfig.highlightedPhrases[0]}
-              </span>
-              <span className="hidden sm:inline">
-                <WritingUnderline delay={0.22}>
-                  {heroConfig.highlightedPhrases[0]}
-                </WritingUnderline>
-              </span>
-            </span>{" "}
-            <span className="whitespace-nowrap">
-              in{" "}
-              <WritingUnderline delay={0.36}>
-                {heroConfig.highlightedPhrases[1]}
-              </WritingUnderline>
-            </span>
-            {headlineAfter}
+            {heroConfig.headline}
           </motion.h1>
 
           <motion.p
@@ -213,19 +197,24 @@ export function Hero() {
             variants={textVariants}
             custom={0.18}
           >
-            {afterHighlight === undefined ? (
-              heroConfig.description
-            ) : (
-              <>
-                {beforeHighlight}
-                <span className="underline decoration-border/50 underline-offset-4">
-                  {heroConfig.descriptionHighlight}
-                </span>
-                {afterHighlight}
-              </>
-            )}
+            {heroConfig.description}
           </motion.p>
 
+          <div className="col-span-full flex flex-wrap gap-x-1 sm:gap-x-2">
+            {heroContactLinks.map(({ icon, label, href }) => {
+              const Icon = contactIcons[icon];
+              return (
+                <Link
+                  key={icon}
+                  href={href}
+                  className="micro-transition inline-flex min-h-11 items-center gap-1 rounded-sm px-0.5 text-xs text-muted-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-ring sm:gap-1.5 sm:px-1"
+                >
+                  <Icon size={14} aria-hidden="true" />
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </div>
 

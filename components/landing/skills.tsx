@@ -92,7 +92,6 @@ function OracleIcon({ size }: IconProps) {
         stroke="currentColor"
         strokeWidth="2.4"
       />
-      <ellipse cx="12" cy="12" rx="10" ry="6" fill="currentColor" opacity="0.16" />
     </svg>
   );
 }
@@ -149,14 +148,14 @@ function SkillChip({ skill }: { skill: SkillItem }) {
   // Deliberately no hover:/focus-visible: styles here. These chips are labels,
   // not controls: there is nothing to click and nothing to focus.
   const chipClasses =
-    "no-js-visible inline-flex items-center gap-1.5 rounded-lg border border-dashed px-3 py-1 text-sm text-muted-foreground";
+    "no-js-visible inline-flex items-center gap-1.5 rounded-lg border border-dashed px-2 py-1 text-xs text-muted-foreground md:text-sm";
 
   return (
     <div className={chipClasses} aria-label={skill.name}>
       {skillLogos[skill.icon] ? (
         <Image src={skillLogos[skill.icon]!} alt="" width={18} height={18} className="size-[18px] shrink-0 object-contain" />
       ) : (
-        <span className={skill.icon === "dbt" || skill.icon === "plsql" ? "text-destructive" : skill.icon === "aws" ? "text-chart-4" : "text-primary"}><Icon size="18" /></span>
+        <span className={skill.icon === "dbt" || skill.icon === "plsql" || skill.icon === "oracle" ? "text-destructive" : skill.icon === "aws" ? "text-chart-4" : "text-primary"}><Icon size="18" /></span>
       )}
       <span className="font-medium">{skill.name}</span>
     </div>
@@ -193,15 +192,15 @@ export function Skills() {
           <div
             key={category.id}
             className={cn(
-              "hidden flex-col gap-2.5 sm:flex border-b px-6 py-3.5 sm:flex-row sm:items-center sm:gap-6",
+              "hidden flex-col gap-2 border-b px-6 py-3.5 sm:flex md:flex-row md:items-center md:gap-3",
               groupIndex === categories.length - 1 ? "border-none" : "",
             )}
           >
-            <span className="w-36 shrink-0 font-mono text-xs tracking-wider text-muted-foreground">
-              {`0${groupIndex + 1}`.padStart(2, "0") + " " + category.label}
+            <span className="w-[5.5rem] shrink-0 font-mono text-xs text-muted-foreground">
+              {category.label}
             </span>
 
-            <div className="flex flex-1 flex-wrap gap-2">
+            <div className="flex flex-1 flex-wrap gap-1.5">
               {categorySkills.map((skill) => (
                 <SkillChip key={skill.id} skill={skill} />
               ))}

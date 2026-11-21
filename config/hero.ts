@@ -1,13 +1,19 @@
 import type { HeroConfig } from "@/config/types";
 import { MdWavingHand } from "react-icons/md";
+import { socialsConfig } from "./socials";
 
 export const heroConfig: HeroConfig = {
   greeting: "Yashank Kothari",
   waveEmoji: MdWavingHand,
-  headlineBefore: "I build",
-  highlightedPhrases: ["data pipelines", "production"],
-  headlineAfter: ".",
+  headline: "I build data pipelines in production.",
   description:
-    "Data engineer in Mumbai. I work on ETL pipelines, reporting workflows, reconciliation, and applied AI/ML. Outside work, I build software like Savory and Pixonomy.",
-  descriptionHighlight: "build software",
+    "My day job is reporting and reconciliation. On the side, I build Savory and Pixonomy.",
 };
+
+export const heroContactLinks = [
+  ...(["github", "linkedin", "email"] as const).flatMap((icon) => {
+    const social = socialsConfig.find(({ id, enabled }) => id === icon && enabled !== false);
+    return social?.href ? [{ icon, label: social.platform, href: social.href }] : [];
+  }),
+  { icon: "resume", label: "Resume", href: "/resume" },
+] as const;

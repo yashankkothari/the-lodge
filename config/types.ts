@@ -82,11 +82,8 @@ export interface PersonalInfo {
 export interface HeroConfig {
   greeting: string;
   waveEmoji: string | React.ElementType;
-  headlineBefore: string;
-  highlightedPhrases: [string, string];
-  headlineAfter: string;
+  headline: string;
   description: string;
-  descriptionHighlight: string;
 }
 
 export interface ProfileBannerSticker {
@@ -128,6 +125,7 @@ export type SkillCategory =
   | "language"
   | "data"
   | "backend"
+  | "frontend"
   | "tools";
 export interface SkillCategoryConfig {
   id: SkillCategory;
