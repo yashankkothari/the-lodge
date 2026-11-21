@@ -9,13 +9,17 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  --portrait-shadow: var(--foreground);
+  --portrait-shadow: var(--primary);
   --portrait-light: var(--background);
+  --portrait-dither-steps: 1;
+  --portrait-dither-strength: 0.82;
 }
 
 :global(.dark) .photo {
   --portrait-shadow: var(--background);
   --portrait-light: var(--foreground);
+  --portrait-dither-steps: 3;
+  --portrait-dither-strength: 0.55;
 }
 
 .photoFallback,

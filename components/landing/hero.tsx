@@ -122,7 +122,7 @@ export function Hero() {
               className="font-serif"
               style={
                 {
-                  "--vt-ink": "var(--foreground)",
+                  "--vt-ink": "var(--hero-name-ink)",
                   "--vt-blend": "var(--verse-text-blend, multiply)",
                   "--vt-leading": "inherit",
                 } as CSSProperties

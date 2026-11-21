@@ -316,8 +316,10 @@ Deliberately **excluded**, leave these as authored:
   background transparent and invert the dark ink in dark mode.
 - The full banner is the supplied real photograph of Steve Jobs with a
   Macintosh, credited to Norman Seeff in `config/profile-banner.ts`.
-  `dither-photo.tsx` applies a WebGL ordered Bayer shader with four gray tones
-  and a partial blend to preserve recognition. Render only on image load,
+  Light mode uses cobalt ink on off-white paper, including the hero name and
+  the banner. `dither-photo.tsx` uses a WebGL ordered Bayer shader with a
+  stronger two-tone print in light mode and a softer four-tone grayscale
+  treatment in dark mode. Both blend with the source to retain detail. Render only on image load,
   resize, and theme changes, with the original photo as the no-JavaScript,
   unsupported-WebGL, and context-loss fallback. Never replace it with generated
   portrait artwork.

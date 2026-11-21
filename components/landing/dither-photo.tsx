@@ -19,6 +19,8 @@ uniform sampler2D uPhoto;
 uniform vec2 uResolution;
 uniform float uImageAspect;
 uniform float uPixel;
+uniform float uDitherSteps;
+uniform float uDitherStrength;
 uniform vec3 uShadow;
 uniform vec3 uLight;
 varying vec2 vUv;
@@ -36,9 +38,8 @@ void main() {
   uv += vec2((1.0 - crop.x) * 0.5, (1.0 - crop.y) * 0.9);
   vec3 photo = texture2D(uPhoto, uv).rgb;
   float luminance = dot(photo, vec3(0.299, 0.587, 0.114));
-  // Four tones and a partial blend retain the face instead of crushing it to one bit.
-  float dithered = floor(luminance * 3.0 + bayer4(mod(pixel, 4.0))) / 3.0;
-  float ink = mix(luminance, dithered, 0.55);
+  float dithered = floor(luminance * uDitherSteps + bayer4(mod(pixel, 4.0))) / uDitherSteps;
+  float ink = mix(luminance, dithered, uDitherStrength);
   gl_FragColor = vec4(mix(uShadow, uLight, ink), 1.0);
 }`;
 
@@ -102,7 +103,8 @@ export function DitherPhoto() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.uniform1i(gl.getUniformLocation(program, "uPhoto"), 0);
-    const locations = Object.fromEntries(["uResolution", "uImageAspect", "uPixel", "uShadow", "uLight"].map((name) => [name, gl.getUniformLocation(program, name)]));
+    const uniforms = ["uResolution", "uImageAspect", "uPixel", "uDitherSteps", "uDitherStrength", "uShadow", "uLight"];
+    const locations = Object.fromEntries(uniforms.map((name) => [name, gl.getUniformLocation(program, name)]));
     const sample = document.createElement("canvas");
     sample.width = sample.height = 1;
     const colorContext = sample.getContext("2d");
@@ -126,6 +128,8 @@ export function DitherPhoto() {
       gl.uniform2f(locations.uResolution, canvas.width, canvas.height);
       gl.uniform1f(locations.uImageAspect, source.naturalWidth / source.naturalHeight);
       gl.uniform1f(locations.uPixel, ratio * 0.85);
+      gl.uniform1f(locations.uDitherSteps, Number(colors.getPropertyValue("--portrait-dither-steps")));
+      gl.uniform1f(locations.uDitherStrength, Number(colors.getPropertyValue("--portrait-dither-strength")));
       gl.uniform3fv(locations.uShadow, resolveColor(colors.getPropertyValue("--portrait-shadow")));
       gl.uniform3fv(locations.uLight, resolveColor(colors.getPropertyValue("--portrait-light")));
       gl.drawArrays(gl.TRIANGLES, 0, 6);
