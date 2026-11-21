@@ -1,13 +1,13 @@
 import { aboutGreetings, aboutItems, siteConfig } from "@/config/site";
 import { AboutGreeting } from "./about-greeting";
 import { AboutIllustration } from "./about-illustration";
-import { AboutMascots } from "./about-mascots";
+import { AboutPixelPipeline } from "./about-pixel-pipeline";
 
 export const About = () => {
   return (
     <section className="no-js-visible border-t border-dashed pt-14">
       <div className="relative mb-3">
-        <AboutMascots />
+        <AboutPixelPipeline />
         <h2 className="section-heading px-[21px] py-px font-serif text-[25px] leading-8 font-medium italic">
           <AboutGreeting
             fallback={siteConfig.about.title}

@@ -282,11 +282,10 @@ Deliberately **excluded**, leave these as authored:
   render immediately without scroll entrances. About and Skills stay Server
   Components. About's greeting is a small client component that uses the
   visitor's local time, with a stable server fallback.
-- Two textured SVG mascots peek over that greeting band from
-  `components/landing/about-mascots.tsx`. Clicking either ducks and swaps it
-  between the cube, star, cloud, blob, flower, and Claude variants. Eye tracking
-  is limited to fine pointers, and reduced motion swaps instantly. The About
-  section has 56px top padding to clear them.
+- A decorative pixel-art terminal and server sit above the greeting band in
+  `components/landing/about-pixel-pipeline.tsx`. Packets travel between them
+  once on entry into view. Reduced motion shows the static scene. The About
+  section has 56px top padding to clear the artwork.
 - Keep interaction motion such as folder expansion and hover previews. The
   GitHub contribution calendar fades in with a subtle scale settle when its
   server-loaded content mounts inside the existing Suspense boundary. The
@@ -404,8 +403,8 @@ background tile or redrawing the product. Respect reduced motion for hover lifts
 
 Every illustration uses the `PaperCutIcon` base in
 `components/shared/paper-cut-icons.tsx`: muted ink outline, paper edge, offset
-print shadow, halftone dots, and a restrained blue plus one warm accent. The
-same recipe draws the desk stickers, the About mascots, the How I Work icons,
+  print shadow, halftone dots, and a restrained blue plus one warm accent. The
+  same recipe draws the desk stickers, the How I Work icons,
 the Discord activity icons, and the project explorer's year folders. Keep the
 illustrations free of background tiles.
 
